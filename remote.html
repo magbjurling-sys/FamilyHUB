@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Familiehub – Stjerner</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: #0a0a0f; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; color: #fff; overscroll-behavior: none; }
+body { padding: max(18px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); display: flex; flex-direction: column; gap: 18px; min-height: 100vh; min-height: 100dvh; }
+
+.head { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.title { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; }
+.title small { display: block; font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.5); margin-top: 3px; }
+.conn { font-size: 13px; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); white-space: nowrap; }
+.conn.ok  { background: rgba(74,222,128,0.15); border-color: rgba(74,222,128,0.35); color: #86efac; }
+.conn.err { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.35); color: #fca5a5; }
+
+.people { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; flex: 1; }
+@media (max-width: 820px) and (orientation:portrait) {
+  .people { grid-template-columns: 1fr 1fr; }
+  .person[data-p="pappa"] { grid-column: 1 / span 2; }
+}
+@media (max-width: 600px) { .people { grid-template-columns: 1fr; } .person[data-p="pappa"] { grid-column: auto; } }
+
+.person { background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px; }
+.p-head { text-align: center; padding-bottom: 10px; border-bottom: 0.5px solid rgba(255,255,255,0.08); }
+.p-emoji { font-size: 40px; line-height: 1; margin-bottom: 4px; }
+.p-name { font-size: 22px; font-weight: 700; }
+.p-total { font-size: 14px; color: rgba(255,255,255,0.55); margin-top: 3px; font-variant-numeric: tabular-nums; }
+
+.cat { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border-left: 4px solid var(--c, #fff); }
+.cat-name { font-size: 14px; font-weight: 600; color: var(--c, #fff); line-height: 1.25; }
+.cat-stars { display: flex; gap: 4px; justify-content: space-between; }
+.cat-stars svg { flex: 1; max-width: 30px; height: auto; }
+.cat-actions { display: grid; grid-template-columns: 1fr 56px; gap: 6px; }
+.btn { touch-action: manipulation; appearance: none; border: none; padding: 14px 8px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.08s, background 0.15s; font-family: inherit; }
+.btn:active { transform: scale(0.94); }
+.btn.give { background: #fbbf24; color: #0a0a0f; }
+.btn.give:disabled { background: rgba(251,191,36,0.18); color: rgba(255,255,255,0.3); cursor: default; }
+.btn.take { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 0.5px solid rgba(255,255,255,0.15); font-size: 20px; padding: 14px 0; }
+.btn.take:disabled { opacity: 0.3; cursor: default; }
+
+.toast { position: fixed; bottom: max(20px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) translateY(40px); background: rgba(74,222,128,0.95); color: #0a0a0f; padding: 14px 28px; border-radius: 999px; font-weight: 700; font-size: 16px; opacity: 0; transition: transform 0.3s, opacity 0.3s; pointer-events: none; z-index: 200; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.pair { max-width: 380px; margin: auto; padding: 30px 24px; text-align: center; display: flex; flex-direction: column; gap: 18px; }
+.pair h2 { font-size: 22px; font-weight: 600; }
+.pair p { color: rgba(255,255,255,0.55); font-size: 14px; }
+.pair input { font-size: 32px; padding: 16px; text-align: center; letter-spacing: 8px; background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.15); border-radius: 12px; color: #fff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; -webkit-appearance: none; }
+.pair button { padding: 16px; border-radius: 12px; background: #60a5fa; color: #0a0a0f; font-size: 17px; font-weight: 700; border: none; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="title">Stjerner ⭐<small>Trykk på din egen rute – pappa får kun for å være rolig</small></div>
+  <div class="conn" id="conn">kobler til…</div>
+</div>
+
+<div class="people" id="bodies"></div>
+
+<div class="toast" id="toast">Stjerne sendt ⭐</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+let pairCode = params.get('c');
+
+if (!pairCode) {
+  // Vis paringsskjerm
+  document.body.innerHTML = `<div class="pair">
+    <h2>Skann QR-kode på TV-en</h2>
+    <p>eller skriv inn 6-sifret kode som vises på TV-skjermen</p>
+    <input id="codeIn" type="tel" inputmode="numeric" maxlength="6" placeholder="——————">
+    <button onclick="(()=>{const v=document.getElementById('codeIn').value.trim();if(v.length===6)location.search='?c='+v;})()">Koble til</button>
+  </div>`;
+} else {
+
+const cats = ['God morgenrutine', 'God kveldsrutine', 'Høre på beskjeder'];
+const catColors = ['#fbbf24', '#a78bfa', '#4ade80'];
+const PAPPA_CAT = 'Rolig – ingen kjefting';
+const PAPPA_COLOR = '#60a5fa';
+const STARS_MAX = 5;
+
+const BROKER = 'wss://broker.hivemq.com:8884/mqtt';
+const TOPIC = 'familiehub/' + pairCode + '/state';
+const TOPIC_CMD = 'familiehub/' + pairCode + '/cmd';
+let mqttClient = null;
+let stars = { emma: {}, nora: {}, pappa: {} };
+
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+function setConn(cls,txt){const el=document.getElementById('conn');el.className='conn '+cls;el.textContent=txt;}
+function showToast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1400);}
+function star(filled){const f=filled?'#fbbf24':'none',s=filled?'#fbbf24':'rgba(255,255,255,0.22)';return `<svg viewBox="0 0 20 20"><polygon points="10,2 12.4,7.4 18,7.8 13.8,11.6 15.2,17 10,14 4.8,17 6.2,11.6 2,7.8 7.6,7.4" fill="${f}" stroke="${s}" stroke-width="1.4"/></svg>`;}
+
+function render(){
+  const wrap = document.getElementById('bodies');
+  const people = [
+    {key:'emma',  emoji:'👧', label:'Emma', age:'6 år',              cats:cats,        colors:catColors},
+    {key:'nora',  emoji:'🧒', label:'Nora', age:'4 år',              cats:cats,        colors:catColors},
+    {key:'pappa', emoji:'👨', label:'Pappa', age:'rolig & tålmodig', cats:[PAPPA_CAT], colors:[PAPPA_COLOR]},
+  ];
+  wrap.innerHTML = people.map(p => {
+    const total = p.cats.reduce((s,c) => s + Math.min(stars[p.key][c]||0, STARS_MAX), 0);
+    const max = p.cats.length * STARS_MAX;
+    return `<div class="person" data-p="${p.key}">
+      <div class="p-head">
+        <div class="p-emoji">${p.emoji}</div>
+        <div class="p-name">${p.label}</div>
+        <div class="p-total">${p.age} · ${total}/${max} ⭐</div>
+      </div>
+      ${p.cats.map((cat,i) => {
+        const c = Math.min(stars[p.key][cat]||0, STARS_MAX);
+        const safe = cat.replace(/'/g,"\\'");
+        return `<div class="cat" style="--c:${p.colors[i]}">
+          <div class="cat-name">${cat}</div>
+          <div class="cat-stars">${Array.from({length:STARS_MAX},(_,j)=>star(j<c)).join('')}</div>
+          <div class="cat-actions">
+            <button class="btn give" ${c>=STARS_MAX?'disabled':''} onclick="give('${p.key}','${safe}')">+ Stjerne</button>
+            <button class="btn take" ${c<=0?'disabled':''} onclick="take('${p.key}','${safe}')">−</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+window.give = function(child, cat){
+  if(!mqttClient || !mqttClient.connected){ showToast('ikke tilkoblet'); return; }
+  mqttClient.publish(TOPIC_CMD, JSON.stringify({action:'add', child, cat}));
+  showToast('Stjerne sendt ⭐');
+  if(navigator.vibrate) navigator.vibrate(15);
+};
+window.take = function(child, cat){
+  if(!mqttClient || !mqttClient.connected){ showToast('ikke tilkoblet'); return; }
+  mqttClient.publish(TOPIC_CMD, JSON.stringify({action:'sub', child, cat}));
+  if(navigator.vibrate) navigator.vibrate(8);
+};
+
+(async () => {
+  render();
+  try {
+    await loadScript('https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js');
+    mqttClient = mqtt.connect(BROKER, {clientId:'fhub-r-'+Math.random().toString(16).slice(2,8), reconnectPeriod:3000, connectTimeout:8000});
+    mqttClient.on('connect', () => { setConn('ok','tilkoblet'); mqttClient.subscribe(TOPIC); });
+    mqttClient.on('reconnect', () => setConn('','kobler til…'));
+    mqttClient.on('error',     () => setConn('err','feil'));
+    mqttClient.on('offline',   () => setConn('err','offline'));
+    mqttClient.on('message', (topic, payload) => {
+      try {
+        const msg = JSON.parse(payload.toString());
+        if (topic === TOPIC && msg.stars) {
+          stars = Object.assign({emma:{},nora:{},pappa:{}}, msg.stars);
+          render();
+        }
+      } catch(e){ console.warn(e); }
+    });
+  } catch(e){ setConn('err','ingen forbindelse'); console.error(e); }
+})();
+
+}
+</script>
+</body>
+</html>
