@@ -221,7 +221,7 @@
   #mode-toggle{position:fixed;bottom:18px;right:18px;z-index:50;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:99px;color:var(--soft);font-family:'Fredoka';font-weight:500;font-size:13px;padding:8px 16px;cursor:pointer;backdrop-filter:blur(10px)}
   #mode-toggle:hover{background:rgba(255,255,255,.12)}
 
-  @media(max-width:900px){
+  @media(max-width:1100px){
     .tv{display:none!important}
     .remote{display:block!important}
   }
@@ -519,8 +519,10 @@ function isHome(){return state.manualMode!==null?state.manualMode:autoHome()}
 
 /* ════════ MODE DETECTION ════════ */
 const url=new URL(location.href);
-const isPhone=url.hash.includes('remote')||url.searchParams.get('m')==='r'||window.innerWidth<900;
-let pairCode=url.searchParams.get('c')||localStorage.getItem('fhub_pair')||null;
+const hashMatch=url.hash.match(/remote-([a-z0-9]+)/i);
+const qParam=url.searchParams.get('m')==='r'||!!url.searchParams.get('c');
+const isPhone=!!hashMatch||qParam||url.hash.includes('remote')||window.innerWidth<1100;
+let pairCode=(hashMatch?hashMatch[1].toUpperCase():null)||url.searchParams.get('c')||(isPhone?localStorage.getItem('fhub_pair'):null)||(!isPhone?localStorage.getItem('fhub_pair'):null)||null;
 
 /* ════════ MQTT (telefon ↔ TV) ════════ */
 let mqttClient=null;
@@ -817,9 +819,10 @@ function makeQR(){
   const canvas=document.getElementById('qr');
   if(!canvas) return;
   const isFile=location.protocol==='file:';
-  const remoteUrl=isFile
-    ? 'https://example.com/familiehub?m=r&c='+pairCode
-    : location.origin+location.pathname+'?m=r&c='+pairCode;
+  const base=isFile
+    ? 'https://example.com/familiehub'
+    : location.origin+location.pathname+location.search;
+  const remoteUrl=base+'#remote-'+pairCode;
   const opts={width:120,margin:1,color:{dark:'#1a103d',light:'#ffffff'}};
   const fallback=()=>{
     const img=new Image();
