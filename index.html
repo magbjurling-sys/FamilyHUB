@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Familiehub ✨</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/mqtt@5.3.4/dist/mqtt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<style>
+  :root{
+    --bg-1:#1b1147; --bg-2:#3a1d6e; --bg-3:#0f0a2e;
+    --pink:#ff7ac6; --yellow:#ffd246; --mint:#4ade80; --sky:#5ec8ff;
+    --lilac:#b693ff; --peach:#ffb380; --cream:#fff6e6;
+    --ink:#1a103d; --soft:rgba(255,255,255,.78); --dim:rgba(255,255,255,.45);
+    --card:rgba(255,255,255,.07); --line:rgba(255,255,255,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg-3);font-family:'Nunito',system-ui,sans-serif;color:#fff;overflow:hidden;-webkit-font-smoothing:antialiased}
+  body{background:radial-gradient(1200px 800px at 15% 10%,#4a2589 0%,transparent 60%),radial-gradient(1000px 700px at 85% 90%,#7c3aed33 0%,transparent 55%),linear-gradient(160deg,var(--bg-1) 0%,var(--bg-3) 100%)}
+
+  /* floating background blobs */
+  .bg-blob{position:fixed;border-radius:50%;filter:blur(60px);opacity:.45;pointer-events:none;z-index:0;animation:float 18s ease-in-out infinite}
+  .bg-blob.b1{width:520px;height:520px;background:#ff7ac6;top:-120px;left:-120px;animation-delay:0s}
+  .bg-blob.b2{width:600px;height:600px;background:#5ec8ff;bottom:-180px;right:-160px;animation-delay:-6s}
+  .bg-blob.b3{width:380px;height:380px;background:#ffd246;top:40%;left:42%;opacity:.18;animation-delay:-12s}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.06)}}
+
+  /* tiny floating sparkles across screen */
+  .sparkle{position:fixed;font-size:18px;opacity:.5;pointer-events:none;z-index:1;animation:drift 14s linear infinite;color:#fff}
+  @keyframes drift{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(-110vh) rotate(360deg)}}
+
+  /* ─── TV layout 1920×1080 ─── */
+  .tv{position:relative;z-index:2;width:100vw;height:100vh;display:none}
+  .tv.active{display:block}
+  .stage{position:absolute;inset:0;display:grid;grid-template-columns:1.05fr 1.4fr 1fr;grid-template-rows:auto 1fr auto auto;gap:20px;padding:24px}
+
+  /* shared cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:32px;padding:28px;backdrop-filter:blur(14px);box-shadow:0 20px 60px -30px rgba(0,0,0,.5)}
+  .card.glow{background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.04))}
+  .label{font-family:'Fredoka';font-weight:600;font-size:18px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+
+  /* hero clock card */
+  .hero{grid-column:1/2;grid-row:1/2;display:flex;flex-direction:column;justify-content:center}
+  .clock{font-family:'Fredoka';font-weight:600;font-size:108px;line-height:.95;letter-spacing:-3px;background:linear-gradient(135deg,#fff,#ffd246 60%,#ff7ac6);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 60px rgba(255,210,70,.18)}
+  .date{font-family:'Fredoka';font-weight:500;font-size:26px;color:var(--soft);margin-top:6px;text-transform:capitalize}
+  .weather-row{display:flex;gap:14px;margin-top:18px;align-items:center;color:var(--dim);font-size:18px;font-weight:700}
+
+  /* photo carousel - middle top */
+  .photo{grid-column:2/3;grid-row:1/2;border-radius:32px;overflow:hidden;position:relative;min-height:300px;background:#000}
+  .photo .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:140px;opacity:0;transition:opacity 1.2s ease, transform 8s ease}
+  .photo .slide.on{opacity:1;transform:scale(1.06)}
+  .photo .caption{position:absolute;left:24px;bottom:20px;font-family:'Fredoka';font-weight:600;font-size:24px;background:rgba(0,0,0,.35);padding:10px 18px;border-radius:18px;backdrop-filter:blur(10px)}
+  .photo .dots{position:absolute;right:20px;bottom:20px;display:flex;gap:6px}
+  .photo .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35)}
+  .photo .dot.on{background:#fff;width:24px;border-radius:6px;transition:all .4s}
+
+  /* sleep / next card */
+  .next{grid-column:3/4;grid-row:1/2;display:flex;flex-direction:column;gap:18px}
+  .next-row{display:flex;align-items:center;gap:18px}
+  .next-emoji{font-size:54px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4));animation:bob 3s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .next-name{font-family:'Fredoka';font-weight:600;font-size:30px;line-height:1.1}
+  .next-time{font-size:18px;color:var(--soft);margin-top:4px;font-weight:700}
+  .moons{display:flex;gap:6px;align-items:center;font-size:32px;margin-top:6px}
+  .moons .num{font-family:'Fredoka';font-weight:700;font-size:64px;color:var(--sky);line-height:1}
+  .moons .num.swap{color:var(--pink)}
+  .swap-text{font-size:16px;color:var(--dim);margin-top:4px;font-weight:700}
+
+  /* stars board – big middle */
+  .board{grid-column:1/3;grid-row:2/3;display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+  .child{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:28px;padding:20px 22px;overflow:hidden}
+  .child.emma{box-shadow:inset 0 0 0 2px rgba(255,210,70,.18)}
+  .child.nora{box-shadow:inset 0 0 0 2px rgba(255,122,198,.22)}
+  .child.pappa{box-shadow:inset 0 0 0 2px rgba(94,200,255,.22)}
+  .child-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;box-shadow:0 8px 24px -8px rgba(0,0,0,.5)}
+  .avatar.emma{background:linear-gradient(135deg,#ffd246,#ff9f43)}
+  .avatar.nora{background:linear-gradient(135deg,#ff7ac6,#b693ff)}
+  .avatar.pappa{background:linear-gradient(135deg,#5ec8ff,#4ade80)}
+  .child-name{font-family:'Fredoka';font-weight:700;font-size:30px;line-height:1}
+  .child-age{font-size:14px;color:var(--dim);font-weight:700;margin-top:2px}
+  .total{margin-left:auto;text-align:right}
+  .total .n{font-family:'Fredoka';font-weight:700;font-size:40px;line-height:1;background:linear-gradient(135deg,#ffd246,#ff7ac6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .total .t{font-size:11px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+
+  .cat{display:flex;flex-direction:column;gap:6px;padding:9px 12px;border-radius:16px;margin-bottom:7px;background:rgba(0,0,0,.2);transition:all .25s}
+  .cat:last-child{margin-bottom:0}
+  .cat-pill{align-self:flex-start;font-size:11px;font-weight:800;color:#1a103d;padding:4px 10px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+  .cat-stars{display:flex;gap:4px;justify-content:flex-start}
+  .star{font-size:22px;line-height:1;filter:grayscale(1) opacity(.25);transition:all .35s}
+  .star.on{filter:none;animation:pop .55s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes pop{0%{transform:scale(0) rotate(-180deg)}100%{transform:scale(1) rotate(0)}}
+  .cat-name{font-family:'Fredoka';font-weight:600;font-size:18px;color:#fff}
+
+  .reward{margin-top:16px;padding:14px 18px;background:linear-gradient(120deg,rgba(255,210,70,.18),rgba(255,122,198,.18));border:1px solid rgba(255,210,70,.4);border-radius:20px;display:none;align-items:center;gap:14px;animation:cheer 1s}
+  .reward.on{display:flex}
+  @keyframes cheer{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+  .reward-emoji{font-size:46px;animation:wiggle 1.4s ease-in-out infinite}
+  @keyframes wiggle{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+  .reward-text{font-family:'Fredoka';font-weight:600;font-size:22px}
+
+  /* right column – routines */
+  .routines{grid-column:3/4;grid-row:2/3;display:flex;flex-direction:column;overflow:hidden}
+  .tabs{display:flex;gap:8px;margin-bottom:14px}
+  .tab{flex:1;text-align:center;padding:10px 0;border-radius:14px;font-family:'Fredoka';font-weight:600;font-size:16px;color:var(--dim);background:rgba(0,0,0,.2);cursor:pointer;transition:all .2s}
+  .tab.on{background:linear-gradient(135deg,var(--pink),var(--lilac));color:#fff;box-shadow:0 8px 20px -10px var(--pink)}
+  .rlist{flex:1;overflow-y:auto;padding-right:6px}
+  .rlist::-webkit-scrollbar{width:6px} .rlist::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
+  .ri{display:flex;align-items:center;gap:14px;padding:12px 14px;margin-bottom:8px;background:rgba(0,0,0,.2);border-radius:16px;transition:all .25s}
+  .ri.done{background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.25)}
+  .ri-emoji{font-size:30px;flex-shrink:0;width:42px;text-align:center}
+  .ri-text{flex:1;font-size:18px;font-weight:700;color:var(--soft);line-height:1.2}
+  .ri.done .ri-text{text-decoration:line-through;color:var(--dim)}
+  .ri-time{font-family:'Fredoka';font-weight:600;font-size:16px;color:var(--yellow)}
+  .ri-check{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:18px;color:transparent;transition:all .3s}
+  .ri.done .ri-check{background:var(--mint);border-color:var(--mint);color:#0c2818}
+
+  /* bottom strip */
+  .events{grid-column:1/3;grid-row:3/4;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .event{flex:1;min-width:160px;padding:14px 18px;background:var(--card);border:1px solid var(--line);border-radius:20px;display:flex;align-items:center;gap:14px}
+  .event-emoji{font-size:32px}
+  .event-name{font-family:'Fredoka';font-weight:600;font-size:18px;line-height:1.1}
+  .event-time{font-size:13px;color:var(--dim);font-weight:700;margin-top:2px}
+  .event.empty{justify-content:center;color:var(--dim);font-style:italic;font-size:15px}
+
+  /* RULES card – always visible */
+  .rules{grid-column:3/4;grid-row:3/4;padding:18px 20px}
+  .rules .label{margin-bottom:10px}
+  .rules-list{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+  .rule-item{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--soft);line-height:1.2}
+  .rule-item .em{font-size:20px;flex-shrink:0}
+
+  /* WEATHER row – full day forecast */
+  .weather{grid-column:1/3;grid-row:4/5;padding:14px 20px;display:flex;align-items:center;gap:18px;overflow:hidden}
+  .weather-head{display:flex;flex-direction:column;gap:2px;min-width:140px;border-right:1px solid var(--line);padding-right:18px}
+  .weather-head .lbl{font-family:'Fredoka';font-weight:600;font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
+  .weather-head .now{font-family:'Fredoka';font-weight:700;font-size:32px;line-height:1;display:flex;align-items:center;gap:8px}
+  .weather-head .range{font-size:12px;color:var(--soft);font-weight:700;margin-top:2px}
+  .weather-tip{font-size:13px;color:var(--yellow);font-weight:700;margin-top:4px}
+  .weather-hours{display:flex;gap:10px;flex:1;overflow:hidden}
+  .wh{flex:1;text-align:center;padding:6px 4px;border-radius:14px;background:rgba(0,0,0,.18)}
+  .wh .h{font-size:11px;color:var(--dim);font-weight:800;letter-spacing:.5px}
+  .wh .e{font-size:24px;line-height:1.1;margin:2px 0}
+  .wh .t{font-family:'Fredoka';font-weight:700;font-size:16px;color:#fff}
+  .wh .p{font-size:10px;color:var(--sky);font-weight:700}
+  .wh.now-h{background:linear-gradient(135deg,rgba(255,210,70,.25),rgba(255,122,198,.18));border:1px solid rgba(255,210,70,.4)}
+
+  /* QR pairing card */
+  .pair{grid-column:3/4;grid-row:4/5;display:flex;align-items:center;gap:14px;padding:14px 16px;background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid var(--line);border-radius:20px}
+  .pair canvas,.pair img{border-radius:10px;background:#fff;padding:6px;width:120px;height:120px;flex-shrink:0}
+  .pair-info{flex:1;min-width:0}
+  .pair-title{font-family:'Fredoka';font-weight:600;font-size:15px;line-height:1.2}
+  .pair-sub{font-size:11px;color:var(--dim);margin-top:4px;font-weight:700}
+  .pair-code{font-family:'Fredoka';font-weight:700;font-size:24px;letter-spacing:4px;color:var(--yellow);margin-top:4px}
+
+  /* ─── AWAY MODE ─── */
+  .away{position:fixed;inset:0;z-index:5;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px}
+  .away.active{display:flex}
+  .away-clock{font-size:18px;letter-spacing:4px;color:var(--dim);text-transform:uppercase;font-weight:800;margin-bottom:50px}
+  .away-top{font-family:'Fredoka';font-weight:500;font-size:24px;color:var(--soft);margin-bottom:20px}
+  .away-num{font-family:'Fredoka';font-weight:700;font-size:280px;line-height:.85;background:linear-gradient(160deg,#fff,#ffd246,#ff7ac6);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-12px;text-shadow:0 0 80px rgba(255,210,70,.2)}
+  .away-num.today{font-size:140px;background:linear-gradient(135deg,#4ade80,#5ec8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .away-bot{font-family:'Fredoka';font-weight:500;font-size:32px;color:var(--soft);margin-top:24px}
+  .away-date{font-size:18px;color:var(--dim);margin-top:8px;font-weight:700}
+  .away-quote{font-style:italic;font-size:20px;color:var(--dim);max-width:560px;line-height:1.6;margin-top:60px}
+
+  /* ─── PHONE REMOTE ─── */
+  .remote{display:none;position:relative;z-index:2;min-height:100vh;padding:20px 18px 40px;max-width:520px;margin:0 auto}
+  .remote.active{display:block}
+  .r-hero{text-align:center;padding:14px 0 22px}
+  .r-title{font-family:'Fredoka';font-weight:700;font-size:28px;background:linear-gradient(135deg,#ffd246,#ff7ac6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .r-sub{font-size:14px;color:var(--dim);font-weight:700;margin-top:4px}
+  .r-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mint);background:rgba(74,222,128,.15);padding:5px 10px;border-radius:99px;font-weight:800;margin-top:8px}
+  .r-status.off{color:#ff7a7a;background:rgba(255,122,122,.15)}
+  .r-status .pulse{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+  .r-tabs{display:flex;gap:6px;background:rgba(0,0,0,.3);padding:6px;border-radius:18px;margin-bottom:18px;position:sticky;top:0;z-index:5;backdrop-filter:blur(20px)}
+  .r-tab{flex:1;padding:12px 0;text-align:center;font-family:'Fredoka';font-weight:600;font-size:15px;color:var(--dim);border-radius:13px;cursor:pointer;transition:all .2s}
+  .r-tab.on{background:linear-gradient(135deg,#ff7ac6,#b693ff);color:#fff;box-shadow:0 6px 18px -6px #ff7ac6}
+  .r-pane{display:none;animation:fadeUp .35s ease}
+  .r-pane.on{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  .r-card{background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:24px;padding:18px;margin-bottom:14px}
+  .r-child-head{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+  .r-child-head .avatar{width:54px;height:54px;font-size:30px}
+  .r-child-name{font-family:'Fredoka';font-weight:700;font-size:22px;line-height:1}
+  .r-child-tot{font-size:13px;color:var(--dim);font-weight:700;margin-top:2px}
+  .r-cat-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-radius:18px;border:none;background:rgba(0,0,0,.25);color:#fff;font-family:'Nunito';font-weight:800;font-size:16px;margin-bottom:8px;cursor:pointer;transition:all .15s;text-align:left}
+  .r-cat-btn:active{transform:scale(.97)}
+  .r-cat-btn:disabled{opacity:.4}
+  .r-cat-pill{font-size:11px;font-weight:800;color:#1a103d;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px}
+  .r-cat-count{font-family:'Fredoka';font-weight:700;font-size:18px;color:var(--yellow);min-width:38px;text-align:right}
+
+  .r-routine{width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;border:none;background:rgba(0,0,0,.25);color:#fff;font-family:'Nunito';font-weight:700;font-size:16px;margin-bottom:8px;cursor:pointer;text-align:left;transition:all .15s}
+  .r-routine:active{transform:scale(.97)}
+  .r-routine.done{background:rgba(74,222,128,.18);border:1px solid rgba(74,222,128,.35)}
+  .r-routine .em{font-size:26px;width:34px;text-align:center}
+  .r-routine .tx{flex:1;line-height:1.2}
+  .r-routine.done .tx{text-decoration:line-through;color:var(--dim)}
+  .r-routine .ck{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:16px;color:transparent}
+  .r-routine.done .ck{background:var(--mint);border-color:var(--mint);color:#0c2818}
+
+  .r-mode-btn{width:100%;padding:18px;border-radius:20px;border:none;font-family:'Fredoka';font-weight:600;font-size:20px;color:#fff;cursor:pointer;margin-bottom:10px;transition:transform .15s}
+  .r-mode-btn:active{transform:scale(.97)}
+  .r-mode-btn.home{background:linear-gradient(135deg,#4ade80,#5ec8ff)}
+  .r-mode-btn.away{background:linear-gradient(135deg,#ff7ac6,#b693ff)}
+  .r-mode-btn.confetti{background:linear-gradient(135deg,#ffd246,#ff9f43)}
+  .r-mode-btn.reset{background:rgba(255,122,122,.2);color:#ff9d9d;border:1px solid rgba(255,122,122,.3);font-size:16px}
+
+  .r-pair{text-align:center;padding:30px 20px}
+  .r-pair-input{width:100%;max-width:300px;text-align:center;font-family:'Fredoka';font-weight:700;font-size:36px;letter-spacing:14px;padding:18px;border-radius:18px;border:2px solid var(--line);background:rgba(0,0,0,.3);color:var(--yellow);margin:20px 0;text-transform:uppercase}
+  .r-pair-btn{padding:16px 32px;border-radius:18px;border:none;font-family:'Fredoka';font-weight:600;font-size:20px;background:linear-gradient(135deg,#ff7ac6,#b693ff);color:#fff;cursor:pointer}
+
+  /* mode toggle bottom corner */
+  #mode-toggle{position:fixed;bottom:18px;right:18px;z-index:50;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:99px;color:var(--soft);font-family:'Fredoka';font-weight:500;font-size:13px;padding:8px 16px;cursor:pointer;backdrop-filter:blur(10px)}
+  #mode-toggle:hover{background:rgba(255,255,255,.12)}
+
+  @media(max-width:900px){
+    .tv{display:none!important}
+    .remote{display:block!important}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-blob b1"></div><div class="bg-blob b2"></div><div class="bg-blob b3"></div>
+
+<!-- ───── TV DASHBOARD ───── -->
+<div id="tv" class="tv active">
+  <div class="stage">
+
+    <div class="card glow hero">
+      <div class="label">Familiehub</div>
+      <div class="clock" id="clock">07:20</div>
+      <div class="date" id="date">søndag 10. mai</div>
+      <div class="weather-row"><span id="greeting">God morgen, Emma og Nora! 🌞</span></div>
+    </div>
+
+    <div class="photo" id="photo">
+      <div class="slide on" style="background:linear-gradient(135deg,#ff7ac6,#ffd246)">🎈</div>
+      <div class="slide" style="background:linear-gradient(135deg,#5ec8ff,#b693ff)">🦄</div>
+      <div class="slide" style="background:linear-gradient(135deg,#4ade80,#ffd246)">🌈</div>
+      <div class="slide" style="background:linear-gradient(135deg,#ff9f43,#ff7ac6)">🎨</div>
+      <div class="slide" style="background:linear-gradient(135deg,#b693ff,#5ec8ff)">🚀</div>
+      <div class="slide" style="background:linear-gradient(135deg,#ffd246,#4ade80)">🌻</div>
+      <div class="caption" id="photo-caption">Emma & Nora ✨</div>
+      <div class="dots" id="photo-dots"></div>
+    </div>
+
+    <div class="card next">
+      <div>
+        <div class="label">Neste opp</div>
+        <div class="next-row">
+          <div class="next-emoji" id="next-emoji">⚽</div>
+          <div>
+            <div class="next-name" id="next-name">Henting</div>
+            <div class="next-time" id="next-time">om 8t 25min</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="label">Netter hos pappa</div>
+        <div class="moons">
+          <div class="num" id="sleep-num">3</div>
+          <div id="sleep-moons">🌙🌙🌙</div>
+        </div>
+        <div class="swap-text" id="sleep-swap">bytte onsdag 13. mai</div>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="child emma">
+        <div class="child-head">
+          <div class="avatar emma">👧</div>
+          <div>
+            <div class="child-name">Emma</div>
+            <div class="child-age">6 år</div>
+          </div>
+          <div class="total">
+            <div class="n" id="emma-total">0</div>
+            <div class="t">av 20 stjerner</div>
+          </div>
+        </div>
+        <div id="emma-cats"></div>
+        <div class="reward" id="emma-reward">
+          <div class="reward-emoji">🧃</div>
+          <div class="reward-text">SLUSH PÅ FORNEBU S! Du fikset alt, Emma! 🎉</div>
+        </div>
+      </div>
+      <div class="child nora">
+        <div class="child-head">
+          <div class="avatar nora">👧</div>
+          <div>
+            <div class="child-name">Nora</div>
+            <div class="child-age">4 år</div>
+          </div>
+          <div class="total">
+            <div class="n" id="nora-total">0</div>
+            <div class="t">av 20 stjerner</div>
+          </div>
+        </div>
+        <div id="nora-cats"></div>
+        <div class="reward" id="nora-reward">
+          <div class="reward-emoji">🧃</div>
+          <div class="reward-text">SLUSH PÅ FORNEBU S! Du fikset alt, Nora! 🎉</div>
+        </div>
+      </div>
+      <div class="child pappa">
+        <div class="child-head">
+          <div class="avatar pappa">👨</div>
+          <div>
+            <div class="child-name">Pappa</div>
+            <div class="child-age">Magnus</div>
+          </div>
+          <div class="total">
+            <div class="n" id="pappa-total">0</div>
+            <div class="t">av 20 stjerner</div>
+          </div>
+        </div>
+        <div id="pappa-cats"></div>
+        <div class="reward" id="pappa-reward">
+          <div class="reward-emoji">🏆</div>
+          <div class="reward-text">Bra jobba pappa! Barna er stolte 💛</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card routines">
+      <div class="label" id="rt-label">🌙 Kveldsrutine</div>
+      <div class="rlist" id="rlist"></div>
+    </div>
+
+    <div class="events" id="events"></div>
+
+    <div class="card rules">
+      <div class="label">💡 Husk-regler</div>
+      <div class="rules-list" id="rules-list"></div>
+    </div>
+
+    <div class="card weather" id="weather">
+      <div class="weather-head">
+        <div class="lbl">Været i dag</div>
+        <div class="now"><span id="w-now-emoji">⛅</span><span id="w-now-temp">—°</span></div>
+        <div class="range" id="w-range">—</div>
+        <div class="weather-tip" id="w-tip"></div>
+      </div>
+      <div class="weather-hours" id="w-hours"></div>
+    </div>
+
+    <div class="pair">
+      <canvas id="qr" width="120" height="120"></canvas>
+      <div class="pair-info">
+        <div class="pair-title">📱 Telefon = fjernkontroll</div>
+        <div class="pair-sub">Skann eller skriv inn kode:</div>
+        <div class="pair-code" id="pair-code">— — — —</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ───── AWAY MODE ───── -->
+<div id="away" class="away">
+  <div class="away-clock" id="away-clock"></div>
+  <div class="away-top">netter til Emma og Nora er tilbake</div>
+  <div class="away-num" id="away-num">—</div>
+  <div class="away-bot" id="away-label"></div>
+  <div class="away-date" id="away-date"></div>
+  <div class="away-quote" id="away-quote"></div>
+</div>
+
+<!-- ───── PHONE REMOTE ───── -->
+<div id="remote" class="remote">
+  <div class="r-hero">
+    <div class="r-title">Familiehub</div>
+    <div class="r-sub">Fjernkontroll 📱</div>
+    <div class="r-status off" id="r-status"><span class="pulse"></span><span id="r-status-text">kobler til…</span></div>
+  </div>
+
+  <div id="r-pair-screen" class="r-pair" style="display:none">
+    <div style="font-size:64px;margin-bottom:10px">🔗</div>
+    <div style="font-family:'Fredoka';font-weight:600;font-size:22px;margin-bottom:6px">Skriv inn parings-kode</div>
+    <div style="color:var(--dim);font-size:14px;font-weight:700">Du finner koden nederst på TV-en</div>
+    <input class="r-pair-input" id="r-pair-input" placeholder="——" maxlength="4">
+    <br><button class="r-pair-btn" onclick="connectFromInput()">Koble til ✨</button>
+  </div>
+
+  <div id="r-app">
+    <div class="r-tabs">
+      <div class="r-tab on" data-pane="stars">⭐ Stjerner</div>
+      <div class="r-tab" data-pane="routines">✅ Rutiner</div>
+      <div class="r-tab" data-pane="mode">🏠 Modus</div>
+    </div>
+
+    <div class="r-pane on" id="pane-stars">
+      <div class="r-card">
+        <div class="r-child-head">
+          <div class="avatar emma">👧</div>
+          <div><div class="r-child-name">Emma</div><div class="r-child-tot" id="r-emma-tot">0 / 20 stjerner</div></div>
+        </div>
+        <div id="r-emma-cats"></div>
+      </div>
+      <div class="r-card">
+        <div class="r-child-head">
+          <div class="avatar nora">👧</div>
+          <div><div class="r-child-name">Nora</div><div class="r-child-tot" id="r-nora-tot">0 / 20 stjerner</div></div>
+        </div>
+        <div id="r-nora-cats"></div>
+      </div>
+      <div class="r-card">
+        <div class="r-child-head">
+          <div class="avatar pappa">👨</div>
+          <div><div class="r-child-name">Pappa</div><div class="r-child-tot" id="r-pappa-tot">0 / 20 stjerner</div></div>
+        </div>
+        <div id="r-pappa-cats"></div>
+      </div>
+    </div>
+
+    <div class="r-pane" id="pane-routines">
+      <div class="r-card">
+        <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin-bottom:12px">🌙 Kveldsrutine</div>
+        <div id="r-routines"></div>
+      </div>
+    </div>
+
+    <div class="r-pane" id="pane-mode">
+      <div class="r-card">
+        <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin-bottom:14px">Velg modus</div>
+        <button class="r-mode-btn home" onclick="cmd('mode','home')">🏠 Hjemme-modus</button>
+        <button class="r-mode-btn away" onclick="cmd('mode','away')">✈️ Borte-modus</button>
+        <button class="r-mode-btn confetti" onclick="cmd('confetti')">🎉 Konfetti på TV-en!</button>
+        <button class="r-mode-btn confetti" style="background:linear-gradient(135deg,#5ec8ff,#b693ff)" onclick="cmd('photo')">📸 Neste bilde</button>
+        <button class="r-mode-btn reset" onclick="if(confirm('Nullstill alle stjerner?'))cmd('reset')">🔄 Nullstill stjerner</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button id="mode-toggle" onclick="toggleMode()">⇄ vis borte-modus</button>
+
+<script>
+/* ════════ DATA ════════ */
+const DAYS=['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'];
+const MONTHS=['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
+
+const CATS=[
+  {id:'kveld', name:'Kveld / legging', color:'#4ade80', emoji:'🌙'},
+  {id:'morgen', name:'Morgen / levering', color:'#b693ff', emoji:'☀️'},
+  {id:'skjerm', name:'Skjerm / hverdag', color:'#ffd246', emoji:'📺'},
+  {id:'snill',  name:'Følelser / samspill',  color:'#ff7ac6', emoji:'❤️'},
+];
+const STARS_MAX=5;
+const TOTAL=CATS.length*STARS_MAX;
+
+const morning=[
+  {id:'mUp',    emoji:'⏰',text:'Stå opp',time:'06:30'},
+  {id:'mDress', emoji:'👕',text:'Kle på seg',time:''},
+  {id:'mTV',    emoji:'📺',text:'Barne-TV til frokost',time:''},
+  {id:'mEat',   emoji:'🥣',text:'Frokost (uten skjerm)',time:''},
+  {id:'mTeeth', emoji:'🦷',text:'Tannpuss',time:'07:20'},
+  {id:'mGo',    emoji:'🚪',text:'Ut av døra!',time:'07:30'},
+];
+const evening=[
+  {id:'lekser',    emoji:'📚',text:'Lekser før barne-TV'},
+  {id:'rydde',     emoji:'🍽',text:'Rydde etter middag'},
+  {id:'tv-av',     emoji:'📺',text:'Barne-TV av',time:'19:00'},
+  {id:'lesing',    emoji:'📖',text:'Felles lesing',time:'19:30'},
+  {id:'nora-legg', emoji:'🛏️',text:'Nora legges',time:'19:40'},
+  {id:'emma-pappa',emoji:'💬',text:'10 min Emma + pappa'},
+  {id:'emma-legg', emoji:'⭐',text:'Emma i seng',time:'20:00'},
+  {id:'stille',    emoji:'🤫',text:'Stille – sove tid'},
+];
+const rules=[
+  {emoji:'👂',text:'Hør på voksne første gang'},
+  {emoji:'🙏',text:'Spør om lov først'},
+  {emoji:'🤝',text:'Løs krangler med ord'},
+  {emoji:'🧹',text:'Rydd etter deg selv'},
+  {emoji:'💬',text:'Si fra hvis noe er vanskelig'},
+  {emoji:'❤️',text:'Vær snill mot hverandre'},
+];
+
+const schedule={
+  3:[{emoji:'⚽',name:'Emma – fotball',time:'17:00'},{emoji:'💃',name:'Nora – dans',time:'17:00'}],
+  4:[{emoji:'🏊',name:'Svømming – Emma + Nora',time:'16:30'}],
+};
+const quotes=[
+  'Savnet er bare kjærligheten som ikke vet hvor den skal gjøre av seg.',
+  'De vil alltid finne veien tilbake til deg.',
+  'Gode dager kommer. De vet det. Du vet det.',
+  'Barn er ikke noe man har – de er noen man elsker.',
+];
+
+/* SAMVÆRSDAGER (eksempel: pappa har Emma og Nora annenhver helg + onsdager) */
+const MAGNUS=new Set();
+(function(){
+  const start=new Date(); start.setMonth(start.getMonth()-1);
+  for(let i=0;i<240;i++){
+    const d=new Date(start); d.setDate(d.getDate()+i);
+    const dow=d.getDay();
+    const week=Math.floor(i/7);
+    if(dow===3||dow===4) MAGNUS.add(ymd(d));
+    if((week%2===0)&&(dow===5||dow===6||dow===0)) MAGNUS.add(ymd(d));
+  }
+})();
+function ymd(d){return d.toISOString().slice(0,10)}
+function autoHome(){return MAGNUS.has(ymd(new Date()))}
+
+/* ════════ STATE ════════ */
+let state;
+try{state=JSON.parse(localStorage.getItem('fhub_v2')||'null')||{routines:{},stars:{emma:{},nora:{},pappa:{}},lastReset:'',manualMode:null};}
+catch(e){state={routines:{},stars:{emma:{},nora:{},pappa:{}},lastReset:'',manualMode:null};}
+function save(){try{localStorage.setItem('fhub_v2',JSON.stringify(state))}catch(e){}}
+function isHome(){return state.manualMode!==null?state.manualMode:autoHome()}
+
+/* ════════ MODE DETECTION ════════ */
+const url=new URL(location.href);
+const isPhone=url.hash.includes('remote')||url.searchParams.get('m')==='r'||window.innerWidth<900;
+let pairCode=url.searchParams.get('c')||localStorage.getItem('fhub_pair')||null;
+
+/* ════════ MQTT (telefon ↔ TV) ════════ */
+let mqttClient=null;
+function genCode(){return Math.random().toString(36).slice(2,6).toUpperCase()}
+function topic(c){return 'familiehub/v2/'+c}
+
+function connectMqtt(code,role){
+  if(!code) return;
+  pairCode=code;
+  if(role==='remote') localStorage.setItem('fhub_pair',code);
+  try{
+    mqttClient=mqtt.connect('wss://broker.emqx.io:8084/mqtt',{
+      clientId:'fhub_'+role+'_'+Math.random().toString(36).slice(2,8),
+      reconnectPeriod:3000, connectTimeout:8000,
+    });
+    mqttClient.on('connect',()=>{
+      mqttClient.subscribe(topic(code));
+      if(role==='remote'){
+        setStatus(true,'tilkoblet TV ✨');
+        mqttClient.publish(topic(code),JSON.stringify({type:'hello'}));
+      }else{
+        // TV: send full state on request
+      }
+    });
+    mqttClient.on('reconnect',()=>{if(role==='remote')setStatus(false,'kobler til igjen…')});
+    mqttClient.on('error',()=>{if(role==='remote')setStatus(false,'tilkobling feilet')});
+    mqttClient.on('message',(_,msg)=>{
+      try{handleMsg(JSON.parse(msg.toString()),role)}catch(e){}
+    });
+  }catch(e){console.error(e)}
+}
+
+function handleMsg(m,role){
+  if(role==='tv'){
+    if(m.type==='hello'){ broadcastState(); return }
+    if(m.type==='star'){ addStar(m.child,m.cat); broadcastState(); }
+    if(m.type==='routine'){ state.routines[m.id]=!state.routines[m.id]; save(); renderRoutines(); broadcastState(); }
+    if(m.type==='mode'){ state.manualMode=(m.value==='home'); save(); setMode(); broadcastState(); }
+    if(m.type==='reset'){ state.stars={emma:{},nora:{},pappa:{}}; save(); renderStars(); broadcastState(); }
+    if(m.type==='confetti'){ celebrate(); }
+    if(m.type==='photo'){ nextPhoto(); }
+  }
+  if(role==='remote'){
+    if(m.type==='state'){ state=m.state; renderRemote(); }
+  }
+}
+function broadcastState(){
+  if(mqttClient && mqttClient.connected) mqttClient.publish(topic(pairCode),JSON.stringify({type:'state',state}));
+}
+function cmd(type,value,extra){
+  if(!mqttClient||!mqttClient.connected) return;
+  mqttClient.publish(topic(pairCode),JSON.stringify({type,value,...extra}));
+}
+function setStatus(ok,txt){
+  const s=document.getElementById('r-status'); const t=document.getElementById('r-status-text');
+  if(!s) return;
+  s.classList.toggle('off',!ok); t.textContent=txt;
+}
+
+/* ════════ TV: clock / date ════════ */
+function renderClock(){
+  const now=new Date();
+  document.getElementById('clock').textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('date').textContent=DAYS[now.getDay()]+' '+now.getDate()+'. '+MONTHS[now.getMonth()];
+  const h=now.getHours();
+  const g=document.getElementById('greeting');
+  if(g){
+    if(h<10)      g.textContent='God morgen, Emma og Nora! 🌞';
+    else if(h<14) g.textContent='Halloi! Ha en fin dag ✨';
+    else if(h<18) g.textContent='Hei på dere! 🌈';
+    else          g.textContent='God kveld, småtroll 🌙';
+  }
+  const todayKey=now.toDateString();
+  if(state.lastReset!==todayKey){state.routines={};state.lastReset=todayKey;save();renderRoutines();}
+}
+
+function nightsLeft(){let c=0,d=new Date(); while(MAGNUS.has(ymd(d))){c++;d.setDate(d.getDate()+1)} return{nights:c,swap:new Date(d)}}
+function nightsUntil(){let c=0,d=new Date(); for(let i=0;i<200;i++){if(MAGNUS.has(ymd(d)))return{nights:c,date:new Date(d)}; c++; d.setDate(d.getDate()+1)} return{nights:null,date:null}}
+
+function renderSleep(){
+  const{nights,swap}=nightsLeft();
+  const n=document.getElementById('sleep-num'); const m=document.getElementById('sleep-moons'); const s=document.getElementById('sleep-swap');
+  if(nights===0){n.textContent='0';n.classList.add('swap');m.textContent='🔄';s.textContent='byttedag i dag!';}
+  else{n.textContent=nights;n.classList.remove('swap');m.textContent='🌙'.repeat(Math.min(nights,5));s.textContent='bytte '+DAYS[swap.getDay()]+' '+swap.getDate()+'. '+MONTHS[swap.getMonth()];}
+}
+
+function renderEvents(){
+  const now=new Date(),dow=now.getDay();
+  const evs=schedule[dow]||[];
+  const el=document.getElementById('events');
+  if(!el) return;
+  const fixed=[
+    {emoji:'🎒',name:'Skole/SFO start',time:'08:30',h:8,m:30},
+    {emoji:'🚗',name:'Henting',time:'15:45',h:15,m:45},
+    {emoji:'🍝',name:'Middag',time:'17:30',h:17,m:30},
+    {emoji:'🌙',name:'Leggetid',time:'19:30',h:19,m:30},
+  ];
+  const dayEvs=evs.map(e=>{const[h,m]=e.time.split(':').map(Number);return{...e,h,m}});
+  const all=[...fixed,...dayEvs].sort((a,b)=>(a.h*60+a.m)-(b.h*60+b.m));
+  el.innerHTML=all.map(e=>`<div class="event"><div class="event-emoji">${e.emoji}</div><div><div class="event-name">${e.name}</div><div class="event-time">kl. ${e.time}</div></div></div>`).join('');
+  // next event
+  const nowM=now.getHours()*60+now.getMinutes();
+  const nx=all.find(u=>u.h*60+u.m>nowM);
+  const ne=document.getElementById('next-name'),nt=document.getElementById('next-time'),nem=document.getElementById('next-emoji');
+  if(nx){const d=(nx.h*60+nx.m)-nowM,h=Math.floor(d/60),m=d%60; ne.textContent=nx.name; nt.textContent=h>0?`om ${h}t ${m}min`:`om ${m} min`; nem.textContent=nx.emoji;}
+  else{ne.textContent='God natt! 🌙';nt.textContent='Alt gjort for i dag';nem.textContent='💤';}
+}
+
+/* ════════ Routines on TV (auto morning/evening by clock) ════════ */
+function autoTab(){
+  const h=new Date().getHours();
+  // 04:00–10:30 = morning, ellers kveld
+  if(h>=4 && h<11) return 'morning';
+  return 'evening';
+}
+function renderRoutines(){
+  const list=document.getElementById('rlist'); if(!list) return;
+  const tab=autoTab();
+  const data=tab==='morning'?morning:evening;
+  document.getElementById('rt-label').textContent=tab==='morning'?'☀️ Morgenrutine':'🌙 Kveldsrutine';
+  list.innerHTML=data.map(r=>{
+    const done=!!state.routines[r.id];
+    return `<div class="ri ${done?'done':''}" onclick="toggleRoutine('${r.id}')"><div class="ri-check">✓</div><div class="ri-emoji">${r.emoji}</div><div class="ri-text">${r.text}</div>${r.time?`<div class="ri-time">${r.time}</div>`:''}</div>`;
+  }).join('');
+  // rules card
+  const rl=document.getElementById('rules-list');
+  if(rl) rl.innerHTML=rules.map(r=>`<div class="rule-item"><span class="em">${r.emoji}</span><span>${r.text}</span></div>`).join('');
+}
+function toggleRoutine(id){state.routines[id]=!state.routines[id]; save(); renderRoutines(); broadcastState();}
+
+/* ════════ Stars on TV ════════ */
+function totalS(child){return CATS.reduce((s,c)=>s+Math.min(state.stars[child][c.id]||0,STARS_MAX),0)}
+function full(child){return CATS.every(c=>(state.stars[child][c.id]||0)>=STARS_MAX)}
+function renderStars(){
+  ['emma','nora','pappa'].forEach(child=>{
+    const ce=document.getElementById(child+'-cats'); if(!ce) return;
+    ce.innerHTML=CATS.map(cat=>{
+      const c=Math.min(state.stars[child][cat.id]||0,STARS_MAX);
+      return `<div class="cat"><div class="cat-pill" style="background:${cat.color}">${cat.emoji} ${cat.name}</div><div class="cat-stars">${Array.from({length:STARS_MAX},(_,j)=>`<div class="star ${j<c?'on':''}">⭐</div>`).join('')}</div></div>`;
+    }).join('');
+    document.getElementById(child+'-total').textContent=totalS(child);
+    document.getElementById(child+'-reward').classList.toggle('on',full(child));
+  });
+}
+function addStar(child,catId){
+  if((state.stars[child][catId]||0)>=STARS_MAX) return;
+  state.stars[child][catId]=(state.stars[child][catId]||0)+1;
+  save(); renderStars();
+  // small celebration
+  if(typeof confetti==='function'){
+    const c=CATS.find(c=>c.id===catId)?.color||'#fbbf24';
+    confetti({particleCount:60,spread:60,origin:{y:.6},colors:[c,'#fff','#ffd246']});
+  }
+  if(full(child)) celebrate();
+}
+function celebrate(){
+  if(typeof confetti!=='function') return;
+  const dur=2500, end=Date.now()+dur;
+  (function frame(){
+    confetti({particleCount:5,angle:60,spread:55,origin:{x:0,y:.7},colors:['#ff7ac6','#ffd246','#5ec8ff','#4ade80']});
+    confetti({particleCount:5,angle:120,spread:55,origin:{x:1,y:.7},colors:['#ff7ac6','#ffd246','#5ec8ff','#4ade80']});
+    if(Date.now()<end) requestAnimationFrame(frame);
+  })();
+}
+
+/* ════════ Photo carousel ════════ */
+let pIdx=0;
+function nextPhoto(){
+  const slides=document.querySelectorAll('#photo .slide');
+  if(!slides.length) return;
+  slides[pIdx].classList.remove('on');
+  pIdx=(pIdx+1)%slides.length;
+  slides[pIdx].classList.add('on');
+  renderDots();
+}
+function renderDots(){
+  const slides=document.querySelectorAll('#photo .slide');
+  const dots=document.getElementById('photo-dots');
+  if(!dots) return;
+  dots.innerHTML=Array.from(slides,(_,i)=>`<div class="dot ${i===pIdx?'on':''}"></div>`).join('');
+}
+
+/* ════════ Mode (home/away) ════════ */
+function setMode(){
+  const home=isHome();
+  document.getElementById('tv').classList.toggle('active',home);
+  document.getElementById('away').classList.toggle('active',!home);
+  document.getElementById('mode-toggle').textContent=home?'⇄ vis borte-modus':'⇄ vis hjemme-modus';
+  if(!home) renderAway();
+}
+function toggleMode(){state.manualMode=!isHome(); save(); setMode(); broadcastState();}
+function renderAway(){
+  const now=new Date();
+  document.getElementById('away-clock').textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+' · '+DAYS[now.getDay()]+' '+now.getDate()+'. '+MONTHS[now.getMonth()];
+  const{nights,date}=nightsUntil();
+  const n=document.getElementById('away-num'),l=document.getElementById('away-label'),d=document.getElementById('away-date');
+  if(nights===0){n.textContent='I DAG';n.classList.add('today');l.textContent='de kommer hjem!';d.textContent='';}
+  else if(nights!==null){n.textContent=nights;n.classList.remove('today');l.textContent=nights===1?'natt igjen':'netter igjen';d.textContent=date?'tilbake '+DAYS[date.getDay()]+' '+date.getDate()+'. '+MONTHS[date.getMonth()]:'';}
+  document.getElementById('away-quote').textContent=quotes[Math.floor(Math.random()*quotes.length)];
+}
+
+/* ════════ REMOTE rendering ════════ */
+function renderRemote(){
+  // stars
+  ['emma','nora','pappa'].forEach(child=>{
+    const el=document.getElementById('r-'+child+'-cats'); if(!el) return;
+    el.innerHTML=CATS.map(cat=>{
+      const c=Math.min(state.stars[child][cat.id]||0,STARS_MAX);
+      const f=c>=STARS_MAX;
+      return `<button class="r-cat-btn" ${f?'disabled':''} onclick="cmd('star',null,{child:'${child}',cat:'${cat.id}'})">
+        <span class="r-cat-pill" style="background:${cat.color}">${cat.emoji} ${cat.name}</span>
+        <span style="flex:1">${'⭐'.repeat(c)}${'☆'.repeat(STARS_MAX-c)}</span>
+        <span class="r-cat-count">${c}/${STARS_MAX}</span>
+      </button>`;
+    }).join('');
+    document.getElementById('r-'+child+'-tot').textContent=totalS(child)+' / 20 stjerner'+(full(child)?' 🎉':'');
+  });
+  // routines
+  const r=document.getElementById('r-routines'); if(r){
+    r.innerHTML=evening.map(it=>{
+      const done=!!state.routines[it.id];
+      return `<button class="r-routine ${done?'done':''}" onclick="cmd('routine',null,{id:'${it.id}'})"><div class="em">${it.emoji}</div><div class="tx">${it.text}${it.time?` <span style="color:var(--yellow);font-size:13px">kl ${it.time}</span>`:''}</div><div class="ck">✓</div></button>`;
+    }).join('');
+  }
+}
+document.querySelectorAll('.r-tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.r-tab').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  document.querySelectorAll('.r-pane').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pane-'+t.dataset.pane).classList.add('on');
+});
+function connectFromInput(){
+  const v=document.getElementById('r-pair-input').value.trim().toUpperCase();
+  if(v.length<3) return alert('Skriv inn koden fra TV-en');
+  document.getElementById('r-pair-screen').style.display='none';
+  document.getElementById('r-app').style.display='block';
+  connectMqtt(v,'remote');
+}
+
+/* ════════ WEATHER (Open-Meteo, Oslo, ingen API-nøkkel) ════════ */
+const WCODE={0:['☀️','Sol'],1:['🌤️','Lettskyet'],2:['⛅','Delvis skyet'],3:['☁️','Skyet'],45:['🌫️','Tåke'],48:['🌫️','Rim-tåke'],
+  51:['🌦️','Yr'],53:['🌦️','Yr'],55:['🌧️','Tett yr'],
+  61:['🌧️','Lett regn'],63:['🌧️','Regn'],65:['🌧️','Mye regn'],
+  71:['🌨️','Lett snø'],73:['🌨️','Snø'],75:['❄️','Mye snø'],77:['🌨️','Snøkorn'],
+  80:['🌦️','Regnbyger'],81:['🌧️','Byger'],82:['⛈️','Kraftige byger'],
+  85:['🌨️','Snøbyger'],86:['❄️','Snøbyger'],
+  95:['⛈️','Torden'],96:['⛈️','Torden m/hagl'],99:['⛈️','Kraftig torden']};
+function tipFor(maxT,minT,maxPrecip,maxCode){
+  let t=[];
+  if(minT<=0) t.push('Lue + votter 🧤');
+  else if(minT<8) t.push('Lue + jakke 🧥');
+  else if(maxT<15) t.push('Genser + jakke 🧥');
+  else if(maxT<20) t.push('Tynn jakke');
+  else t.push('T-skjorte ☀️');
+  if(maxPrecip>=1) t.push('regnklær 🌧️');
+  if(maxCode>=71&&maxCode<=86) t.push('vinterklær ❄️');
+  return t.join(' · ');
+}
+async function loadWeather(){
+  const w=document.getElementById('weather'); if(!w) return;
+  try{
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=59.91&longitude=10.75&hourly=temperature_2m,precipitation,weathercode&daily=temperature_2m_max,temperature_2m_min&timezone=Europe/Oslo&forecast_days=1');
+    const j=await r.json();
+    const now=new Date();
+    const hours=j.hourly.time.map((t,i)=>({d:new Date(t),t:j.hourly.temperature_2m[i],p:j.hourly.precipitation[i],c:j.hourly.weathercode[i]}));
+    const todays=hours.filter(h=>h.d.getDate()===now.getDate());
+    // pick representative hours: 07,10,13,16,19,22 (eller fra "nå" og fremover)
+    const slots=[7,10,13,16,19,22].filter(h=>h>=now.getHours()-1);
+    const picks=slots.length>=4?slots:[7,10,13,16,19,22];
+    const items=picks.map(h=>todays.find(x=>x.d.getHours()===h)).filter(Boolean);
+    const nowH=todays.find(x=>x.d.getHours()===now.getHours())||todays[0];
+    const cNow=WCODE[nowH.c]||['🌡️',''];
+    document.getElementById('w-now-emoji').textContent=cNow[0];
+    document.getElementById('w-now-temp').textContent=Math.round(nowH.t)+'°';
+    const max=j.daily.temperature_2m_max[0],min=j.daily.temperature_2m_min[0];
+    document.getElementById('w-range').textContent=`Maks ${Math.round(max)}° · min ${Math.round(min)}° · Oslo`;
+    const maxP=Math.max(...todays.map(x=>x.p));
+    const maxC=todays.reduce((a,b)=>(WCODE[b.c]?b.c:a),0);
+    document.getElementById('w-tip').textContent='👕 '+tipFor(max,min,maxP,maxC);
+    document.getElementById('w-hours').innerHTML=items.map(it=>{
+      const c=WCODE[it.c]||['🌡️',''];
+      const isNow=it.d.getHours()===now.getHours();
+      return `<div class="wh ${isNow?'now-h':''}"><div class="h">kl ${String(it.d.getHours()).padStart(2,'0')}</div><div class="e">${c[0]}</div><div class="t">${Math.round(it.t)}°</div>${it.p>=0.3?`<div class="p">${it.p.toFixed(1)}mm</div>`:''}</div>`;
+    }).join('');
+  }catch(e){
+    document.getElementById('w-hours').innerHTML='<div style="color:var(--dim);font-size:13px;padding:10px">Kunne ikke laste vær (offline?)</div>';
+  }
+}
+
+/* ════════ QR (robust, med fallback) ════════ */
+function makeQR(){
+  const canvas=document.getElementById('qr');
+  if(!canvas) return;
+  const isFile=location.protocol==='file:';
+  const remoteUrl=isFile
+    ? 'https://example.com/familiehub?m=r&c='+pairCode
+    : location.origin+location.pathname+'?m=r&c='+pairCode;
+  const opts={width:120,margin:1,color:{dark:'#1a103d',light:'#ffffff'}};
+  const fallback=()=>{
+    const img=new Image();
+    img.onerror=()=>{img.alt='QR'};
+    img.src='https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=4&data='+encodeURIComponent(remoteUrl);
+    img.style.cssText='width:120px;height:120px;border-radius:10px;background:#fff;padding:6px;flex-shrink:0';
+    canvas.replaceWith(img);
+  };
+  if(typeof QRCode==='undefined'||!QRCode.toCanvas){fallback();return;}
+  try{
+    QRCode.toCanvas(canvas,remoteUrl,opts,err=>{if(err)fallback();});
+  }catch(e){fallback();}
+}
+
+/* ════════ TICK ════════ */
+function tick(){
+  if(state.manualMode===null) setMode();
+  if(isHome()){renderClock();renderSleep();renderEvents();renderRoutines();}
+  else renderAway();
+}
+
+/* ════════ FLOATING SPARKLES ════════ */
+(function sparkles(){
+  const set=['✨','⭐','🌟','💫','🌙','💖','🎈','🦄','🌈'];
+  for(let i=0;i<14;i++){
+    const s=document.createElement('div');
+    s.className='sparkle';
+    s.textContent=set[Math.floor(Math.random()*set.length)];
+    s.style.left=Math.random()*100+'vw';
+    s.style.bottom='-30px';
+    s.style.fontSize=(14+Math.random()*22)+'px';
+    s.style.animationDuration=(10+Math.random()*16)+'s';
+    s.style.animationDelay=-Math.random()*14+'s';
+    s.style.opacity=.25+Math.random()*.4;
+    document.body.appendChild(s);
+  }
+})();
+
+/* ════════ INIT ════════ */
+function init(){
+  if(isPhone){
+    document.getElementById('tv').style.display='none';
+    document.getElementById('mode-toggle').style.display='none';
+    document.getElementById('remote').classList.add('active');
+    if(pairCode){
+      document.getElementById('r-pair-screen').style.display='none';
+      document.getElementById('r-app').style.display='block';
+      connectMqtt(pairCode,'remote');
+    }else{
+      document.getElementById('r-pair-screen').style.display='block';
+      document.getElementById('r-app').style.display='none';
+    }
+    renderRemote();
+  }else{
+    // TV
+    if(!pairCode){pairCode=genCode(); localStorage.setItem('fhub_pair',pairCode);}
+    document.getElementById('pair-code').textContent=pairCode;
+    makeQR();
+    setMode();
+    renderRoutines(); renderStars(); renderDots();
+    setInterval(nextPhoto,7000);
+    loadWeather(); setInterval(loadWeather,30*60*1000); // hver 30. min
+    connectMqtt(pairCode,'tv');
+  }
+  tick();
+  setInterval(tick,30000);
+}
+init();
+</script>
+</body>
+</html>
