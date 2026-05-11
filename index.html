@@ -173,6 +173,7 @@
   /* Liggende iPad / brede skjermer */
   @media(min-width:820px){
     .r-pane.on#pane-stars{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+    .r-pane.on#pane-rewards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
     .r-pane.on#pane-routines{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-items:start}
     .r-pane.on#pane-mode{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-items:start}
     .r-pane.on .r-card{margin-bottom:0}
@@ -210,6 +211,15 @@
   .r-minus{margin-left:8px;width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,80,80,.25);color:#ff9d9d;font-size:22px;font-weight:800;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
   .r-minus:active{transform:scale(.9)}
   .r-lock-banner{padding:14px 16px;border-radius:18px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#a7f3c0;font-family:'Fredoka';font-weight:600;font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+  .r-reward-emoji{font-size:54px;text-align:center;margin-bottom:8px}
+  .r-reward-text{font-family:'Fredoka';font-weight:600;font-size:18px;line-height:1.3;color:#fff;text-align:center;margin-bottom:14px;min-height:48px}
+  .r-reward-who{font-family:'Fredoka';font-weight:700;font-size:22px;background:linear-gradient(135deg,#ffd246,#ff7ac6);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;margin-bottom:6px}
+  .r-edit-btn{width:100%;padding:12px;border-radius:14px;border:none;background:rgba(94,200,255,.18);color:#7cd3ff;font-family:'Fredoka';font-weight:600;font-size:14px;cursor:pointer}
+  .r-edit-btn:active{transform:scale(.97)}
+  .r-routine-edit-row{display:flex;gap:8px;margin-top:6px}
+  .r-routine-edit-row button{flex:1;padding:10px;border-radius:12px;border:none;font-family:'Fredoka';font-weight:600;font-size:13px;cursor:pointer}
+  .r-edit-mini{background:rgba(94,200,255,.18);color:#7cd3ff}
+  .r-del-mini{background:rgba(255,80,80,.18);color:#ff9d9d}
 
   .r-routine{width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;border:none;background:rgba(0,0,0,.25);color:#fff;font-family:'Nunito';font-weight:700;font-size:16px;margin-bottom:8px;cursor:pointer;text-align:left;transition:all .15s}
   .r-routine:active{transform:scale(.97)}
@@ -432,6 +442,7 @@
   <div id="r-app">
     <div class="r-tabs">
       <div class="r-tab on" data-pane="stars">⭐ Stjerner</div>
+      <div class="r-tab" data-pane="rewards">🎁 Premier</div>
       <div class="r-tab" data-pane="routines">✅ Rutiner</div>
       <div class="r-tab" data-pane="mode">🏠 Modus</div>
     </div>
@@ -460,10 +471,24 @@
       </div>
     </div>
 
+    <div class="r-pane" id="pane-rewards">
+      <div class="r-card" style="grid-column:1/-1">
+        <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin-bottom:6px">🎁 Premier når alle stjerner er fylt</div>
+        <div style="font-size:13px;color:var(--dim);margin-bottom:8px">Hvert barn har sin egen premie. Lås opp voksenmodus for å redigere.</div>
+      </div>
+      <div class="r-card" id="r-reward-emma"></div>
+      <div class="r-card" id="r-reward-nora"></div>
+      <div class="r-card" id="r-reward-pappa"></div>
+    </div>
+
     <div class="r-pane" id="pane-routines">
-      <div class="r-card">
-        <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin-bottom:12px">🌙 Kveldsrutine</div>
+      <div class="r-card" style="grid-column:1/-1">
+        <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin-bottom:6px">🌙 Kveldsrutine</div>
+        <div style="font-size:13px;color:var(--dim);margin-bottom:8px">Trykk for å huke av. Lås opp voksenmodus for å legge til, redigere eller slette.</div>
         <div id="r-routines"></div>
+        <div id="r-routine-edit" style="display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:14px">
+          <button class="r-mode-btn" style="background:linear-gradient(135deg,#4ade80,#5ec8ff);font-size:16px;padding:14px" onclick="adultAddRoutine()">➕ Legg til ny rutine</button>
+        </div>
       </div>
     </div>
 
@@ -571,9 +596,19 @@ function ymd(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0')
 function autoHome(){return MAGNUS.has(ymd(new Date()))}
 
 /* ════════ STATE ════════ */
+const DEFAULT_REWARDS={
+  emma: {emoji:'🧃', text:'SLUSH PÅ FORNEBU S! Du fikset alt, Emma! 🎉'},
+  nora: {emoji:'🧃', text:'SLUSH PÅ FORNEBU S! Du fikset alt, Nora! 🎉'},
+  pappa:{emoji:'🏆', text:'Bra jobba pappa! Barna er stolte 💛'},
+};
 let state;
-try{state=JSON.parse(localStorage.getItem('fhub_v2')||'null')||{routines:{},stars:{emma:{},nora:{},pappa:{}},lastReset:'',manualMode:null};}
-catch(e){state={routines:{},stars:{emma:{},nora:{},pappa:{}},lastReset:'',manualMode:null};}
+try{state=JSON.parse(localStorage.getItem('fhub_v2')||'null')||{};}catch(e){state={};}
+state.routines=state.routines||{};
+state.stars=state.stars||{emma:{},nora:{},pappa:{}};
+state.lastReset=state.lastReset||'';
+if(state.manualMode===undefined) state.manualMode=null;
+state.rewards=state.rewards||JSON.parse(JSON.stringify(DEFAULT_REWARDS));
+state.evening=state.evening||evening.map(e=>({...e}));
 function save(){try{localStorage.setItem('fhub_v2',JSON.stringify(state))}catch(e){}}
 function isHome(){return state.manualMode!==null?state.manualMode:autoHome()}
 
@@ -628,6 +663,8 @@ function handleMsg(m,role){
     if(m.type==='reset'){ state.stars={emma:{},nora:{},pappa:{}}; save(); renderStars(); broadcastState(); }
     if(m.type==='resetchild'){ state.stars[m.child]={}; save(); renderStars(); broadcastState(); }
     if(m.type==='removestar'){ const v=state.stars[m.child][m.cat]||0; if(v>0){state.stars[m.child][m.cat]=v-1;save();renderStars();broadcastState();} }
+    if(m.type==='setreward'){ state.rewards=state.rewards||{}; state.rewards[m.child]={emoji:m.emoji||'🎁',text:m.text||''}; save(); renderStars(); broadcastState(); }
+    if(m.type==='setroutines'){ if(Array.isArray(m.list)){ state.evening=m.list; save(); renderRoutines(); broadcastState(); } }
     if(m.type==='confetti'){ celebrate(); }
     if(m.type==='photo'){ nextPhoto(); }
   }
@@ -669,6 +706,53 @@ function adultResetAll(){
   if(!adultUnlocked()){adultUnlock();return;}
   if(!confirm('Helt sikker? Dette nullstiller stjerner for ALLE.')) return;
   cmd('reset');
+}
+
+/* ── Premier ── */
+function adultEditReward(child){
+  if(!adultUnlocked()){adultUnlock();return;}
+  const cur=(state.rewards&&state.rewards[child])||DEFAULT_REWARDS[child];
+  const emoji=prompt('Emoji for premien (f.eks. 🍦 🎁 🏆):',cur.emoji||'🎁');
+  if(emoji===null) return;
+  const text=prompt('Premie-tekst:',cur.text||'');
+  if(text===null) return;
+  cmd('setreward',null,{child,emoji:emoji.trim()||'🎁',text:text.trim()});
+  // optimistisk lokal oppdatering så iPad reflekterer umiddelbart
+  state.rewards=state.rewards||{}; state.rewards[child]={emoji:emoji.trim()||'🎁',text:text.trim()}; save(); renderRemote();
+}
+
+/* ── Rutiner ── */
+function _routineList(){return state.evening||[];}
+function _saveRoutines(list){
+  state.evening=list; save();
+  cmd('setroutines',null,{list});
+  renderRemote();
+}
+function adultAddRoutine(){
+  if(!adultUnlocked()){adultUnlock();return;}
+  const emoji=prompt('Emoji (f.eks. 🛁):','✨'); if(emoji===null) return;
+  const text=prompt('Rutine-tekst:',''); if(text===null||!text.trim()) return;
+  const time=prompt('Klokkeslett (valgfritt, f.eks. 19:30):','')||'';
+  const list=_routineList().slice();
+  list.push({id:'r'+Date.now().toString(36),emoji:emoji.trim()||'•',text:text.trim(),time:time.trim()});
+  _saveRoutines(list);
+}
+function adultEditRoutine(idx){
+  if(!adultUnlocked()){adultUnlock();return;}
+  const list=_routineList().slice(); const it=list[idx]; if(!it) return;
+  const emoji=prompt('Emoji:',it.emoji||'•'); if(emoji===null) return;
+  const text=prompt('Tekst:',it.text||''); if(text===null||!text.trim()) return;
+  const time=prompt('Klokkeslett (tom for ingen):',it.time||'');
+  if(time===null) return;
+  list[idx]={...it,emoji:emoji.trim()||'•',text:text.trim(),time:time.trim()};
+  _saveRoutines(list);
+}
+function adultDeleteRoutine(idx){
+  if(!adultUnlocked()){adultUnlock();return;}
+  const list=_routineList().slice(); const it=list[idx]; if(!it) return;
+  if(!confirm('Slette rutinen "'+it.text+'"?')) return;
+  list.splice(idx,1);
+  _saveRoutines(list);
 }
 function broadcastState(){
   if(mqttClient && mqttClient.connected) mqttClient.publish(topic(pairCode),JSON.stringify({type:'state',state}));
@@ -742,7 +826,7 @@ function autoTab(){
 function renderRoutines(){
   const list=document.getElementById('rlist'); if(!list) return;
   const tab=autoTab();
-  const data=tab==='morning'?morning:evening;
+  const data=tab==='morning'?morning:(state.evening||evening);
   document.getElementById('rt-label').textContent=tab==='morning'?'☀️ Morgenrutine':'🌙 Kveldsrutine';
   list.innerHTML=data.map(r=>{
     const done=!!state.routines[r.id];
@@ -766,7 +850,13 @@ function renderStars(){
       return `<div class="cat"><div class="cat-pill" style="background:${cat.color}">${cat.emoji} ${cat.name}</div><div class="cat-stars">${Array.from({length:STARS_MAX},(_,j)=>`<div class="star ${j<c?'on':''}">⭐</div>`).join('')}</div></div>`;
     }).join('');
     const totEl=document.getElementById(child+'-total');if(totEl)totEl.textContent=totalS(child)+' / '+maxS(child);
-    const rw=document.getElementById(child+'-reward');if(rw)rw.classList.toggle('on',full(child));
+    const rw=document.getElementById(child+'-reward');
+    if(rw){
+      rw.classList.toggle('on',full(child));
+      const data=(state.rewards&&state.rewards[child])||DEFAULT_REWARDS[child];
+      const em=rw.querySelector('.reward-emoji'); if(em) em.textContent=data.emoji||'🎁';
+      const tx=rw.querySelector('.reward-text'); if(tx) tx.textContent=data.text||'';
+    }
   });
 }
 function addStar(child,catId){
@@ -934,13 +1024,23 @@ function renderRemote(){
     const totEl=document.getElementById('r-'+child+'-tot');
     if(totEl) totEl.textContent=totalS(child)+' / '+maxS(child)+' stjerner'+(full(child)?' 🎉':'');
   });
-  // routines
+  // routines (bruker state.evening så de kan redigeres)
   const r=document.getElementById('r-routines'); if(r){
-    r.innerHTML=evening.map(it=>{
+    const ed=adultUnlocked();
+    r.innerHTML=(state.evening||[]).map((it,idx)=>{
       const done=!!state.routines[it.id];
-      return `<button class="r-routine ${done?'done':''}" onclick="cmd('routine',null,{id:'${it.id}'})"><div class="em">${it.emoji}</div><div class="tx">${it.text}${it.time?` <span style="color:var(--yellow);font-size:13px">kl ${it.time}</span>`:''}</div><div class="ck">✓</div></button>`;
+      const editRow=ed?`<div class="r-routine-edit-row"><button class="r-edit-mini" onclick="event.stopPropagation();adultEditRoutine(${idx})">✏️ Rediger</button><button class="r-del-mini" onclick="event.stopPropagation();adultDeleteRoutine(${idx})">🗑️ Slett</button></div>`:'';
+      return `<div><button class="r-routine ${done?'done':''}" onclick="cmd('routine',null,{id:'${it.id}'})"><div class="em">${it.emoji||'•'}</div><div class="tx">${it.text}${it.time?` <span style="color:var(--yellow);font-size:13px">kl ${it.time}</span>`:''}</div><div class="ck">✓</div></button>${editRow}</div>`;
     }).join('');
+    const ec=document.getElementById('r-routine-edit'); if(ec) ec.style.display=ed?'block':'none';
   }
+  // rewards
+  ['emma','nora','pappa'].forEach(child=>{
+    const el=document.getElementById('r-reward-'+child); if(!el) return;
+    const rw=(state.rewards&&state.rewards[child])||DEFAULT_REWARDS[child];
+    const editBtn=adultUnlocked()?`<button class="r-edit-btn" onclick="adultEditReward('${child}')">✏️ Endre premie</button>`:'';
+    el.innerHTML=`<div class="r-reward-who">${child==='pappa'?'Pappa':child[0].toUpperCase()+child.slice(1)}</div><div class="r-reward-emoji">${rw.emoji||'🎁'}</div><div class="r-reward-text">${rw.text||''}</div>${editBtn}`;
+  });
 }
 document.querySelectorAll('.r-tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.r-tab').forEach(x=>x.classList.remove('on'));
