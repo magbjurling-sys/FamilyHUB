@@ -221,7 +221,7 @@
   #mode-toggle{position:fixed;bottom:18px;right:18px;z-index:50;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:99px;color:var(--soft);font-family:'Fredoka';font-weight:500;font-size:13px;padding:8px 16px;cursor:pointer;backdrop-filter:blur(10px)}
   #mode-toggle:hover{background:rgba(255,255,255,.12)}
 
-  @media(max-width:1100px){
+  @media(max-width:1400px){
     .tv{display:none!important}
     .remote{display:block!important}
   }
@@ -519,10 +519,14 @@ function isHome(){return state.manualMode!==null?state.manualMode:autoHome()}
 
 /* ════════ MODE DETECTION ════════ */
 const url=new URL(location.href);
-const hashMatch=url.hash.match(/remote-([a-z0-9]+)/i);
-const qParam=url.searchParams.get('m')==='r'||!!url.searchParams.get('c');
-const isPhone=!!hashMatch||qParam||url.hash.includes('remote')||window.innerWidth<1100;
-let pairCode=(hashMatch?hashMatch[1].toUpperCase():null)||url.searchParams.get('c')||(isPhone?localStorage.getItem('fhub_pair'):null)||(!isPhone?localStorage.getItem('fhub_pair'):null)||null;
+const hashMatch=url.hash.match(/remote[-=]([a-z0-9]+)/i);
+const qParam=url.searchParams.get('m')==='r'||url.searchParams.get('remote')==='1'||!!url.searchParams.get('c');
+const coarsePointer=window.matchMedia&&window.matchMedia('(pointer: coarse)').matches;
+const ipadDesktopMode=/Macintosh/i.test(navigator.userAgent)&&navigator.maxTouchPoints>1;
+const touchTablet=coarsePointer||ipadDesktopMode||/iPad|iPhone|Android/i.test(navigator.userAgent);
+const compactScreen=Math.min(window.innerWidth||screen.width, window.innerHeight||screen.height)<1400;
+const isPhone=!!hashMatch||qParam||url.hash.includes('remote')||(touchTablet&&compactScreen)||window.innerWidth<1400;
+let pairCode=(hashMatch?hashMatch[1].toUpperCase():null)||url.searchParams.get('c')||localStorage.getItem('fhub_pair')||null;
 
 /* ════════ MQTT (telefon ↔ TV) ════════ */
 let mqttClient=null;
@@ -821,8 +825,8 @@ function makeQR(){
   const isFile=location.protocol==='file:';
   const base=isFile
     ? 'https://example.com/familiehub'
-    : location.origin+location.pathname+location.search;
-  const remoteUrl=base+'#remote-'+pairCode;
+    : location.origin+location.pathname;
+  const remoteUrl=base+'?m=r&c='+encodeURIComponent(pairCode)+'#remote-'+encodeURIComponent(pairCode);
   const opts={width:120,margin:1,color:{dark:'#1a103d',light:'#ffffff'}};
   const fallback=()=>{
     const img=new Image();
