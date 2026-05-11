@@ -169,7 +169,21 @@
   .away-quote{font-style:italic;font-size:20px;color:var(--dim);max-width:560px;line-height:1.6;margin-top:60px}
 
   /* ─── PHONE REMOTE ─── */
-  .remote{display:none;position:relative;z-index:2;min-height:100vh;padding:20px 18px 40px;max-width:520px;margin:0 auto}
+  .remote{display:none;position:relative;z-index:2;min-height:100vh;padding:18px 22px 32px;max-width:1400px;margin:0 auto}
+  /* Liggende iPad / brede skjermer: pakk pane-stars i 3 kolonner */
+  @media(min-width:900px) and (orientation:landscape){
+    #pane-stars{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:start}
+    #pane-stars .r-card{margin-bottom:0}
+    #pane-routines,#pane-mode{display:none;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+    #pane-routines.on,#pane-mode.on{display:grid}
+    #pane-routines .r-card,#pane-mode .r-card{margin-bottom:0}
+    .r-tabs{max-width:600px;margin-left:auto;margin-right:auto}
+    .r-cat-btn{font-size:18px;padding:18px 18px}
+    .r-cat-count{font-size:22px}
+  }
+  @media(min-width:900px) and (orientation:landscape) and (min-height:700px){
+    .r-child-name{font-size:26px}
+  }
   .remote.active{display:block}
   .r-hero{text-align:center;padding:14px 0 22px}
   .r-title{font-family:'Fredoka';font-weight:700;font-size:28px;background:linear-gradient(135deg,#ffd246,#ff7ac6);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -225,6 +239,25 @@
     .tv{display:none!important}
     .remote{display:block!important}
   }
+  /* ─── MEGA EASTER EGG ─── */
+  #mega{position:fixed;inset:0;z-index:9999;display:none;pointer-events:none;overflow:hidden}
+  #mega.on{display:block}
+  #mega-flash{position:absolute;inset:0;background:conic-gradient(from 0deg,#ff7ac6,#ffd246,#4ade80,#5ec8ff,#b693ff,#ff7ac6);opacity:0;mix-blend-mode:screen;animation:megaFlash 4.5s ease-out forwards}
+  @keyframes megaFlash{0%{opacity:0}10%{opacity:.7}20%{opacity:.2}30%{opacity:.6}40%{opacity:.15}55%{opacity:.4}80%{opacity:.1}100%{opacity:0}}
+  #mega-rays{position:absolute;inset:-20%;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,.18) 0deg 8deg,transparent 8deg 16deg);animation:megaSpin 6s linear forwards;transform-origin:center}
+  @keyframes megaSpin{from{transform:rotate(0)}to{transform:rotate(720deg)}}
+  #mega-name{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Fredoka';font-weight:700;font-size:380px;line-height:.85;letter-spacing:-18px;background:linear-gradient(135deg,#fff,#ffd246 40%,#ff7ac6 70%,#5ec8ff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 120px rgba(255,210,70,.6);animation:megaName 4.5s cubic-bezier(.2,1.6,.3,1) forwards;white-space:nowrap}
+  @keyframes megaName{0%{transform:translate(-50%,-50%) scale(0) rotate(-25deg);opacity:0}15%{transform:translate(-50%,-50%) scale(1.4) rotate(8deg);opacity:1}25%{transform:translate(-50%,-50%) scale(.95) rotate(-4deg)}35%{transform:translate(-50%,-50%) scale(1.15) rotate(2deg)}50%{transform:translate(-50%,-50%) scale(1.05) rotate(-1deg)}80%{transform:translate(-50%,-50%) scale(1.05) rotate(0);opacity:1}100%{transform:translate(-50%,-55%) scale(1.2) rotate(0);opacity:0}}
+  #mega-sub{position:absolute;left:50%;top:72%;transform:translate(-50%,0);font-family:'Fredoka';font-weight:600;font-size:64px;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.6),0 0 40px #ff7ac6;animation:megaSub 4s ease-out .35s both;white-space:nowrap}
+  @keyframes megaSub{0%{transform:translate(-50%,40px);opacity:0}20%{transform:translate(-50%,0);opacity:1}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-20px)}}
+  .mega-emoji{position:absolute;font-size:80px;will-change:transform,opacity;animation:megaRise var(--d,3.5s) cubic-bezier(.3,.7,.4,1) forwards;pointer-events:none}
+  @keyframes megaRise{0%{transform:translate(0,0) rotate(0) scale(.4);opacity:0}10%{opacity:1}50%{transform:translate(var(--x),-50vh) rotate(var(--r)) scale(1.2);opacity:1}100%{transform:translate(calc(var(--x)*1.6),-110vh) rotate(calc(var(--r)*2)) scale(1);opacity:0}}
+  .mega-star-burst{position:absolute;font-size:120px;animation:megaBurst 1.4s ease-out forwards;pointer-events:none;text-shadow:0 0 30px #ffd246}
+  @keyframes megaBurst{0%{transform:translate(-50%,-50%) scale(0) rotate(0);opacity:0}30%{transform:translate(-50%,-50%) scale(1.6) rotate(180deg);opacity:1}100%{transform:translate(-50%,-50%) scale(2.4) rotate(360deg);opacity:0}}
+  .shake{animation:shake .55s cubic-bezier(.36,.07,.19,.97) both}
+  @keyframes shake{10%,90%{transform:translate(-2px,0)}20%,80%{transform:translate(4px,0)}30%,50%,70%{transform:translate(-8px,0)}40%,60%{transform:translate(8px,0)}}
+  .row-pop{animation:rowPop .9s cubic-bezier(.2,1.6,.3,1)}
+  @keyframes rowPop{0%{transform:scale(1)}30%{transform:scale(1.08) rotate(-1.5deg);box-shadow:0 0 0 6px rgba(255,210,70,.6),0 0 60px rgba(255,210,70,.5)}60%{transform:scale(.98) rotate(.5deg)}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -362,6 +395,14 @@
   </div>
 </div>
 
+<!-- ───── MEGA EASTER EGG ───── -->
+<div id="mega">
+  <div id="mega-rays"></div>
+  <div id="mega-flash"></div>
+  <div id="mega-name"></div>
+  <div id="mega-sub"></div>
+</div>
+
 <!-- ───── AWAY MODE ───── -->
 <div id="away" class="away">
   <div class="away-clock" id="away-clock"></div>
@@ -433,7 +474,13 @@
         <button class="r-mode-btn away" onclick="cmd('mode','away')">✈️ Borte-modus</button>
         <button class="r-mode-btn confetti" onclick="cmd('confetti')">🎉 Konfetti på TV-en!</button>
         <button class="r-mode-btn confetti" style="background:linear-gradient(135deg,#5ec8ff,#b693ff)" onclick="cmd('photo')">📸 Neste bilde</button>
-        <button class="r-mode-btn reset" onclick="if(confirm('Nullstill alle stjerner?'))cmd('reset')">🔄 Nullstill stjerner</button>
+      </div>
+      <div class="r-card">
+        <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin-bottom:6px">🔒 Voksenkontroll</div>
+        <div style="font-size:13px;color:var(--dim);margin-bottom:14px">Krever PIN-kode</div>
+        <button class="r-mode-btn reset" onclick="adultRemoveStar()">➖ Fjern én stjerne</button>
+        <button class="r-mode-btn reset" onclick="adultResetChild()">↺ Nullstill ett barn</button>
+        <button class="r-mode-btn reset" onclick="adultResetAll()" style="background:rgba(255,80,80,.25);color:#ffb5b5;border-color:rgba(255,80,80,.4)">🗑️ Nullstill ALLE stjerner</button>
       </div>
     </div>
   </div>
@@ -495,19 +542,29 @@ const quotes=[
   'Barn er ikke noe man har – de er noen man elsker.',
 ];
 
-/* SAMVÆRSDAGER (eksempel: pappa har Emma og Nora annenhver helg + onsdager) */
-const MAGNUS=new Set();
-(function(){
-  const start=new Date(); start.setMonth(start.getMonth()-1);
-  for(let i=0;i<240;i++){
-    const d=new Date(start); d.setDate(d.getDate()+i);
-    const dow=d.getDay();
-    const week=Math.floor(i/7);
-    if(dow===3||dow===4) MAGNUS.add(ymd(d));
-    if((week%2===0)&&(dow===5||dow===6||dow===0)) MAGNUS.add(ymd(d));
-  }
-})();
-function ymd(d){return d.toISOString().slice(0,10)}
+/* SAMVÆRSDAGER – hardkodet for 2026 (dager pappa har Emma og Nora) */
+const MAGNUS=new Set([
+  '2026-01-01','2026-01-05','2026-01-06','2026-01-07','2026-01-08','2026-01-16','2026-01-17','2026-01-18','2026-01-19','2026-01-20',
+  '2026-01-21','2026-01-27','2026-01-28','2026-01-30','2026-01-31','2026-02-01','2026-02-02','2026-02-03','2026-02-04','2026-02-05',
+  '2026-02-11','2026-02-12','2026-02-13','2026-02-14','2026-02-15','2026-02-25','2026-02-26','2026-02-27','2026-02-28','2026-03-01',
+  '2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18',
+  '2026-03-19','2026-03-25','2026-03-26','2026-03-27','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-11',
+  '2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28',
+  '2026-04-29','2026-04-30','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17',
+  '2026-05-23','2026-05-24','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-06-05','2026-06-06','2026-06-07','2026-06-08',
+  '2026-06-09','2026-06-10','2026-06-11','2026-06-19','2026-06-20','2026-06-21','2026-06-22','2026-06-23','2026-06-24','2026-06-25',
+  '2026-07-03','2026-07-04','2026-07-05','2026-07-06','2026-07-07','2026-07-08','2026-07-09','2026-07-10','2026-07-19','2026-07-20',
+  '2026-07-21','2026-07-22','2026-07-23','2026-07-24','2026-07-31','2026-08-01','2026-08-02','2026-08-03','2026-08-04','2026-08-05',
+  '2026-08-06','2026-08-14','2026-08-15','2026-08-16','2026-08-17','2026-08-18','2026-08-19','2026-08-20','2026-08-28','2026-08-29',
+  '2026-08-30','2026-08-31','2026-09-01','2026-09-02','2026-09-03','2026-09-04','2026-09-11','2026-09-12','2026-09-13','2026-09-14',
+  '2026-09-15','2026-09-16','2026-09-17','2026-09-25','2026-09-26','2026-09-27','2026-09-28','2026-09-29','2026-09-30','2026-10-01',
+  '2026-10-09','2026-10-10','2026-10-11','2026-10-12','2026-10-13','2026-10-14','2026-10-15','2026-10-23','2026-10-24','2026-10-25',
+  '2026-10-26','2026-10-27','2026-10-28','2026-10-29','2026-11-06','2026-11-07','2026-11-08','2026-11-09','2026-11-10','2026-11-11',
+  '2026-11-12','2026-11-20','2026-11-21','2026-11-22','2026-11-23','2026-11-24','2026-11-25','2026-11-26','2026-12-04','2026-12-05',
+  '2026-12-06','2026-12-07','2026-12-08','2026-12-09','2026-12-10','2026-12-19','2026-12-20','2026-12-21','2026-12-22','2026-12-23',
+  '2026-12-24','2026-12-25','2026-12-26'
+]);
+function ymd(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+da}
 function autoHome(){return MAGNUS.has(ymd(new Date()))}
 
 /* ════════ STATE ════════ */
@@ -566,12 +623,56 @@ function handleMsg(m,role){
     if(m.type==='routine'){ state.routines[m.id]=!state.routines[m.id]; save(); renderRoutines(); broadcastState(); }
     if(m.type==='mode'){ state.manualMode=(m.value==='home'); save(); setMode(); broadcastState(); }
     if(m.type==='reset'){ state.stars={emma:{},nora:{},pappa:{}}; save(); renderStars(); broadcastState(); }
+    if(m.type==='resetchild'){ state.stars[m.child]={}; save(); renderStars(); broadcastState(); }
+    if(m.type==='removestar'){ const v=state.stars[m.child][m.cat]||0; if(v>0){state.stars[m.child][m.cat]=v-1;save();renderStars();broadcastState();} }
     if(m.type==='confetti'){ celebrate(); }
     if(m.type==='photo'){ nextPhoto(); }
   }
   if(role==='remote'){
     if(m.type==='state'){ state=m.state; renderRemote(); }
   }
+}
+
+/* ════════ VOKSENKONTROLL (PIN 2312) ════════ */
+const ADULT_PIN='2312';
+let pinOkUntil=0;
+function askPin(){
+  if(Date.now()<pinOkUntil) return true;
+  const p=prompt('🔒 PIN-kode (kun for voksne):');
+  if(p===ADULT_PIN){pinOkUntil=Date.now()+5*60*1000;return true;} /* 5 min */
+  if(p!==null) alert('Feil PIN');
+  return false;
+}
+function pickChild(){
+  const c=prompt('Hvilket barn? (emma / nora / pappa)');
+  if(!c) return null;
+  const k=c.trim().toLowerCase();
+  if(!['emma','nora','pappa'].includes(k)){alert('Ukjent navn');return null;}
+  return k;
+}
+function pickCat(child){
+  const cats=catsFor(child);
+  const list=cats.map((c,i)=>`${i+1}. ${c.emoji} ${c.name}`).join('\n');
+  const n=parseInt(prompt('Hvilken kategori?\n'+list),10);
+  if(!n||n<1||n>cats.length) return null;
+  return cats[n-1].id;
+}
+function adultRemoveStar(){
+  if(!askPin()) return;
+  const child=pickChild(); if(!child) return;
+  const cat=pickCat(child); if(!cat) return;
+  cmd('removestar',null,{child,cat});
+}
+function adultResetChild(){
+  if(!askPin()) return;
+  const child=pickChild(); if(!child) return;
+  if(!confirm('Nullstille alle stjerner for '+child.toUpperCase()+'?')) return;
+  cmd('resetchild',null,{child});
+}
+function adultResetAll(){
+  if(!askPin()) return;
+  if(!confirm('Helt sikker? Dette nullstiller stjerner for ALLE.')) return;
+  cmd('reset');
 }
 function broadcastState(){
   if(mqttClient && mqttClient.connected) mqttClient.publish(topic(pairCode),JSON.stringify({type:'state',state}));
@@ -673,25 +774,107 @@ function renderStars(){
   });
 }
 function addStar(child,catId){
-  if((state.stars[child][catId]||0)>=STARS_MAX) return;
-  state.stars[child][catId]=(state.stars[child][catId]||0)+1;
+  const before=state.stars[child][catId]||0;
+  if(before>=STARS_MAX) return;
+  state.stars[child][catId]=before+1;
+  const after=state.stars[child][catId];
   save(); renderStars();
-  // small celebration
+  const cat=catsFor(child).find(c=>c.id===catId);
+  const color=cat?.color||'#fbbf24';
+  // small per-star confetti
   if(typeof confetti==='function'){
-    const c=CATS.find(c=>c.id===catId)?.color||'#fbbf24';
-    confetti({particleCount:60,spread:60,origin:{y:.6},colors:[c,'#fff','#ffd246']});
+    confetti({particleCount:50,spread:60,origin:{y:.6},colors:[color,'#fff','#ffd246']});
   }
-  if(full(child)) celebrate();
+  // ROW filled (5/5 i én kategori) → mellomstor feiring
+  if(after>=STARS_MAX && !full(child)) rowComplete(child,cat);
+  // ALLE rader fulle → MEGA BANANAS
+  if(full(child)) megaCelebrate(child);
 }
-function celebrate(){
-  if(typeof confetti!=='function') return;
-  const dur=2500, end=Date.now()+dur;
-  (function frame(){
-    confetti({particleCount:5,angle:60,spread:55,origin:{x:0,y:.7},colors:['#ff7ac6','#ffd246','#5ec8ff','#4ade80']});
-    confetti({particleCount:5,angle:120,spread:55,origin:{x:1,y:.7},colors:['#ff7ac6','#ffd246','#5ec8ff','#4ade80']});
-    if(Date.now()<end) requestAnimationFrame(frame);
-  })();
+
+function rowComplete(child,cat){
+  // pulser raden
+  const card=document.getElementById(child+'-card')||document.querySelector('#'+child+'-cats');
+  if(card){card.classList.remove('row-pop');void card.offsetWidth;card.classList.add('row-pop');}
+  // burst-stjerne midt på skjermen
+  const burst=document.createElement('div');
+  burst.className='mega-star-burst';
+  burst.textContent=cat?.emoji||'⭐';
+  burst.style.left='50%';burst.style.top='50%';burst.style.position='fixed';burst.style.zIndex='9998';
+  document.body.appendChild(burst);
+  setTimeout(()=>burst.remove(),1500);
+  // dobbel confetti-burst fra to sider
+  if(typeof confetti==='function'){
+    const col=[cat?.color||'#ffd246','#fff','#ff7ac6','#5ec8ff','#4ade80'];
+    confetti({particleCount:140,spread:100,startVelocity:55,origin:{x:.2,y:.7},colors:col,scalar:1.2});
+    confetti({particleCount:140,spread:100,startVelocity:55,origin:{x:.8,y:.7},colors:col,scalar:1.2});
+    setTimeout(()=>confetti({particleCount:80,spread:160,startVelocity:35,origin:{y:.4},colors:col,shapes:['star']}),250);
+  }
 }
+
+function megaCelebrate(child){
+  const NAMES={emma:'EMMA',nora:'NORA',pappa:'PAPPA'};
+  const SUBS={
+    emma:['DRONNINGEN! 👑','SUPERSTJERNE! ⭐','HEEELT KONGE! 🔥','BANANAS! 🍌'],
+    nora:['SUPERHELT! 🦸','MEGAKRAFT! 💥','ALLE STJERNER! 🌟','WHOOOOOA! 🚀'],
+    pappa:['ROLIG-MESTER! 🧘','LEGENDE! 🏆','HELT FANTASTISK! 🎉','ICONIC! ✨']
+  };
+  const mega=document.getElementById('mega');
+  const nameEl=document.getElementById('mega-name');
+  const subEl=document.getElementById('mega-sub');
+  if(!mega||!nameEl||!subEl) return;
+
+  // restart animasjoner
+  nameEl.textContent=NAMES[child]||child.toUpperCase();
+  const subs=SUBS[child]||['BANANAS! 🍌'];
+  subEl.textContent=subs[Math.floor(Math.random()*subs.length)];
+  mega.classList.remove('on');void mega.offsetWidth;mega.classList.add('on');
+
+  // skjelv hele bodyen
+  document.body.classList.remove('shake');void document.body.offsetWidth;document.body.classList.add('shake');
+  setTimeout(()=>document.body.classList.remove('shake'),600);
+
+  // EMOJI-REGN OPPOVER (100x stjerner/regnbuer/enhjørninger)
+  const emojis=['⭐','🌟','✨','💖','🌈','🦄','🎉','🎊','💫','🍭','🧁','🎈','🍌','👑','🏆','💥','🔥','🌸','🍀'];
+  for(let i=0;i<140;i++){
+    const e=document.createElement('div');
+    e.className='mega-emoji';
+    e.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    const startX=Math.random()*100;
+    e.style.left=startX+'vw';
+    e.style.bottom='-80px';
+    e.style.fontSize=(40+Math.random()*90)+'px';
+    e.style.setProperty('--x',((Math.random()-.5)*60)+'vw');
+    e.style.setProperty('--r',(Math.random()*720-360)+'deg');
+    e.style.setProperty('--d',(2.6+Math.random()*2.2)+'s');
+    e.style.animationDelay=(Math.random()*1.2)+'s';
+    mega.appendChild(e);
+    setTimeout(()=>e.remove(),5500);
+  }
+
+  // CONFETTI-STORM
+  if(typeof confetti==='function'){
+    const palette=['#ff7ac6','#ffd246','#5ec8ff','#4ade80','#b693ff','#fff','#ff5e7e'];
+    const dur=4500, end=Date.now()+dur;
+    (function frame(){
+      confetti({particleCount:8,angle:60,spread:75,startVelocity:65,origin:{x:0,y:.85},colors:palette,scalar:1.1});
+      confetti({particleCount:8,angle:120,spread:75,startVelocity:65,origin:{x:1,y:.85},colors:palette,scalar:1.1});
+      if(Date.now()<end) requestAnimationFrame(frame);
+    })();
+    // periodiske mega-eksplosjoner
+    [200,700,1300,2100,3000,3800].forEach(t=>setTimeout(()=>{
+      confetti({particleCount:200,spread:160,startVelocity:55,origin:{x:Math.random(),y:Math.random()*.4+.3},colors:palette,shapes:['star','circle'],scalar:1.4});
+    },t));
+    // grand finale
+    setTimeout(()=>{
+      confetti({particleCount:400,spread:180,startVelocity:75,origin:{y:.5},colors:palette,scalar:1.6});
+    },4000);
+  }
+
+  // skru av overlegg etter animasjonen
+  setTimeout(()=>{mega.classList.remove('on');mega.querySelectorAll('.mega-emoji').forEach(n=>n.remove());},5200);
+}
+
+function celebrate(){megaCelebrate('emma');} /* bakoverkompatibel */
 
 /* ════════ Photo carousel ════════ */
 let pIdx=0;
@@ -874,6 +1057,8 @@ function tick(){
 /* ════════ INIT ════════ */
 function init(){
   if(isPhone){
+    // Fjern borte-modus-overlegget helt fra DOM på telefon/iPad
+    const _aw=document.getElementById('away'); if(_aw) _aw.remove();
     document.getElementById('tv').style.display='none';
     document.getElementById('mode-toggle').style.display='none';
     document.getElementById('remote').classList.add('active');
