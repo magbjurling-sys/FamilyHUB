@@ -170,19 +170,16 @@
 
   /* ─── PHONE REMOTE ─── */
   .remote{display:none;position:relative;z-index:2;min-height:100vh;padding:18px 22px 32px;max-width:1400px;margin:0 auto}
-  /* Liggende iPad / brede skjermer: pakk pane-stars i 3 kolonner */
-  @media(min-width:900px) and (orientation:landscape){
-    #pane-stars{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:start}
-    #pane-stars .r-card{margin-bottom:0}
-    #pane-routines,#pane-mode{display:none;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
-    #pane-routines.on,#pane-mode.on{display:grid}
-    #pane-routines .r-card,#pane-mode .r-card{margin-bottom:0}
-    .r-tabs{max-width:600px;margin-left:auto;margin-right:auto}
-    .r-cat-btn{font-size:18px;padding:18px 18px}
-    .r-cat-count{font-size:22px}
-  }
-  @media(min-width:900px) and (orientation:landscape) and (min-height:700px){
-    .r-child-name{font-size:26px}
+  /* Liggende iPad / brede skjermer */
+  @media(min-width:820px){
+    .r-pane.on#pane-stars{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+    .r-pane.on#pane-routines{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-items:start}
+    .r-pane.on#pane-mode{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-items:start}
+    .r-pane.on .r-card{margin-bottom:0}
+    .r-tabs{max-width:640px;margin-left:auto;margin-right:auto}
+    .r-cat-btn{font-size:17px;padding:16px 18px}
+    .r-cat-count{font-size:20px}
+    .r-child-name{font-size:24px}
   }
   .remote.active{display:block}
   .r-hero{text-align:center;padding:14px 0 22px}
@@ -210,6 +207,9 @@
   .r-cat-btn:disabled{opacity:.4}
   .r-cat-pill{font-size:11px;font-weight:800;color:#1a103d;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px}
   .r-cat-count{font-family:'Fredoka';font-weight:700;font-size:18px;color:var(--yellow);min-width:38px;text-align:right}
+  .r-minus{margin-left:8px;width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,80,80,.25);color:#ff9d9d;font-size:22px;font-weight:800;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+  .r-minus:active{transform:scale(.9)}
+  .r-lock-banner{padding:14px 16px;border-radius:18px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#a7f3c0;font-family:'Fredoka';font-weight:600;font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
 
   .r-routine{width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;border:none;background:rgba(0,0,0,.25);color:#fff;font-family:'Nunito';font-weight:700;font-size:16px;margin-bottom:8px;cursor:pointer;text-align:left;transition:all .15s}
   .r-routine:active{transform:scale(.97)}
@@ -475,12 +475,15 @@
         <button class="r-mode-btn confetti" onclick="cmd('confetti')">🎉 Konfetti på TV-en!</button>
         <button class="r-mode-btn confetti" style="background:linear-gradient(135deg,#5ec8ff,#b693ff)" onclick="cmd('photo')">📸 Neste bilde</button>
       </div>
-      <div class="r-card">
+      <div class="r-card" id="r-adult-card">
         <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin-bottom:6px">🔒 Voksenkontroll</div>
-        <div style="font-size:13px;color:var(--dim);margin-bottom:14px">Krever PIN-kode</div>
-        <button class="r-mode-btn reset" onclick="adultRemoveStar()">➖ Fjern én stjerne</button>
-        <button class="r-mode-btn reset" onclick="adultResetChild()">↺ Nullstill ett barn</button>
-        <button class="r-mode-btn reset" onclick="adultResetAll()" style="background:rgba(255,80,80,.25);color:#ffb5b5;border-color:rgba(255,80,80,.4)">🗑️ Nullstill ALLE stjerner</button>
+        <div id="r-adult-status" style="font-size:13px;color:var(--dim);margin-bottom:14px">Lås opp med PIN for å justere stjerner</div>
+        <button id="r-unlock-btn" class="r-mode-btn" style="background:linear-gradient(135deg,#5ec8ff,#4ade80)" onclick="adultUnlock()">🔓 Lås opp voksenmodus</button>
+        <button id="r-lock-btn" class="r-mode-btn" style="background:rgba(255,255,255,.1);display:none" onclick="adultLock()">🔒 Lås igjen</button>
+        <button id="r-reset-emma" class="r-mode-btn reset" style="display:none" onclick="adultResetChild('emma')">↺ Nullstill Emma</button>
+        <button id="r-reset-nora" class="r-mode-btn reset" style="display:none" onclick="adultResetChild('nora')">↺ Nullstill Nora</button>
+        <button id="r-reset-pappa" class="r-mode-btn reset" style="display:none" onclick="adultResetChild('pappa')">↺ Nullstill Pappa</button>
+        <button id="r-reset-all" class="r-mode-btn reset" style="display:none;background:rgba(255,80,80,.25);color:#ffb5b5;border-color:rgba(255,80,80,.4)" onclick="adultResetAll()">🗑️ Nullstill ALLE stjerner</button>
       </div>
     </div>
   </div>
@@ -636,41 +639,34 @@ function handleMsg(m,role){
 /* ════════ VOKSENKONTROLL (PIN 2312) ════════ */
 const ADULT_PIN='2312';
 let pinOkUntil=0;
-function askPin(){
-  if(Date.now()<pinOkUntil) return true;
-  const p=prompt('🔒 PIN-kode (kun for voksne):');
-  if(p===ADULT_PIN){pinOkUntil=Date.now()+5*60*1000;return true;} /* 5 min */
-  if(p!==null) alert('Feil PIN');
-  return false;
+function adultUnlocked(){return Date.now()<pinOkUntil}
+function refreshAdultUI(){
+  const ok=adultUnlocked();
+  const ids=['r-reset-emma','r-reset-nora','r-reset-pappa','r-reset-all','r-lock-btn'];
+  ids.forEach(id=>{const el=document.getElementById(id); if(el) el.style.display=ok?'block':'none';});
+  const u=document.getElementById('r-unlock-btn'); if(u) u.style.display=ok?'none':'block';
+  const s=document.getElementById('r-adult-status'); if(s) s.textContent=ok?'✅ Voksenmodus aktiv – minus-knapper synlige på stjerner':'Lås opp med PIN for å justere stjerner';
+  if(typeof renderRemote==='function') renderRemote();
 }
-function pickChild(){
-  const c=prompt('Hvilket barn? (emma / nora / pappa)');
-  if(!c) return null;
-  const k=c.trim().toLowerCase();
-  if(!['emma','nora','pappa'].includes(k)){alert('Ukjent navn');return null;}
-  return k;
+function adultUnlock(){
+  if(adultUnlocked()){refreshAdultUI();return;}
+  const p=prompt('🔒 Skriv inn PIN:');
+  if(p===null) return;
+  if(p.trim()===ADULT_PIN){
+    pinOkUntil=Date.now()+10*60*1000; /* 10 min */
+    refreshAdultUI();
+  }else{
+    alert('Feil PIN');
+  }
 }
-function pickCat(child){
-  const cats=catsFor(child);
-  const list=cats.map((c,i)=>`${i+1}. ${c.emoji} ${c.name}`).join('\n');
-  const n=parseInt(prompt('Hvilken kategori?\n'+list),10);
-  if(!n||n<1||n>cats.length) return null;
-  return cats[n-1].id;
-}
-function adultRemoveStar(){
-  if(!askPin()) return;
-  const child=pickChild(); if(!child) return;
-  const cat=pickCat(child); if(!cat) return;
-  cmd('removestar',null,{child,cat});
-}
-function adultResetChild(){
-  if(!askPin()) return;
-  const child=pickChild(); if(!child) return;
+function adultLock(){pinOkUntil=0;refreshAdultUI();}
+function adultResetChild(child){
+  if(!adultUnlocked()){adultUnlock();return;}
   if(!confirm('Nullstille alle stjerner for '+child.toUpperCase()+'?')) return;
   cmd('resetchild',null,{child});
 }
 function adultResetAll(){
-  if(!askPin()) return;
+  if(!adultUnlocked()){adultUnlock();return;}
   if(!confirm('Helt sikker? Dette nullstiller stjerner for ALLE.')) return;
   cmd('reset');
 }
@@ -925,10 +921,14 @@ function renderRemote(){
     el.innerHTML=catsFor(child).map(cat=>{
       const c=Math.min(state.stars[child][cat.id]||0,STARS_MAX);
       const f=c>=STARS_MAX;
+      const adultBtn=adultUnlocked()&&c>0
+        ? `<button class="r-minus" onclick="event.stopPropagation();cmd('removestar',null,{child:'${child}',cat:'${cat.id}'})" title="Fjern en stjerne">−</button>`
+        : '';
       return `<button class="r-cat-btn" ${f?'disabled':''} onclick="cmd('star',null,{child:'${child}',cat:'${cat.id}'})">
         <span class="r-cat-pill" style="background:${cat.color}">${cat.emoji} ${cat.name}</span>
         <span style="flex:1">${'⭐'.repeat(c)}${'☆'.repeat(STARS_MAX-c)}</span>
         <span class="r-cat-count">${c}/${STARS_MAX}</span>
+        ${adultBtn}
       </button>`;
     }).join('');
     const totEl=document.getElementById('r-'+child+'-tot');
