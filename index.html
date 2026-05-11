@@ -712,6 +712,11 @@ function renderDots(){
 
 /* ════════ Mode (home/away) ════════ */
 function setMode(){
+  if(isPhone){
+    // Fjernkontroll (telefon/iPad) viser aldri borte-modus-overlegg
+    document.getElementById('away').classList.remove('active');
+    return;
+  }
   const home=isHome();
   document.getElementById('tv').classList.toggle('active',home);
   document.getElementById('away').classList.toggle('active',!home);
@@ -843,6 +848,7 @@ function makeQR(){
 
 /* ════════ TICK ════════ */
 function tick(){
+  if(isPhone){renderRemote();return;}
   if(state.manualMode===null) setMode();
   if(isHome()){renderClock();renderSleep();renderEvents();renderRoutines();}
   else renderAway();
