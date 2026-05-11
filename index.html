@@ -20,6 +20,9 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;background:var(--bg-3);font-family:'Nunito',system-ui,sans-serif;color:#fff;overflow:hidden;-webkit-font-smoothing:antialiased}
+  /* iPad/telefon: tillat vertikal scroll i fjernkontroll-modus */
+  body.scrollable{overflow:auto!important;-webkit-overflow-scrolling:touch;height:auto;min-height:100%}
+  html.scrollable{overflow:auto!important;height:auto;min-height:100%}
   body{background:radial-gradient(1200px 800px at 15% 10%,#4a2589 0%,transparent 60%),radial-gradient(1000px 700px at 85% 90%,#7c3aed33 0%,transparent 55%),linear-gradient(160deg,var(--bg-1) 0%,var(--bg-3) 100%)}
 
   /* floating background blobs */
@@ -1185,6 +1188,9 @@ function tick(){
 /* ════════ INIT ════════ */
 function init(){
   if(isPhone){
+    // Tillat scroll på telefon/iPad
+    document.documentElement.classList.add('scrollable');
+    document.body.classList.add('scrollable');
     // Fjern borte-modus-overlegget helt fra DOM på telefon/iPad
     const _aw=document.getElementById('away'); if(_aw) _aw.remove();
     document.getElementById('tv').style.display='none';
