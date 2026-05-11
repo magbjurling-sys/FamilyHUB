@@ -51,8 +51,9 @@
 
   /* photo carousel - middle top */
   .photo{grid-column:2/3;grid-row:1/2;border-radius:32px;overflow:hidden;position:relative;min-height:300px;background:#000}
-  .photo .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:140px;opacity:0;transition:opacity 1.2s ease, transform 8s ease}
+  .photo .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:140px;opacity:0;transition:opacity 1.2s ease, transform 8s ease;background-size:cover;background-position:center}
   .photo .slide.on{opacity:1;transform:scale(1.06)}
+  .photo .slide img{width:100%;height:100%;object-fit:cover;display:block}
   .photo .caption{position:absolute;left:24px;bottom:20px;font-family:'Fredoka';font-weight:600;font-size:24px;background:rgba(0,0,0,.35);padding:10px 18px;border-radius:18px;backdrop-filter:blur(10px)}
   .photo .dots{position:absolute;right:20px;bottom:20px;display:flex;gap:6px}
   .photo .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35)}
@@ -286,12 +287,7 @@
     </div>
 
     <div class="photo" id="photo">
-      <div class="slide on" style="background:linear-gradient(135deg,#ff7ac6,#ffd246)">🎈</div>
-      <div class="slide" style="background:linear-gradient(135deg,#5ec8ff,#b693ff)">🦄</div>
-      <div class="slide" style="background:linear-gradient(135deg,#4ade80,#ffd246)">🌈</div>
-      <div class="slide" style="background:linear-gradient(135deg,#ff9f43,#ff7ac6)">🎨</div>
-      <div class="slide" style="background:linear-gradient(135deg,#b693ff,#5ec8ff)">🚀</div>
-      <div class="slide" style="background:linear-gradient(135deg,#ffd246,#4ade80)">🌻</div>
+      <!-- Slides genereres dynamisk fra photos/-mappa (1.jpeg ... 28.jpeg) -->
       <div class="caption" id="photo-caption">Emma & Nora ✨</div>
       <div class="dots" id="photo-dots"></div>
     </div>
@@ -963,7 +959,39 @@ function megaCelebrate(child){
 function celebrate(){megaCelebrate('emma');} /* bakoverkompatibel */
 
 /* ════════ Photo carousel ════════ */
-let pIdx=0;
+/* Bildene ligger i ./photos/1.jpeg ... ./photos/28.jpeg
+   Endre PHOTO_COUNT hvis du legger til/fjerner bilder. */
+const PHOTO_COUNT = 28;
+const PHOTO_DIR   = 'photos/';
+const PHOTO_EXT   = '.jpeg';
+
+let pIdx = 0;
+let photoOrder = [];
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function buildPhotos(){
+  const wrap = document.getElementById('photo');
+  if(!wrap) return;
+  // Fjern eksisterende slides (ikke caption/dots)
+  wrap.querySelectorAll('.slide').forEach(n=>n.remove());
+  photoOrder = shuffle(Array.from({length:PHOTO_COUNT},(_,i)=>i+1));
+  const caption = wrap.querySelector('.caption');
+  photoOrder.forEach((n,i)=>{
+    const slide = document.createElement('div');
+    slide.className = 'slide' + (i===0 ? ' on' : '');
+    const img = document.createElement('img');
+    img.src = PHOTO_DIR + n + PHOTO_EXT;
+    img.alt = 'Familiebilde ' + n;
+    img.loading = 'lazy';
+    img.onerror = ()=>{ slide.style.background='linear-gradient(135deg,#ff7ac6,#ffd246)'; img.remove(); };
+    slide.appendChild(img);
+    wrap.insertBefore(slide, caption);
+  });
+  pIdx = 0;
+  renderDots();
+}
+
 function nextPhoto(){
   const slides=document.querySelectorAll('#photo .slide');
   if(!slides.length) return;
@@ -1177,6 +1205,7 @@ function init(){
     document.getElementById('pair-code').textContent=pairCode;
     makeQR();
     setMode();
+    buildPhotos();
     renderRoutines(); renderStars(); renderDots();
     setInterval(nextPhoto,7000);
     loadWeather(); setInterval(loadWeather,30*60*1000); // hver 30. min
