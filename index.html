@@ -611,12 +611,12 @@ function isHome(){return state.manualMode!==null?state.manualMode:autoHome()}
 /* ════════ MODE DETECTION ════════ */
 const url=new URL(location.href);
 const hashMatch=url.hash.match(/remote[-=]([a-z0-9]+)/i);
+const forceTv=url.searchParams.get('tv')==='1'||url.searchParams.get('m')==='tv'||url.hash.includes('tv');
 const qParam=url.searchParams.get('m')==='r'||url.searchParams.get('remote')==='1'||!!url.searchParams.get('c');
 const coarsePointer=window.matchMedia&&window.matchMedia('(pointer: coarse)').matches;
 const ipadDesktopMode=/Macintosh/i.test(navigator.userAgent)&&navigator.maxTouchPoints>1;
 const touchTablet=coarsePointer||ipadDesktopMode||/iPad|iPhone|Android/i.test(navigator.userAgent);
-const compactScreen=Math.min(window.innerWidth||screen.width, window.innerHeight||screen.height)<1400;
-const isPhone=!!hashMatch||qParam||url.hash.includes('remote')||(touchTablet&&compactScreen)||window.innerWidth<1400;
+const isPhone=!forceTv&&(!!hashMatch||qParam||url.hash.includes('remote')||touchTablet);
 let pairCode=(hashMatch?hashMatch[1].toUpperCase():null)||url.searchParams.get('c')||localStorage.getItem('fhub_pair')||null;
 
 /* ════════ MQTT (telefon ↔ TV) ════════ */
