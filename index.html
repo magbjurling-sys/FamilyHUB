@@ -323,6 +323,101 @@
   @keyframes shake{10%,90%{transform:translate(-2px,0)}20%,80%{transform:translate(4px,0)}30%,50%,70%{transform:translate(-8px,0)}40%,60%{transform:translate(8px,0)}}
   .row-pop{animation:rowPop .9s cubic-bezier(.2,1.6,.3,1)}
   @keyframes rowPop{0%{transform:scale(1)}30%{transform:scale(1.08) rotate(-1.5deg);box-shadow:0 0 0 6px rgba(255,210,70,.6),0 0 60px rgba(255,210,70,.5)}60%{transform:scale(.98) rotate(.5deg)}100%{transform:scale(1)}}
+
+  /* ─── MORGEN-INNSJEKK & STREAK ─── */
+  .streak-flame{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;font-family:'Fredoka';font-weight:600;font-size:18px;background:rgba(255,255,255,.08);border:1px solid var(--line);margin-bottom:10px}
+  .streak-flame .em{font-size:22px;filter:drop-shadow(0 0 8px currentColor);animation:flameFlick 1.6s ease-in-out infinite;display:inline-block}
+  .streak-flame.blue{color:#9bd6ff;border-color:rgba(94,200,255,.45);background:rgba(94,200,255,.15)}
+  .streak-flame.purple{color:#d4baff;border-color:rgba(182,147,255,.45);background:rgba(182,147,255,.15)}
+  .streak-flame.gold{color:#ffe78a;border-color:rgba(255,210,70,.55);background:linear-gradient(135deg,rgba(255,210,70,.25),rgba(255,122,198,.15));box-shadow:0 0 24px rgba(255,210,70,.35)}
+  .streak-flame.rainbow{color:#fff;border-color:rgba(255,255,255,.4);background:linear-gradient(90deg,#ff7ac6,#ffd246,#4ade80,#5ec8ff,#b693ff);background-size:200% 100%;animation:rainbowSlide 4s linear infinite;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+  @keyframes flameFlick{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.18) rotate(3deg)}}
+  @keyframes rainbowSlide{from{background-position:0% 0}to{background-position:200% 0}}
+
+  /* Sunrise overlay (TV) */
+  #sunrise{position:fixed;inset:0;z-index:9990;display:none;pointer-events:none;overflow:hidden}
+  #sunrise.on{display:block}
+  .sun-sky{position:absolute;inset:0;background:linear-gradient(180deg,#0f0a2e 0%,#3a1d6e 25%,#ff7ac6 55%,#ffd246 85%,#fff6e6 100%);animation:sunSky 5.8s ease-out forwards}
+  @keyframes sunSky{0%{opacity:0}10%{opacity:.9}82%{opacity:.85}100%{opacity:0}}
+  .sun-disc{position:absolute;left:50%;bottom:-30vh;width:48vh;height:48vh;border-radius:50%;background:radial-gradient(circle,#fff8d8 0%,#ffd246 35%,#ff9a3c 60%,transparent 75%);transform:translateX(-50%);box-shadow:0 0 200px 60px rgba(255,210,70,.6);animation:sunRise 5.8s cubic-bezier(.4,.2,.3,1) forwards}
+  @keyframes sunRise{0%{bottom:-50vh;opacity:0}20%{opacity:1}55%{bottom:25vh}90%{bottom:25vh;opacity:.9}100%{bottom:25vh;opacity:0}}
+  .sun-title{position:absolute;left:50%;top:14%;transform:translateX(-50%);font-family:'Fredoka';font-weight:700;font-size:160px;color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.4),0 0 60px rgba(255,210,70,.7);animation:sunTitle 5.3s cubic-bezier(.2,1.6,.3,1) forwards;white-space:nowrap}
+  @keyframes sunTitle{0%{transform:translate(-50%,40px) scale(.6);opacity:0}15%{transform:translate(-50%,0) scale(1.1);opacity:1}25%{transform:translate(-50%,0) scale(1)}82%{opacity:1}100%{transform:translate(-50%,-20px) scale(1);opacity:0}}
+  .sun-sub{position:absolute;left:50%;top:34%;transform:translateX(-50%);font-family:'Fredoka';font-weight:600;font-size:54px;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.5);animation:sunTitle 5.3s cubic-bezier(.2,1.6,.3,1) .2s forwards;white-space:nowrap}
+  .sun-avatars{position:absolute;left:50%;bottom:14%;transform:translateX(-50%);display:flex;gap:80px;animation:sunTitle 5.3s cubic-bezier(.2,1.6,.3,1) .4s forwards}
+  .sun-av{font-size:200px;filter:drop-shadow(0 8px 30px rgba(0,0,0,.4))}
+  .sun-av.l{animation:avBobL 1.2s ease-in-out infinite}
+  .sun-av.r{animation:avBobR 1.2s ease-in-out infinite}
+  @keyframes avBobL{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-20px) rotate(4deg)}}
+  @keyframes avBobR{0%,100%{transform:translateY(-10px) rotate(4deg)}50%{transform:translateY(0) rotate(-4deg)}}
+
+  /* "Venter på"-bånd på TV */
+  #waiting{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:60;display:none;background:rgba(0,0,0,.55);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:99px;padding:14px 28px;font-family:'Fredoka';font-weight:600;font-size:22px;color:#fff;box-shadow:0 12px 40px rgba(0,0,0,.5);gap:14px;align-items:center}
+  #waiting.on{display:flex;animation:fadeInDown .6s ease-out both}
+  @keyframes fadeInDown{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+  /* Mystery reveal på TV */
+  #mystery-tv{position:fixed;inset:0;z-index:9991;display:none;pointer-events:none;align-items:center;justify-content:center;background:rgba(15,10,46,.45);backdrop-filter:blur(4px)}
+  #mystery-tv.on{display:flex;animation:fadeIn .4s ease-out both}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .myst-box{font-size:220px;animation:mystBox 1.7s cubic-bezier(.2,1.6,.3,1) forwards;text-shadow:0 0 80px rgba(255,210,70,.8)}
+  @keyframes mystBox{0%{transform:scale(0) rotate(-180deg);opacity:0}25%{transform:scale(1.5) rotate(20deg);opacity:1}40%{transform:scale(1.2) rotate(-15deg)}55%{transform:scale(1.4) rotate(10deg)}80%{transform:scale(1.3) rotate(0)}100%{transform:scale(0) rotate(0);opacity:0}}
+  .myst-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(160deg,rgba(255,255,255,.97),rgba(255,246,230,.97));color:#1a103d;border-radius:32px;padding:44px 70px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 120px rgba(255,210,70,.45);max-width:80vw;opacity:0}
+  .myst-card.show{animation:mystCard 4.5s cubic-bezier(.2,1.6,.3,1) forwards}
+  @keyframes mystCard{0%{transform:translate(-50%,-50%) scale(0);opacity:0}15%{transform:translate(-50%,-50%) scale(1.1);opacity:1}25%{transform:translate(-50%,-50%) scale(1)}85%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-60%) scale(.95);opacity:0}}
+  .myst-who{font-family:'Fredoka';font-weight:600;font-size:38px;color:#7c3aed;margin-bottom:8px}
+  .myst-emoji{font-size:170px;margin:6px 0;filter:drop-shadow(0 8px 20px rgba(0,0,0,.2));line-height:1}
+  .myst-text{font-family:'Fredoka';font-weight:600;font-size:42px;line-height:1.15;max-width:680px;margin:0 auto}
+  .myst-rare{font-family:'Fredoka';font-weight:700;font-size:22px;letter-spacing:3px;color:#c9a84c;margin-top:14px;text-transform:uppercase}
+
+  /* REMOTE: morgen-innsjekk panel */
+  .r-checkin{background:linear-gradient(160deg,rgba(255,210,70,.18),rgba(255,122,198,.12));border:2px solid rgba(255,210,70,.4);border-radius:24px;padding:18px;margin-bottom:16px;box-shadow:0 16px 40px -20px rgba(255,210,70,.4)}
+  .r-checkin-head{display:flex;align-items:center;gap:10px;font-family:'Fredoka';font-weight:600;font-size:20px;margin-bottom:4px}
+  .r-checkin-sub{font-size:13px;color:var(--soft);margin-bottom:14px;line-height:1.4}
+  .r-checkin-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .r-ci-btn{position:relative;background:linear-gradient(160deg,#fff,#fff6e6);color:#1a103d;border:none;border-radius:20px;padding:18px 12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'Fredoka';font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);transition:transform .15s ease;text-align:center}
+  .r-ci-btn:active{transform:scale(.96)}
+  .r-ci-btn.done{background:linear-gradient(160deg,#4ade80,#5ec8ff);color:#fff;cursor:default}
+  .r-ci-btn.done::after{content:'✓';position:absolute;top:8px;right:12px;font-size:18px;color:#fff;background:rgba(0,0,0,.25);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .r-ci-av{font-size:54px;line-height:1}
+  .r-ci-name{font-size:22px}
+  .r-ci-action{font-size:13px;color:#7c3aed}
+  .r-ci-btn.done .r-ci-action{color:rgba(255,255,255,.9)}
+  .r-ci-time{font-size:12px;color:rgba(255,255,255,.85);margin-top:2px}
+
+  .r-mystery{margin-top:14px;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.25);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .r-myst-title{font-family:'Fredoka';font-weight:600;font-size:16px;color:var(--yellow)}
+  .r-myst-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .r-myst-btn{background:linear-gradient(135deg,#ff7ac6,#ffd246);color:#1a103d;border:none;border-radius:16px;padding:14px;font-family:'Fredoka';font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 8px 20px rgba(255,122,198,.35);animation:mystShake 1.6s ease-in-out infinite;text-align:center}
+  .r-myst-btn:active{transform:scale(.96)}
+  @keyframes mystShake{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+  .r-myst-btn.opened{background:rgba(255,255,255,.08);color:#fff;animation:none;font-weight:600;border:1px solid var(--line);box-shadow:none;flex-direction:column;gap:4px;font-size:13px;padding:12px}
+  .r-myst-btn.opened .em{font-size:32px}
+  .r-myst-btn.opened .rare{font-size:10px;letter-spacing:1px;color:var(--yellow);font-weight:700}
+
+  .r-streak{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:14px}
+  .r-streak .em{font-size:48px;filter:drop-shadow(0 0 12px currentColor);animation:flameFlick 1.6s ease-in-out infinite;line-height:1}
+  .r-streak .info{flex:1;min-width:0}
+  .r-streak .num{font-family:'Fredoka';font-weight:700;font-size:32px;line-height:1}
+  .r-streak .lbl{font-size:13px;color:var(--soft);margin-top:2px}
+  .r-streak.blue{color:#9bd6ff}
+  .r-streak.purple{color:#d4baff}
+  .r-streak.gold{color:#ffe78a;background:linear-gradient(135deg,rgba(255,210,70,.18),rgba(255,122,198,.1));border-color:rgba(255,210,70,.4)}
+  .r-streak.rainbow{color:#fff;background:linear-gradient(90deg,rgba(255,122,198,.3),rgba(255,210,70,.3),rgba(74,222,128,.3),rgba(94,200,255,.3),rgba(182,147,255,.3));background-size:200% 100%;animation:rainbowSlide 4s linear infinite;border-color:rgba(255,255,255,.4)}
+
+  /* Admin morning controls */
+  .r-morning-admin{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+  .r-morning-row{display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap}
+  .r-morning-row label{font-size:13px;color:var(--soft);min-width:130px}
+  .r-morning-row input[type=time]{background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:10px;color:#fff;font-family:inherit;padding:6px 10px;font-size:14px;color-scheme:dark}
+  .r-morning-row input[type=checkbox]{width:22px;height:22px;accent-color:#4ade80}
+  .r-pool-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:280px;overflow-y:auto}
+  .r-pool-item{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13px}
+  .r-pool-item .em{font-size:24px;line-height:1}
+  .r-pool-item .rar{font-size:11px;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.1);white-space:nowrap}
+  .r-pool-item .rar.rare{background:rgba(255,210,70,.25);color:#ffe78a}
+  .r-pool-item .rar.star{background:rgba(74,222,128,.25);color:#9eebb6}
+  .r-pool-del{background:rgba(255,80,80,.2);border:1px solid rgba(255,80,80,.4);color:#ffb5b5;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;font-family:inherit}
 </style>
 </head>
 <body>
@@ -335,6 +430,7 @@
 
     <div class="card glow hero">
       <div class="label">Familiehub</div>
+      <div id="streak-flame-tv"></div>
       <div class="clock" id="clock">07:20</div>
       <div class="date" id="date">søndag 10. mai</div>
       <div class="weather-row"><span id="greeting">God morgen, Emma og Nora! 🌞</span></div>
@@ -472,6 +568,25 @@
   <div id="mega-sub"></div>
 </div>
 
+<!-- ───── MORGEN-INNSJEKK ───── -->
+<div id="waiting"></div>
+<div id="sunrise">
+  <div class="sun-sky"></div>
+  <div class="sun-disc"></div>
+  <div class="sun-title">GOD MORGEN! 🌞</div>
+  <div class="sun-sub" id="sun-sub">Emma og Nora er våkne!</div>
+  <div class="sun-avatars"><div class="sun-av l">👧</div><div class="sun-av r">👧</div></div>
+</div>
+<div id="mystery-tv">
+  <div class="myst-box" id="myst-box">🎁</div>
+  <div class="myst-card" id="myst-card">
+    <div class="myst-who" id="myst-who"></div>
+    <div class="myst-emoji" id="myst-emoji"></div>
+    <div class="myst-text" id="myst-text"></div>
+    <div class="myst-rare" id="myst-rare"></div>
+  </div>
+</div>
+
 <!-- ───── AWAY MODE ───── -->
 <div id="away" class="away">
   <div class="away-clock" id="away-clock"></div>
@@ -507,6 +622,8 @@
     </div>
 
     <div class="r-pane on" id="pane-stars">
+      <div id="r-checkin-wrap"></div>
+      <div id="r-streak-wrap"></div>
       <div class="r-card">
         <div class="r-child-head">
           <div class="avatar emma">👧</div>
@@ -571,6 +688,26 @@
         <button id="r-reset-nora" class="r-mode-btn reset" style="display:none" onclick="adultResetChild('nora')">↺ Nullstill Nora</button>
         <button id="r-reset-pappa" class="r-mode-btn reset" style="display:none" onclick="adultResetChild('pappa')">↺ Nullstill Pappa</button>
         <button id="r-reset-all" class="r-mode-btn reset" style="display:none;background:rgba(255,80,80,.25);color:#ffb5b5;border-color:rgba(255,80,80,.4)" onclick="adultResetAll()">🗑️ Nullstill ALLE stjerner</button>
+
+        <div class="r-morning-admin" id="r-morning-admin" style="display:none">
+          <div style="font-family:'Fredoka';font-weight:600;font-size:16px;margin-bottom:8px">🌞 Morgen-innsjekk</div>
+          <div class="r-morning-row"><label>Aktivert</label><input type="checkbox" id="ma-enabled"></div>
+          <div class="r-morning-row"><label>Vindu åpner</label><input type="time" id="ma-start"></div>
+          <div class="r-morning-row"><label>Frist (streak ⭐)</label><input type="time" id="ma-deadline"></div>
+          <div class="r-morning-row"><label>Vindu lukker</label><input type="time" id="ma-end"></div>
+          <button class="r-mode-btn" style="background:linear-gradient(135deg,#5ec8ff,#4ade80);font-size:14px;padding:10px;margin-top:6px" onclick="adultSaveMorning()">💾 Lagre innstillinger</button>
+          <button class="r-mode-btn" style="background:rgba(255,255,255,.08);margin-top:6px;font-size:13px;padding:10px" onclick="adultManualCheckin('emma')">✋ Manuell innsjekk: Emma</button>
+          <button class="r-mode-btn" style="background:rgba(255,255,255,.08);margin-top:6px;font-size:13px;padding:10px" onclick="adultManualCheckin('nora')">✋ Manuell innsjekk: Nora</button>
+          <button class="r-mode-btn reset" style="margin-top:6px;font-size:13px;padding:10px" onclick="adultResetTodayCheckin()">↺ Nullstill dagens innsjekk</button>
+          <button class="r-mode-btn reset" style="margin-top:6px;font-size:13px;padding:10px" onclick="adultResetStreak()">🔥 Nullstill streak-flammen</button>
+          <button class="r-mode-btn" style="background:rgba(255,255,255,.06);margin-top:6px;font-size:13px;padding:10px" onclick="adultTestSunrise()">▶︎ Test soloppgang-animasjon</button>
+
+          <div style="font-family:'Fredoka';font-weight:600;font-size:16px;margin:16px 0 6px">🎁 Mystery-box pool</div>
+          <div style="font-size:12px;color:var(--dim);margin-bottom:6px">Premier som tilfeldig trekkes når et barn sjekker inn.</div>
+          <div class="r-pool-list" id="r-pool-list"></div>
+          <button class="r-mode-btn" style="background:linear-gradient(135deg,#ff7ac6,#ffd246);color:#1a103d;margin-top:8px;font-size:14px;padding:10px" onclick="adultAddPool()">➕ Legg til premie i pool</button>
+          <button class="r-mode-btn" style="background:rgba(255,255,255,.06);margin-top:6px;font-size:13px;padding:10px" onclick="adultResetPool()">↺ Tilbakestill pool til standard</button>
+        </div>
       </div>
     </div>
   </div>
@@ -687,6 +824,22 @@ state.lastReset=state.lastReset||'';
 if(state.manualMode===undefined) state.manualMode=null;
 state.rewards=state.rewards||JSON.parse(JSON.stringify(DEFAULT_REWARDS));
 state.evening=state.evening||evening.map(e=>({...e}));
+const DEFAULT_MYSTERY_POOL=[
+  {id:'p-star',    emoji:'⭐',text:'Bonusstjerne!',                  type:'star',  rarity:'common',weight:3},
+  {id:'p-joker',   emoji:'🎫',text:'Joker: slipp én oppgave i dag',  type:'joker', rarity:'common',weight:2},
+  {id:'p-dessert', emoji:'🍦',text:'Du velger dessert i dag',         type:'reward',rarity:'common',weight:2},
+  {id:'p-screen',  emoji:'📺',text:'10 min ekstra skjermtid',         type:'reward',rarity:'common',weight:2},
+  {id:'p-music',   emoji:'🎵',text:'Du bestemmer musikken i bilen',   type:'reward',rarity:'common',weight:2},
+  {id:'p-book',    emoji:'📖',text:'Du velger godnatt-bok',           type:'reward',rarity:'common',weight:2},
+  {id:'p-hug',     emoji:'🤗',text:'Ekstra stor klem fra pappa',      type:'reward',rarity:'common',weight:3},
+  {id:'p-movie',   emoji:'🦄',text:'SJELDEN! Du velger lørdagsfilm',  type:'rare',  rarity:'rare',  weight:1},
+  {id:'p-park',    emoji:'🎢',text:'SJELDEN! Tur til lekeplassen',    type:'rare',  rarity:'rare',  weight:1},
+  {id:'p-treasure',emoji:'💎',text:'SJELDEN! Liten skatte-gave',      type:'rare',  rarity:'rare',  weight:1},
+];
+state.checkins=state.checkins||{};
+state.streak=state.streak||{count:0,lastDay:null};
+state.morningSettings=state.morningSettings||{enabled:true,startHM:'06:30',deadlineHM:'08:00',endHM:'10:30'};
+state.mysteryPool=state.mysteryPool||DEFAULT_MYSTERY_POOL.slice();
 function save(){try{localStorage.setItem('fhub_v2',JSON.stringify(state))}catch(e){}}
 function isHome(){return state.manualMode!==null?state.manualMode:autoHome()}
 
@@ -743,6 +896,12 @@ function handleMsg(m,role){
     if(m.type==='removestar'){ const v=state.stars[m.child][m.cat]||0; if(v>0){state.stars[m.child][m.cat]=v-1;save();renderStars();broadcastState();} }
     if(m.type==='setreward'){ state.rewards=state.rewards||{}; state.rewards[m.child]={emoji:m.emoji||'🎁',text:m.text||''}; save(); renderStars(); broadcastState(); }
     if(m.type==='setroutines'){ if(Array.isArray(m.list)){ state.evening=m.list; save(); renderRoutines(); broadcastState(); } }
+    if(m.type==='checkin'){ doCheckin(m.child, !!m.manual); broadcastState(); }
+    if(m.type==='openmystery'){ openMystery(m.child); broadcastState(); }
+    if(m.type==='resetcheckin'){ resetTodayCheckin(); broadcastState(); }
+    if(m.type==='resetstreak'){ state.streak={count:0,lastDay:null}; save(); renderStars(); broadcastState(); }
+    if(m.type==='setmorning'){ state.morningSettings={...(state.morningSettings||{}),...(m.settings||{})}; save(); broadcastState(); }
+    if(m.type==='setmysterypool'){ if(Array.isArray(m.pool)){ state.mysteryPool=m.pool; save(); broadcastState(); } }
     if(m.type==='confetti'){ celebrate(); }
     if(m.type==='photo'){ nextPhoto(); }
   }
@@ -757,7 +916,7 @@ let pinOkUntil=0;
 function adultUnlocked(){return Date.now()<pinOkUntil}
 function refreshAdultUI(){
   const ok=adultUnlocked();
-  const ids=['r-reset-emma','r-reset-nora','r-reset-pappa','r-reset-all','r-lock-btn'];
+  const ids=['r-reset-emma','r-reset-nora','r-reset-pappa','r-reset-all','r-lock-btn','r-morning-admin'];
   ids.forEach(id=>{const el=document.getElementById(id); if(el) el.style.display=ok?'block':'none';});
   const u=document.getElementById('r-unlock-btn'); if(u) u.style.display=ok?'none':'block';
   const s=document.getElementById('r-adult-status'); if(s) s.textContent=ok?'✅ Voksenmodus aktiv – minus-knapper synlige på stjerner':'Lås opp med PIN for å justere stjerner';
@@ -975,6 +1134,7 @@ function renderStars(){
       const tx=rw.querySelector('.reward-text'); if(tx) tx.textContent=data.text||'';
     }
   });
+  renderCheckinTV(); renderStreakTV();
 }
 
 /* ─── AUDIO: enkel synth-ding via Web Audio API ─── */
@@ -1288,6 +1448,7 @@ function renderRemote(){
     const editBtn=adultUnlocked()?`<button class="r-edit-btn" onclick="adultEditReward('${child}')">✏️ Endre premie</button>`:'';
     el.innerHTML=`<div class="r-reward-who">${child==='pappa'?'Pappa':child[0].toUpperCase()+child.slice(1)}</div><div class="r-reward-emoji">${rw.emoji||'🎁'}</div><div class="r-reward-text">${rw.text||''}</div>${editBtn}`;
   });
+  renderCheckinRemote(); renderStreakRemote(); renderMorningAdmin();
 }
 document.querySelectorAll('.r-tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.r-tab').forEach(x=>x.classList.remove('on'));
@@ -1380,7 +1541,7 @@ function makeQR(){
 function tick(){
   if(isPhone){renderRemote();return;}
   if(state.manualMode===null) setMode();
-  if(isHome()){renderClock();renderSleep();renderEvents();renderRoutines();}
+  if(isHome()){renderClock();renderSleep();renderEvents();renderRoutines();renderCheckinTV();renderStreakTV();}
   else renderAway();
 }
 
@@ -1400,6 +1561,246 @@ function tick(){
     document.body.appendChild(s);
   }
 })();
+
+/* ════════ MORGEN-INNSJEKK / MYSTERY / STREAK ════════ */
+const CHECKIN_KIDS=['emma','nora'];
+function hmToMin(hm){const[h,m]=(hm||'00:00').split(':').map(Number);return h*60+m;}
+function nowMin(){const d=new Date();return d.getHours()*60+d.getMinutes();}
+function todayKeyCI(){return ymd(new Date());}
+function yesterdayKeyCI(){const d=new Date();d.setDate(d.getDate()-1);return ymd(d);}
+function morningWindow(){const s=state.morningSettings||{startHM:'06:30',deadlineHM:'08:00',endHM:'10:30',enabled:true};return{start:hmToMin(s.startHM),deadline:hmToMin(s.deadlineHM),end:hmToMin(s.endHM),enabled:!!s.enabled};}
+function inWindow(){const w=morningWindow();if(!w.enabled)return false;const n=nowMin();return n>=w.start&&n<=w.end;}
+function beforeDeadline(){return nowMin()<=morningWindow().deadline;}
+function todayCheckin(){state.checkins=state.checkins||{};const k=todayKeyCI();state.checkins[k]=state.checkins[k]||{};return state.checkins[k];}
+function isCheckedIn(child){const c=todayCheckin();return !!(c[child]&&c[child].at);}
+function bothCheckedIn(){return CHECKIN_KIDS.every(c=>isCheckedIn(c));}
+
+function drawMystery(){
+  const pool=(state.mysteryPool&&state.mysteryPool.length)?state.mysteryPool:DEFAULT_MYSTERY_POOL;
+  const total=pool.reduce((s,p)=>s+(p.weight||1),0);
+  let r=Math.random()*total;
+  for(const p of pool){r-=(p.weight||1);if(r<=0)return p;}
+  return pool[pool.length-1];
+}
+
+function doCheckin(child,manual){
+  if(!CHECKIN_KIDS.includes(child))return;
+  const c=todayCheckin();
+  if(c[child]&&c[child].at)return;
+  const qualified=manual?true:(inWindow()&&beforeDeadline());
+  c[child]={at:Date.now(),qualified,manual:!!manual,mystery:drawMystery(),opened:false};
+  save();
+  const allQualified=bothCheckedIn()&&CHECKIN_KIDS.every(k=>c[k].qualified);
+  if(allQualified)updateStreakOnQualify();
+  if(!isPhone){
+    if(bothCheckedIn())setTimeout(()=>sunriseCelebrate(),200);
+    renderStars();renderCheckinTV();renderStreakTV();
+  }
+}
+
+function updateStreakOnQualify(){
+  state.streak=state.streak||{count:0,lastDay:null};
+  const t=todayKeyCI();
+  if(state.streak.lastDay===t)return;
+  if(state.streak.lastDay===yesterdayKeyCI())state.streak.count=(state.streak.count||0)+1;
+  else state.streak.count=1;
+  state.streak.lastDay=t;
+  save();
+}
+function streakBroken(){
+  if(!state.streak||!state.streak.lastDay||!state.streak.count)return false;
+  const last=state.streak.lastDay;
+  return last!==todayKeyCI()&&last!==yesterdayKeyCI();
+}
+function streakInfo(){
+  state.streak=state.streak||{count:0,lastDay:null};
+  let count=state.streak.count||0;
+  if(streakBroken())count=0;
+  let tier='blue',emoji='🔥',label='dager på rad';
+  if(count>=30){tier='rainbow';emoji='🌈🔥';}
+  else if(count>=14){tier='gold';emoji='🔥🔥';}
+  else if(count>=7){tier='gold';emoji='🔥';}
+  else if(count>=3){tier='purple';emoji='🔥';}
+  else if(count>=1){tier='blue';emoji='🔥';}
+  else{tier='blue';emoji='💤';label='ingen streak ennå';}
+  return{count,tier,emoji,label};
+}
+
+function renderStreakTV(){
+  const el=document.getElementById('streak-flame-tv');if(!el)return;
+  const s=streakInfo();
+  if(s.count<1){el.innerHTML='';return;}
+  el.innerHTML=`<div class="streak-flame ${s.tier}"><span class="em">${s.emoji}</span>${s.count} ${s.label}</div>`;
+}
+function renderStreakRemote(){
+  const el=document.getElementById('r-streak-wrap');if(!el)return;
+  const s=streakInfo();
+  const dl=(state.morningSettings&&state.morningSettings.deadlineHM)||'08:00';
+  if(s.count<1){
+    el.innerHTML=`<div class="r-streak blue"><div class="em">💤</div><div class="info"><div class="num">—</div><div class="lbl">Sjekk inn før kl ${dl} for å tenne flammen</div></div></div>`;
+    return;
+  }
+  el.innerHTML=`<div class="r-streak ${s.tier}"><div class="em">${s.emoji}</div><div class="info"><div class="num">${s.count}</div><div class="lbl">dager på rad – fortsett i morgen!</div></div></div>`;
+}
+
+function renderWaiting(){
+  const el=document.getElementById('waiting');if(!el)return;
+  if(!inWindow()||bothCheckedIn()){el.classList.remove('on');return;}
+  const waiting=CHECKIN_KIDS.filter(k=>!isCheckedIn(k));
+  const cap=s=>s[0].toUpperCase()+s.slice(1);
+  if(waiting.length===CHECKIN_KIDS.length){
+    el.innerHTML='🌞 Trykk på iPaden når du står opp!';
+  }else{
+    const done=CHECKIN_KIDS.find(k=>isCheckedIn(k));
+    el.innerHTML=`<span>✅ ${cap(done)} er våken</span><span style="color:rgba(255,255,255,.55)">venter på ${waiting.map(cap).join(' & ')}…</span>`;
+  }
+  el.classList.add('on');
+}
+function renderCheckinTV(){renderWaiting();}
+
+function renderCheckinRemote(){
+  const el=document.getElementById('r-checkin-wrap');if(!el)return;
+  const ms=state.morningSettings||{};
+  if(!ms.enabled){el.innerHTML='';return;}
+  const w=morningWindow(),n=nowMin();
+  if(!inWindow()&&!bothCheckedIn()){
+    if(n>w.end){el.innerHTML='';return;}
+    if(n<w.start){
+      el.innerHTML=`<div class="r-checkin"><div class="r-checkin-head">🌞 Morgen-innsjekk</div><div class="r-checkin-sub">Åpner kl ${ms.startHM}. Sjekk inn så fort du står opp!</div></div>`;
+      return;
+    }
+  }
+  const c=todayCheckin();
+  const cap=s=>s[0].toUpperCase()+s.slice(1);
+  const status=CHECKIN_KIDS.map(k=>{
+    const did=isCheckedIn(k);
+    if(did){
+      const info=c[k];
+      const t=new Date(info.at).toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'});
+      return `<button class="r-ci-btn done"><div class="r-ci-av">👧</div><div class="r-ci-name">${cap(k)}</div><div class="r-ci-action">Står opp ✓</div><div class="r-ci-time">${t}${info.qualified?' · ⭐':''}</div></button>`;
+    }
+    return `<button class="r-ci-btn" onclick="remoteCheckin('${k}')"><div class="r-ci-av">👧</div><div class="r-ci-name">${cap(k)}</div><div class="r-ci-action">Trykk når du står opp!</div></button>`;
+  }).join('');
+  let mystHtml='';
+  if(CHECKIN_KIDS.some(k=>c[k]&&c[k].mystery)){
+    mystHtml=`<div class="r-mystery"><div class="r-myst-title">🎁 Morgen-overraskelse</div><div class="r-myst-row">`+
+      CHECKIN_KIDS.map(k=>{
+        const info=c[k];
+        if(!info||!info.mystery)return `<div></div>`;
+        const m=info.mystery;
+        if(info.opened)return `<button class="r-myst-btn opened" disabled><span class="em">${m.emoji}</span><span>${cap(k)}: ${m.text}</span>${m.rarity==='rare'?'<span class="rare">★ SJELDEN ★</span>':''}</button>`;
+        return `<button class="r-myst-btn" onclick="remoteOpenMystery('${k}')">🎁 ${cap(k)} – Åpne!</button>`;
+      }).join('')+`</div></div>`;
+  }
+  el.innerHTML=`<div class="r-checkin"><div class="r-checkin-head">🌞 Morgen-innsjekk ${bothCheckedIn()?'✅':''}</div><div class="r-checkin-sub">Sjekk inn før kl ${ms.deadlineHM} for å holde streak-flammen levende.</div><div class="r-checkin-row">${status}</div>${mystHtml}</div>`;
+}
+
+function remoteCheckin(child){doCheckin(child,false);cmd('checkin',null,{child,manual:false});renderRemote();}
+function remoteOpenMystery(child){openMystery(child);cmd('openmystery',null,{child});renderRemote();}
+
+function openMystery(child){
+  const c=todayCheckin();
+  if(!c[child]||!c[child].mystery||c[child].opened)return;
+  c[child].opened=true;
+  const m=c[child].mystery;
+  save();
+  if(m.type==='star')addStar(child,'morgen');
+  if(!isPhone)mysteryRevealTV(child,m);
+  renderStars();
+}
+
+function mysteryRevealTV(child,m){
+  const o=document.getElementById('mystery-tv');if(!o)return;
+  const box=document.getElementById('myst-box'),card=document.getElementById('myst-card');
+  document.getElementById('myst-who').textContent=(child[0].toUpperCase()+child.slice(1))+' åpnet sin gave!';
+  document.getElementById('myst-emoji').textContent=m.emoji;
+  document.getElementById('myst-text').textContent=m.text;
+  document.getElementById('myst-rare').textContent=m.rarity==='rare'?'★ Sjelden! ★':'';
+  card.classList.remove('show');
+  box.style.display='block';
+  o.classList.add('on');
+  playDing(m.rarity==='rare'?3:1);
+  if(typeof confetti==='function'){
+    const col=m.rarity==='rare'?['#ffd246','#fff','#ff7ac6','#b693ff','#5ec8ff']:['#fff','#ffd246','#4ade80'];
+    confetti({particleCount:120,spread:120,startVelocity:50,origin:{y:.5},colors:col,shapes:['star','circle'],scalar:1.3});
+  }
+  setTimeout(()=>{box.style.display='none';card.classList.add('show');},1500);
+  setTimeout(()=>{o.classList.remove('on');card.classList.remove('show');box.style.display='block';},6500);
+}
+
+function sunriseCelebrate(){
+  const o=document.getElementById('sunrise');if(!o)return;
+  o.classList.add('on');
+  playDing(3);
+  if(typeof confetti==='function'){
+    const palette=['#ffd246','#ff7ac6','#fff8d8','#ff9a3c','#fff'];
+    const end=Date.now()+3500;
+    (function frame(){
+      confetti({particleCount:6,angle:60,spread:80,startVelocity:55,origin:{x:0,y:.9},colors:palette,scalar:1.1});
+      confetti({particleCount:6,angle:120,spread:80,startVelocity:55,origin:{x:1,y:.9},colors:palette,scalar:1.1});
+      if(Date.now()<end)requestAnimationFrame(frame);
+    })();
+  }
+  setTimeout(()=>o.classList.remove('on'),5800);
+}
+
+function resetTodayCheckin(){if(state.checkins)delete state.checkins[todayKeyCI()];save();if(!isPhone){renderStars();renderCheckinTV();}}
+
+/* ─── Voksen-administrasjon ─── */
+function adultResetTodayCheckin(){if(!adultUnlocked()){adultUnlock();return;}if(!confirm('Nullstille dagens innsjekk for begge barna?'))return;resetTodayCheckin();cmd('resetcheckin');renderRemote();}
+function adultResetStreak(){if(!adultUnlocked()){adultUnlock();return;}if(!confirm('Nullstille streak-flammen helt?'))return;state.streak={count:0,lastDay:null};save();cmd('resetstreak');renderRemote();}
+function adultManualCheckin(child){if(!adultUnlocked()){adultUnlock();return;}doCheckin(child,true);cmd('checkin',null,{child,manual:true});renderRemote();}
+function adultSaveMorning(){
+  if(!adultUnlocked()){adultUnlock();return;}
+  const en=document.getElementById('ma-enabled').checked;
+  const s=document.getElementById('ma-start').value||'06:30';
+  const d=document.getElementById('ma-deadline').value||'08:00';
+  const e=document.getElementById('ma-end').value||'10:30';
+  const settings={enabled:en,startHM:s,deadlineHM:d,endHM:e};
+  state.morningSettings=settings;save();
+  cmd('setmorning',null,{settings});
+  renderRemote();
+  alert('✅ Innstillinger lagret');
+}
+function adultTestSunrise(){if(!isPhone){sunriseCelebrate();}else{alert('Soloppgang vises på TV-en');}}
+function adultAddPool(){
+  if(!adultUnlocked()){adultUnlock();return;}
+  const emoji=prompt('Emoji:','🎁');if(emoji===null)return;
+  const text=prompt('Tekst (premie):','');if(!text||!text.trim())return;
+  const rare=confirm('Skal denne være SJELDEN? (OK = sjelden, Avbryt = vanlig)');
+  const star=!rare&&confirm('Skal premien gi en ekstra stjerne automatisk? (OK = ja)');
+  const item={id:'p'+Date.now().toString(36),emoji:emoji.trim()||'🎁',text:text.trim(),type:star?'star':(rare?'rare':'reward'),rarity:rare?'rare':'common',weight:rare?1:2};
+  state.mysteryPool=(state.mysteryPool||[]).concat([item]);save();
+  cmd('setmysterypool',null,{pool:state.mysteryPool});
+  renderMorningAdmin();
+}
+function adultDeletePool(id){
+  if(!adultUnlocked()){adultUnlock();return;}
+  state.mysteryPool=(state.mysteryPool||[]).filter(p=>p.id!==id);save();
+  cmd('setmysterypool',null,{pool:state.mysteryPool});
+  renderMorningAdmin();
+}
+function adultResetPool(){
+  if(!adultUnlocked()){adultUnlock();return;}
+  if(!confirm('Tilbakestille pool til standard?'))return;
+  state.mysteryPool=DEFAULT_MYSTERY_POOL.slice();save();
+  cmd('setmysterypool',null,{pool:state.mysteryPool});
+  renderMorningAdmin();
+}
+function renderMorningAdmin(){
+  const wrap=document.getElementById('r-morning-admin');if(!wrap||wrap.style.display==='none')return;
+  const s=state.morningSettings||{};
+  const en=document.getElementById('ma-enabled');if(en&&document.activeElement!==en)en.checked=!!s.enabled;
+  const st=document.getElementById('ma-start');if(st&&document.activeElement!==st)st.value=s.startHM||'06:30';
+  const dl=document.getElementById('ma-deadline');if(dl&&document.activeElement!==dl)dl.value=s.deadlineHM||'08:00';
+  const ed=document.getElementById('ma-end');if(ed&&document.activeElement!==ed)ed.value=s.endHM||'10:30';
+  const list=document.getElementById('r-pool-list');if(!list)return;
+  const pool=state.mysteryPool||DEFAULT_MYSTERY_POOL;
+  list.innerHTML=pool.map(p=>{
+    const tag=p.type==='star'?'<span class="rar star">+⭐</span>':(p.rarity==='rare'?'<span class="rar rare">sjelden</span>':'<span class="rar">vanlig</span>');
+    return `<div class="r-pool-item"><span class="em">${p.emoji}</span><span>${p.text}</span>${tag}<button class="r-pool-del" onclick="adultDeletePool('${p.id}')">×</button></div>`;
+  }).join('');
+}
 
 /* ════════ INIT ════════ */
 function init(){
