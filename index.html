@@ -1385,11 +1385,12 @@ function applyTheme(){
 const url=new URL(location.href);
 const hashMatch=url.hash.match(/remote[-=]([a-z0-9]+)/i);
 const forceTv=url.searchParams.get('tv')==='1'||url.searchParams.get('m')==='tv'||url.hash.includes('tv');
+const forceRemote=url.searchParams.get('forceremote')==='1';
 const qParam=url.searchParams.get('m')==='r'||url.searchParams.get('remote')==='1'||!!url.searchParams.get('c');
 const coarsePointer=window.matchMedia&&window.matchMedia('(pointer: coarse)').matches;
 const ipadDesktopMode=/Macintosh/i.test(navigator.userAgent)&&navigator.maxTouchPoints>1;
 const touchTablet=coarsePointer||ipadDesktopMode||/iPad|iPhone|Android/i.test(navigator.userAgent);
-const isPhone=!forceTv&&(!!hashMatch||qParam||url.hash.includes('remote')||touchTablet);
+const isPhone=!forceTv&&(forceRemote||!!hashMatch||qParam||url.hash.includes('remote')||touchTablet);
 let pairCode=(hashMatch?hashMatch[1].toUpperCase():null)||url.searchParams.get('c')||localStorage.getItem('fhub_pair')||null;
 
 /* ════════ MQTT (telefon ↔ TV) ════════ */
@@ -1421,6 +1422,13 @@ function connectMqtt(code,role){
       try{handleMsg(JSON.parse(msg.toString()),role)}catch(e){}
     });
   }catch(e){console.error(e)}
+}
+
+function clearTvOverlays(){
+  ['waiting','gift-waiting-tv','dressing-tv','tv-allowed-tv','mystery-tv','sunrise'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('on');});
+}
+function removeTvOverlaysForRemote(){
+  ['waiting','gift-waiting-tv','dressing-tv','tv-allowed-tv','mystery-tv','sunrise'].forEach(id=>{const el=document.getElementById(id);if(el)el.remove();});
 }
 
 function handleMsg(m,role){
@@ -1943,7 +1951,7 @@ function setMode(){
   if(isPhone){
     // Fjernkontroll (telefon/iPad) viser aldri borte-modus-overlegg eller TV-overlays
     document.getElementById('away').classList.remove('active');
-    ['waiting','gift-waiting-tv','dressing-tv','tv-allowed-tv','mystery-tv','sunrise'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('on');});
+    clearTvOverlays();
     return;
   }
   const home=isHome();
@@ -2761,7 +2769,6 @@ function init(){
   // demo-iframe parametre
   const themeParam=url.searchParams.get('theme');
   if(themeParam){state.theme=themeParam; state.themeAuto=false;}
-  const forceRemote=url.searchParams.get('forceremote')==='1';
 
   if(isPhone||forceRemote){
     document.documentElement.classList.add('scrollable');
@@ -2769,6 +2776,7 @@ function init(){
     const _aw=document.getElementById('away'); if(_aw) _aw.remove();
     document.getElementById('tv').style.display='none';
     document.getElementById('mode-toggle').style.display='none';
+    removeTvOverlaysForRemote();
     document.getElementById('remote').classList.add('active');
     if(pairCode && !forceRemote){
       document.getElementById('r-pair-screen').style.display='none';
