@@ -6,7 +6,7 @@
 <title>Familiehub ✨</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;700;800&family=Mountains+of+Christmas:wght@700&family=Creepster&family=Pacifico&family=Press+Start+2P&family=Bungee&family=Bungee+Inline&family=Patrick+Hand&family=Orbitron:wght@600;800&family=Playfair+Display:wght@700;900&family=Cinzel:wght@700;900&family=Black+Ops+One&family=Russo+One&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/mqtt@5.3.4/dist/mqtt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -41,7 +41,7 @@
   .tv.active{display:block}
   /* Ny layout: venstre = klokke|neste opp øverst + kveldsrutine (liggende) under,
      høyre = bilde i full høyde uten blur-ramme. */
-  .stage{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr 1.45fr;grid-template-rows:minmax(220px,auto) minmax(190px,auto) minmax(240px,1fr) auto auto;gap:18px;padding:22px}
+  .stage{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr 1.05fr;grid-template-rows:minmax(220px,auto) minmax(190px,auto) minmax(260px,1fr) auto auto;gap:18px;padding:22px}
 
   /* shared cards */
   .card{background:var(--card);border:1px solid var(--line);border-radius:32px;padding:28px;backdrop-filter:blur(14px);box-shadow:0 20px 60px -30px rgba(0,0,0,.5)}
@@ -56,7 +56,7 @@
 
   /* photo carousel — høyre side, full høyde, uten blur-ramme.
      Container er portrett-formet og bildene fyller via object-fit:cover. */
-  .photo{grid-column:3/4;grid-row:1/3;border-radius:32px;overflow:hidden;position:relative;background:#0a0420;min-height:480px}
+  .photo{grid-column:3/4;grid-row:1/4;border-radius:32px;overflow:hidden;position:relative;background:#0a0420;min-height:560px}
   .photo .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
   .photo .slide.on{opacity:1}
   .photo .slide img{width:100%;height:100%;object-fit:cover;display:block}
@@ -77,9 +77,9 @@
   .moons .num.swap{color:var(--pink)}
   .swap-text{font-size:14px;color:var(--dim);margin-top:4px;font-weight:700}
 
-  /* stars board – nå rad 3, full bredde */
-  .board{grid-column:1/4;grid-row:3/4;display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
-  .child{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:28px;padding:20px 22px;overflow:hidden}
+  /* stars board – nå smalere (kun col 1-2) for å gi plass til høyt portrettbilde */
+  .board{grid-column:1/3;grid-row:3/4;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .child{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:24px;padding:16px 16px;overflow:hidden;min-width:0}
   .child.emma{box-shadow:inset 0 0 0 2px rgba(255,210,70,.18)}
   .child.nora{box-shadow:inset 0 0 0 2px rgba(255,122,198,.22)}
   .child.pappa{box-shadow:inset 0 0 0 2px rgba(94,200,255,.22)}
@@ -429,9 +429,51 @@
   .theme-banner .tb-tx{line-height:1.15;white-space:nowrap}
   .theme-banner .tb-sub{font-size:11px;color:var(--dim);font-weight:700;letter-spacing:1px;text-transform:uppercase}
   .theme-banner.hide{display:none}
-  /* theme decorations (subtle floating sprites) */
-  .theme-sprite{position:fixed;pointer-events:none;z-index:1;font-size:48px;opacity:.85;filter:drop-shadow(0 6px 18px rgba(0,0,0,.4));animation:spriteFloat 22s linear infinite;will-change:transform}
+  /* theme decorations – flere bevegelses-typer + stor mascot bak alt */
+  .theme-sprite{position:fixed;pointer-events:none;z-index:1;font-size:48px;opacity:.85;filter:drop-shadow(0 6px 18px rgba(0,0,0,.4));will-change:transform;animation:spriteFloat 22s linear infinite}
   @keyframes spriteFloat{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(40px,-30px) rotate(8deg)}100%{transform:translate(0,0) rotate(0)}}
+  /* fall: snø, gaver, bananer */
+  .theme-sprite[data-anim="fall"]{top:-10vh;animation:spriteFall linear infinite}
+  @keyframes spriteFall{0%{transform:translateY(-10vh) rotate(0)}100%{transform:translateY(110vh) rotate(360deg)}}
+  /* drift: høyre-mot-venstre svev (bats, raketter, fugler) */
+  .theme-sprite[data-anim="drift"]{animation:spriteDrift linear infinite}
+  @keyframes spriteDrift{0%{transform:translate(110vw,0) rotate(-6deg)}100%{transform:translate(-20vw,-8vh) rotate(6deg)}}
+  /* hop: kaniner, padder */
+  .theme-sprite[data-anim="hop"]{animation:spriteHop ease-in-out infinite}
+  @keyframes spriteHop{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-40px) rotate(4deg)}}
+  /* spin: mynter, ringer */
+  .theme-sprite[data-anim="spin"]{animation:spriteSpin linear infinite}
+  @keyframes spriteSpin{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.15)}100%{transform:rotate(360deg) scale(1)}}
+  /* zoom: speedlines, lyn */
+  .theme-sprite[data-anim="zoom"]{animation:spriteZoom ease-in infinite}
+  @keyframes spriteZoom{0%{transform:translate(-30vw,0) scaleX(1);opacity:0}40%{opacity:1}100%{transform:translate(130vw,0) scaleX(2.5);opacity:0}}
+  /* pulse: hjerter, stjerner */
+  .theme-sprite[data-anim="pulse"]{animation:spritePulse ease-in-out infinite}
+  @keyframes spritePulse{0%,100%{transform:scale(.9);opacity:.5}50%{transform:scale(1.4);opacity:1}}
+
+  /* stor mascot i hjørnet */
+  .theme-mascot{position:fixed;z-index:0;pointer-events:none;font-size:34vh;line-height:1;opacity:.12;filter:drop-shadow(0 20px 60px rgba(0,0,0,.6));bottom:-4vh;right:-3vw;animation:mascotSway 9s ease-in-out infinite}
+  .theme-mascot.left{right:auto;left:-3vw;bottom:-2vh;animation-direction:reverse}
+  @keyframes mascotSway{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(5deg) translateY(-20px)}}
+
+  /* ─── PER-TEMA FONTER ─── */
+  body[data-theme="seventeenmai"] .clock,body[data-theme="seventeenmai"] .theme-banner .tb-tx{font-family:'Playfair Display',serif;font-weight:900;letter-spacing:-2px}
+  body[data-theme="jul"] .clock,body[data-theme="jul"] .theme-banner .tb-tx,body[data-theme="jul"] .next-name,body[data-theme="jul"] .child-name{font-family:'Mountains of Christmas',cursive;font-weight:700;letter-spacing:1px}
+  body[data-theme="halloween"] .clock,body[data-theme="halloween"] .theme-banner .tb-tx,body[data-theme="halloween"] .next-name,body[data-theme="halloween"] .child-name{font-family:'Creepster',cursive;letter-spacing:2px}
+  body[data-theme="paaske"] .clock,body[data-theme="paaske"] .theme-banner .tb-tx,body[data-theme="paaske"] .next-name{font-family:'Pacifico',cursive;letter-spacing:0}
+  body[data-theme="frozen"] .clock,body[data-theme="frozen"] .theme-banner .tb-tx,body[data-theme="frozen"] .next-name,body[data-theme="frozen"] .child-name{font-family:'Cinzel',serif;font-weight:900;letter-spacing:4px;text-transform:uppercase}
+  body[data-theme="minions"] .clock,body[data-theme="minions"] .theme-banner .tb-tx{font-family:'Bungee',sans-serif;letter-spacing:2px}
+  body[data-theme="pokemon"] .clock,body[data-theme="pokemon"] .theme-banner .tb-tx{font-family:'Press Start 2P',monospace;font-size:64px;letter-spacing:-2px}
+  body[data-theme="pawpatrol"] .clock,body[data-theme="pawpatrol"] .theme-banner .tb-tx,body[data-theme="pawpatrol"] .next-name{font-family:'Bungee Inline',sans-serif;letter-spacing:2px}
+  body[data-theme="bluey"] .clock,body[data-theme="bluey"] .theme-banner .tb-tx,body[data-theme="bluey"] .next-name,body[data-theme="bluey"] .child-name{font-family:'Patrick Hand',cursive;font-weight:700;letter-spacing:1px}
+  body[data-theme="kpop"] .clock,body[data-theme="kpop"] .theme-banner .tb-tx,body[data-theme="kpop"] .next-name{font-family:'Orbitron',sans-serif;font-weight:800;letter-spacing:3px}
+  body[data-theme="mario"] .clock,body[data-theme="mario"] .theme-banner .tb-tx{font-family:'Press Start 2P',monospace;font-size:60px;letter-spacing:-2px}
+  body[data-theme="sonic"] .clock,body[data-theme="sonic"] .theme-banner .tb-tx,body[data-theme="sonic"] .next-name{font-family:'Bungee',sans-serif;font-style:italic;letter-spacing:1px;transform:skewX(-8deg)}
+  body[data-theme="space"] .clock,body[data-theme="space"] .theme-banner .tb-tx,body[data-theme="space"] .next-name,body[data-theme="space"] .child-name{font-family:'Orbitron',sans-serif;font-weight:800;letter-spacing:4px;text-transform:uppercase}
+
+  /* større, mer markant tema-banner */
+  body[data-theme]:not([data-theme="standard"]) .theme-banner{padding:14px 22px;font-size:22px}
+  body[data-theme]:not([data-theme="standard"]) .theme-banner .tb-em{font-size:36px}
 
   /* THEME OVERRIDES — override CSS vars when body has data-theme set */
   body[data-theme="seventeenmai"]{background:linear-gradient(170deg,#c8102e 0%,#1c3678 60%,#0a1842 100%) !important}
@@ -1088,20 +1130,20 @@ function isHome(){return state.manualMode!==null?state.manualMode:autoHome()}
 
 /* ════════ THEMES REGISTRY ════════ */
 const THEMES=[
-  {id:'standard',  name:'Standard',     emoji:'✨', sub:'Familiehub',                 swatch:['#ff7ac6','#ffd246','#5ec8ff','#b693ff'], sprites:['✨','💫','⭐']},
-  {id:'seventeenmai',name:'17. mai',    emoji:'🇳🇴', sub:'Gratulerer med dagen!',     swatch:['#c8102e','#ffffff','#1c3678','#ffd246'], sprites:['🇳🇴','🎺','🎀','🌷']},
-  {id:'jul',       name:'Jul',          emoji:'🎄', sub:'God jul!',                   swatch:['#c0392b','#1e8449','#ffd246','#ffffff'], sprites:['🎄','🎅','🦌','❄️','🎁']},
-  {id:'halloween', name:'Halloween',    emoji:'🎃', sub:'Spooky!',                    swatch:['#ff7518','#7d3cff','#0a0712','#ffd246'], sprites:['🎃','👻','🦇','🕷️','🕸️']},
-  {id:'paaske',    name:'Påske',        emoji:'🐣', sub:'God påske!',                 swatch:['#ffd246','#a7e8a0','#ffb3d1','#fff6e6'], sprites:['🐣','🐰','🌷','🥚','🌼']},
-  {id:'frozen',    name:'Frozen',       emoji:'❄️', sub:'Let it go!',                 swatch:['#9bd6ff','#c5e6ff','#5b8bff','#ffffff'], sprites:['❄️','⛄','✨','💎','🏔️']},
-  {id:'minions',   name:'Minions',      emoji:'🍌', sub:'Banana!',                    swatch:['#ffd23a','#1565c0','#000000','#ffffff'], sprites:['🍌','👀','💛','🥽']},
-  {id:'pokemon',   name:'Pokémon',      emoji:'⚡',  sub:'Gotta catch \'em all!',     swatch:['#cc0000','#ffd700','#1a3a8e','#ffffff'], sprites:['⚡','🔴','⚪','🌿','🔥','💧']},
-  {id:'pawpatrol', name:'Paw Patrol',   emoji:'🐾', sub:'Paw Patrol is on a roll!',   swatch:['#d32f2f','#1976d2','#ffd246','#ffffff'], sprites:['🐾','🚒','🚓','🐶','🚁']},
-  {id:'bluey',     name:'Bluey',        emoji:'🐕', sub:'Wackadoo!',                  swatch:['#5ec8ff','#1a4d80','#ff9f43','#ffd246'], sprites:['🐕','🎾','🦴','🌈','🇦🇺']},
-  {id:'kpop',      name:'K-Pop',        emoji:'💜', sub:'Bias drop!',                 swatch:['#ff5fa2','#7c3aed','#5ec8ff','#ffd246'], sprites:['💜','🎤','💖','🌟','🎶']},
-  {id:'mario',     name:'Super Mario',  emoji:'🍄', sub:'Let\'s-a go!',               swatch:['#e52521','#43a047','#ffd700','#5ab8ff'], sprites:['🍄','⭐','🪙','🐢','🌟','🏰']},
-  {id:'sonic',     name:'Sonic',        emoji:'💨', sub:'Gotta go fast!',             swatch:['#1e88e5','#ffd23a','#0d47a1','#ffffff'], sprites:['💨','💍','⚡','🌀']},
-  {id:'space',     name:'Romfart',      emoji:'🚀', sub:'To infinity and beyond!',    swatch:['#7c4dff','#1a237e','#ffd700','#ffffff'], sprites:['🚀','🌌','🪐','👽','⭐','🛸']},
+  {id:'standard',  name:'Standard',     emoji:'✨', sub:'Familiehub',                 swatch:['#ff7ac6','#ffd246','#5ec8ff','#b693ff'], sprites:['✨','💫','⭐'], anim:'pulse', mascot:''},
+  {id:'seventeenmai',name:'17. mai',    emoji:'🇳🇴', sub:'Hipp hipp hurra!',          swatch:['#c8102e','#ffffff','#1c3678','#ffd246'], sprites:['🇳🇴','🎺','🎀','🌷','👑','🥁'], anim:'drift', mascot:'🇳🇴'},
+  {id:'jul',       name:'God jul',      emoji:'🎄', sub:'Ho ho ho!',                  swatch:['#c0392b','#1e8449','#ffd246','#ffffff'], sprites:['❄️','❄️','❄️','🎁','🎅','🦌','⛄','🎄'], anim:'fall', mascot:'🎄'},
+  {id:'halloween', name:'Halloween',    emoji:'🎃', sub:'Knask eller knep!',          swatch:['#ff7518','#7d3cff','#0a0712','#ffd246'], sprites:['🎃','👻','🦇','🕷️','🕸️','💀','🧙'], anim:'drift', mascot:'🎃'},
+  {id:'paaske',    name:'Påske',        emoji:'🐣', sub:'God påske!',                 swatch:['#ffd246','#a7e8a0','#ffb3d1','#fff6e6'], sprites:['🐣','🐰','🌷','🥚','🌼','🐤'], anim:'hop', mascot:'🐰'},
+  {id:'frozen',    name:'Frozen',       emoji:'❄️', sub:'Let it go!',                 swatch:['#9bd6ff','#c5e6ff','#5b8bff','#ffffff'], sprites:['❄️','❄️','❄️','✨','💎','⛄','🏔️'], anim:'fall', mascot:'❄️'},
+  {id:'minions',   name:'Minions',      emoji:'🍌', sub:'BANANA!',                    swatch:['#ffd23a','#1565c0','#000000','#ffffff'], sprites:['🍌','🍌','👀','💛','🥽','🥼'], anim:'fall', mascot:'🍌'},
+  {id:'pokemon',   name:'Pokémon',      emoji:'⚡',  sub:'Gotta catch \'em all!',     swatch:['#cc0000','#ffd700','#1a3a8e','#ffffff'], sprites:['⚡','🔴','🌿','🔥','💧','🌟'], anim:'spin', mascot:'⚡'},
+  {id:'pawpatrol', name:'Paw Patrol',   emoji:'🐾', sub:'On a roll!',                 swatch:['#d32f2f','#1976d2','#ffd246','#ffffff'], sprites:['🐾','🚒','🚓','🐶','🚁','🚨'], anim:'drift', mascot:'🐾'},
+  {id:'bluey',     name:'Bluey',        emoji:'🐕', sub:'Wackadoo!',                  swatch:['#5ec8ff','#1a4d80','#ff9f43','#ffd246'], sprites:['🐕','🎾','🦴','🌈','🇦🇺','🐨'], anim:'hop', mascot:'🐕'},
+  {id:'kpop',      name:'K-Pop',        emoji:'💜', sub:'Bias drop!',                 swatch:['#ff5fa2','#7c3aed','#5ec8ff','#ffd246'], sprites:['💜','🎤','💖','🌟','🎶','✨'], anim:'pulse', mascot:'💜'},
+  {id:'mario',     name:'Super Mario',  emoji:'🍄', sub:'Let\'s-a go!',               swatch:['#e52521','#43a047','#ffd700','#5ab8ff'], sprites:['🍄','⭐','🪙','🪙','🐢','🏰','🔥'], anim:'spin', mascot:'🍄'},
+  {id:'sonic',     name:'Sonic',        emoji:'💨', sub:'Gotta go fast!',             swatch:['#1e88e5','#ffd23a','#0d47a1','#ffffff'], sprites:['💨','💍','💍','⚡','🌀'], anim:'zoom', mascot:'💨'},
+  {id:'space',     name:'Romfart',      emoji:'🚀', sub:'To infinity!',               swatch:['#7c4dff','#1a237e','#ffd700','#ffffff'], sprites:['🚀','🌌','🪐','👽','⭐','🛸','🌠'], anim:'drift', mascot:'🚀'},
 ];
 function themeById(id){return THEMES.find(t=>t.id===id)||THEMES[0];}
 function pickAutoTheme(){
@@ -1126,22 +1168,64 @@ function applyTheme(){
     if(id==='standard'){banner.classList.add('hide');}
     else{banner.classList.remove('hide');em.textContent=t.emoji;tx.textContent=t.name+' – '+t.sub;}
   }
-  // sprites
+  // sprites + mascot
   const sp=document.getElementById('theme-sprites');
   if(sp){
     sp.innerHTML='';
     if(id!=='standard' && !isPhone){
-      const arr=t.sprites||[];
-      for(let i=0;i<10;i++){
+      const arr=t.sprites||[]; const anim=t.anim||'pulse';
+      // stor mascot bak alt (gjentas i to hjørner)
+      if(t.mascot){
+        ['','left'].forEach(side=>{
+          const m=document.createElement('div');
+          m.className='theme-mascot'+(side?' '+side:'');
+          m.textContent=t.mascot;
+          sp.appendChild(m);
+        });
+      }
+      const N = (anim==='fall')?28 : (anim==='drift')?14 : (anim==='zoom')?8 : 18;
+      for(let i=0;i<N;i++){
         const e=document.createElement('div');
         e.className='theme-sprite';
+        e.setAttribute('data-anim', anim);
         e.textContent=arr[i%arr.length];
-        e.style.left=(Math.random()*92+2)+'vw';
-        e.style.top=(Math.random()*82+8)+'vh';
-        e.style.fontSize=(Math.random()*36+32)+'px';
-        e.style.animationDelay=(-Math.random()*22)+'s';
-        e.style.animationDuration=(18+Math.random()*16)+'s';
-        e.style.opacity=(0.5+Math.random()*0.4).toFixed(2);
+        // posisjonering pr. animasjonstype
+        if(anim==='fall'){
+          e.style.left=(Math.random()*98)+'vw';
+          e.style.fontSize=(Math.random()*28+26)+'px';
+          e.style.animationDuration=(6+Math.random()*9)+'s';
+          e.style.animationDelay=(-Math.random()*10)+'s';
+        } else if(anim==='drift'){
+          e.style.top=(Math.random()*70+5)+'vh';
+          e.style.fontSize=(Math.random()*40+36)+'px';
+          e.style.animationDuration=(14+Math.random()*16)+'s';
+          e.style.animationDelay=(-Math.random()*20)+'s';
+        } else if(anim==='zoom'){
+          e.style.top=(Math.random()*80+5)+'vh';
+          e.style.fontSize=(Math.random()*30+28)+'px';
+          e.style.animationDuration=(1.4+Math.random()*1.8)+'s';
+          e.style.animationDelay=(-Math.random()*3)+'s';
+        } else if(anim==='hop'){
+          e.style.left=(Math.random()*94+2)+'vw';
+          e.style.bottom=(Math.random()*16+2)+'vh';
+          e.style.top='auto';
+          e.style.fontSize=(Math.random()*30+38)+'px';
+          e.style.animationDuration=(1.6+Math.random()*1.6)+'s';
+          e.style.animationDelay=(-Math.random()*3)+'s';
+        } else if(anim==='spin'){
+          e.style.left=(Math.random()*92+2)+'vw';
+          e.style.top=(Math.random()*84+5)+'vh';
+          e.style.fontSize=(Math.random()*36+32)+'px';
+          e.style.animationDuration=(2.5+Math.random()*4)+'s';
+          e.style.animationDelay=(-Math.random()*4)+'s';
+        } else { // pulse
+          e.style.left=(Math.random()*92+2)+'vw';
+          e.style.top=(Math.random()*84+5)+'vh';
+          e.style.fontSize=(Math.random()*36+32)+'px';
+          e.style.animationDuration=(1.6+Math.random()*2.4)+'s';
+          e.style.animationDelay=(-Math.random()*3)+'s';
+        }
+        e.style.opacity=(0.55+Math.random()*0.4).toFixed(2);
         sp.appendChild(e);
       }
     }
@@ -1211,6 +1295,7 @@ function handleMsg(m,role){
     if(m.type==='setmorning'){ state.morningSettings={...(state.morningSettings||{}),...(m.settings||{})}; save(); broadcastState(); }
     if(m.type==='setmysterypool'){ if(Array.isArray(m.pool)){ state.mysteryPool=m.pool; save(); broadcastState(); } }
     if(m.type==='confetti'){ celebrate(); }
+    if(m.type==='sunrise'){ sunriseCelebrate(); }
     if(m.type==='photo'){ nextPhoto(); }
   }
   if(role==='remote'){
@@ -2042,14 +2127,24 @@ function mysteryRevealTV(child,m){
 
 function sunriseCelebrate(){
   const o=document.getElementById('sunrise');if(!o)return;
+  // Tving restart av CSS-animasjoner ved å klone alle barna (reflow er ikke nok når 'forwards' er satt)
+  o.classList.remove('on');
+  Array.from(o.children).forEach(ch=>{
+    const clone=ch.cloneNode(true);
+    o.replaceChild(clone, ch);
+  });
+  // forced reflow
+  void o.offsetWidth;
   o.classList.add('on');
-  playDing(3);
+  try{playDing(3);}catch(e){}
   if(typeof confetti==='function'){
     const palette=['#ffd246','#ff7ac6','#fff8d8','#ff9a3c','#fff'];
     const end=Date.now()+3500;
     (function frame(){
-      confetti({particleCount:6,angle:60,spread:80,startVelocity:55,origin:{x:0,y:.9},colors:palette,scalar:1.1});
-      confetti({particleCount:6,angle:120,spread:80,startVelocity:55,origin:{x:1,y:.9},colors:palette,scalar:1.1});
+      try{
+        confetti({particleCount:6,angle:60,spread:80,startVelocity:55,origin:{x:0,y:.9},colors:palette,scalar:1.1});
+        confetti({particleCount:6,angle:120,spread:80,startVelocity:55,origin:{x:1,y:.9},colors:palette,scalar:1.1});
+      }catch(e){}
       if(Date.now()<end)requestAnimationFrame(frame);
     })();
   }
@@ -2074,7 +2169,7 @@ function adultSaveMorning(){
   renderRemote();
   alert('✅ Innstillinger lagret');
 }
-function adultTestSunrise(){if(!isPhone){sunriseCelebrate();}else{alert('Soloppgang vises på TV-en');}}
+function adultTestSunrise(){ if(!isPhone) sunriseCelebrate(); cmd('sunrise'); }
 function adultAddPool(){
   if(!adultUnlocked()){adultUnlock();return;}
   const emoji=prompt('Emoji:','🎁');if(emoji===null)return;
