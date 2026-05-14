@@ -365,12 +365,38 @@
   /* Felles morgen-gave – ligger og rister på TV mens vi venter på sistemann */
   #gift-waiting-tv{position:fixed;inset:0;z-index:60;display:none;pointer-events:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,210,70,.18) 0%,rgba(15,10,46,.55) 60%);backdrop-filter:blur(6px)}
   #gift-waiting-tv.on{display:flex;animation:fadeIn .6s ease-out both}
-  #gift-waiting-tv .gw-wrap{position:relative;display:inline-block;animation:giftShake 1.3s cubic-bezier(.36,.07,.19,.97) infinite;transform-origin:center 70%}
-  #gift-waiting-tv .gw-box{font-size:32vh;line-height:1;filter:drop-shadow(0 0 60px rgba(255,210,70,.85)) drop-shadow(0 20px 40px rgba(0,0,0,.6));display:block}
-  /* Øyne som titter opp under lokket med jevne mellomrom */
-  #gift-waiting-tv .gw-eyes{position:absolute;left:50%;top:36%;transform:translate(-50%,0);font-size:6vh;letter-spacing:1.2vh;line-height:1;opacity:0;animation:peekEyes 5.5s ease-in-out infinite;text-shadow:0 0 12px rgba(0,0,0,.6);pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
-  #gift-waiting-tv .gw-eyes.b{animation-delay:2.7s;font-size:5vh;top:38%}
-  @keyframes peekEyes{0%,55%,100%{opacity:0;transform:translate(-50%,18px)}62%,72%{opacity:1;transform:translate(-50%,0)}66%{opacity:1;transform:translate(-50%,-2px)}80%,90%{opacity:1;transform:translate(-50%,0)}95%{opacity:0;transform:translate(-50%,12px)}}
+  /* ─── CSS-bygget gaveeske med lokk som åpner seg ─── */
+  #gift-waiting-tv .gw-wrap{position:relative;width:60vh;height:60vh;animation:giftShake 1.4s cubic-bezier(.36,.07,.19,.97) infinite;transform-origin:center 75%;filter:drop-shadow(0 0 80px rgba(255,210,70,.6)) drop-shadow(0 30px 50px rgba(0,0,0,.65))}
+  /* Boksen (under lokket) */
+  #gift-waiting-tv .gw-body{position:absolute;left:8%;right:8%;bottom:0;height:62%;background:linear-gradient(160deg,#e8344d 0%,#c41e3a 50%,#8b0d22 100%);border-radius:8px;box-shadow:inset 0 -20px 40px rgba(0,0,0,.4),inset 0 8px 20px rgba(255,255,255,.15);overflow:hidden}
+  /* Vertikal sløyfe-stripe */
+  #gift-waiting-tv .gw-body::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:14%;transform:translateX(-50%);background:linear-gradient(180deg,#ffd246,#ff9f1c);box-shadow:inset 2px 0 6px rgba(0,0,0,.2),inset -2px 0 6px rgba(0,0,0,.2)}
+  /* Innsiden – mørk når lokket åpner */
+  #gift-waiting-tv .gw-inside{position:absolute;left:8%;right:8%;top:38%;height:8%;background:radial-gradient(ellipse at center top,#1a0510 0%,#0a0208 100%);border-radius:4px;box-shadow:inset 0 6px 16px rgba(0,0,0,.9);z-index:1;opacity:0;transition:opacity .3s}
+  #gift-waiting-tv .gw-wrap.peek .gw-inside{opacity:1}
+  /* Lokket */
+  #gift-waiting-tv .gw-lid{position:absolute;left:0;right:0;top:28%;height:18%;background:linear-gradient(160deg,#ff4d63 0%,#d62a44 50%,#a01428 100%);border-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.5),inset 0 -6px 14px rgba(0,0,0,.3),inset 0 4px 10px rgba(255,255,255,.2);transform-origin:left center;animation:lidOpen 5s ease-in-out infinite;z-index:3}
+  #gift-waiting-tv .gw-lid::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:14%;transform:translateX(-50%);background:linear-gradient(180deg,#ffe066,#ffb84d);box-shadow:inset 2px 0 6px rgba(0,0,0,.2),inset -2px 0 6px rgba(0,0,0,.2)}
+  /* Sløyfe oppå */
+  #gift-waiting-tv .gw-bow{position:absolute;left:50%;top:14%;transform:translate(-50%,-50%);font-size:18vh;line-height:1;z-index:4;animation:lidOpen 5s ease-in-out infinite;transform-origin:left center;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+  /* Øyne som titter opp fra innsiden */
+  #gift-waiting-tv .gw-eyes{position:absolute;left:50%;top:40%;transform:translate(-50%,20px);font-size:9vh;line-height:1;letter-spacing:1.5vh;z-index:2;opacity:0;animation:eyesPeek 5s ease-in-out infinite;filter:drop-shadow(0 3px 6px rgba(0,0,0,.7))}
+  /* Lokket roterer opp og fram (åpner som et hengsel på venstre side) */
+  @keyframes lidOpen{
+    0%,15%,85%,100%{transform:rotate(0) translateY(0)}
+    35%,65%{transform:rotate(-55deg) translateY(-4%)}
+  }
+  /* Øyne dukker opp når lokket er åpent, blunker en gang, gjemmer seg igjen */
+  @keyframes eyesPeek{
+    0%,20%{opacity:0;transform:translate(-50%,30px)}
+    35%{opacity:1;transform:translate(-50%,-2vh)}
+    45%{opacity:1;transform:translate(-50%,-3vh)}
+    50%{opacity:.3;transform:translate(-50%,-3vh) scaleY(.15)} /* blunk */
+    55%{opacity:1;transform:translate(-50%,-3vh) scaleY(1)}
+    65%{opacity:1;transform:translate(-50%,-2vh)}
+    80%{opacity:0;transform:translate(-50%,30px)}
+    100%{opacity:0;transform:translate(-50%,30px)}
+  }
   #gift-waiting-tv .gw-title{font-family:'Fredoka',sans-serif;font-weight:700;font-size:48px;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.6);margin-top:20px;letter-spacing:1px}
   #gift-waiting-tv .gw-sub{font-family:'Fredoka',sans-serif;font-weight:500;font-size:26px;color:rgba(255,255,255,.85);margin-top:10px;text-align:center;max-width:80vw;line-height:1.4}
   #gift-waiting-tv .gw-sub b{color:#ffd246;font-weight:700}
@@ -380,6 +406,44 @@
   #gift-waiting-tv .gw-checked .item.wait{opacity:.6;animation:pulseWait 1.6s ease-in-out infinite}
   @keyframes giftShake{0%,100%{transform:translate(0,0) rotate(0)}10%{transform:translate(-4px,2px) rotate(-3deg)}20%{transform:translate(4px,-2px) rotate(3deg)}30%{transform:translate(-3px,1px) rotate(-2deg)}40%{transform:translate(3px,-1px) rotate(2deg)}50%{transform:translate(-2px,0) rotate(-1deg)}60%{transform:translate(2px,0) rotate(1deg)}70%{transform:translate(-1px,1px) rotate(-1deg)}80%{transform:translate(1px,-1px) rotate(1deg)}90%{transform:translate(0,0) rotate(0)}}
   @keyframes pulseWait{0%,100%{opacity:.5}50%{opacity:.95}}
+  /* ─── PÅKLEDNING-OVERLAY på TV ─── */
+  #dressing-tv{position:fixed;inset:0;z-index:62;display:none;pointer-events:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(120,200,255,.18) 0%,rgba(15,10,46,.7) 65%);backdrop-filter:blur(6px)}
+  #dressing-tv.on{display:flex;animation:fadeIn .6s ease-out both}
+  #dressing-tv .dr-title{font-family:'Fredoka',sans-serif;font-weight:700;font-size:54px;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.6);letter-spacing:1px;margin-bottom:8px}
+  #dressing-tv .dr-sub{font-family:'Fredoka',sans-serif;font-weight:500;font-size:24px;color:rgba(255,255,255,.85);margin-bottom:36px;text-align:center}
+  #dressing-tv .dr-row{display:flex;gap:48px;align-items:center;justify-content:center}
+  #dressing-tv .dr-kid{width:30vh;min-height:38vh;background:rgba(0,0,0,.45);border:3px solid rgba(255,255,255,.18);border-radius:32px;padding:24px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;backdrop-filter:blur(8px);box-shadow:0 20px 50px rgba(0,0,0,.5);transition:all .5s}
+  #dressing-tv .dr-kid.done{background:linear-gradient(160deg,rgba(74,222,128,.35),rgba(34,197,94,.25));border-color:rgba(74,222,128,.7);box-shadow:0 20px 60px rgba(74,222,128,.4),inset 0 0 60px rgba(74,222,128,.15)}
+  #dressing-tv .dr-kid .em{font-size:14vh;line-height:1;filter:drop-shadow(0 6px 12px rgba(0,0,0,.5));animation:dressBounce 1.8s ease-in-out infinite}
+  #dressing-tv .dr-kid.done .em{animation:dressDone 1s ease-out forwards}
+  #dressing-tv .dr-kid .nm{font-family:'Fredoka',sans-serif;font-weight:700;font-size:32px;color:#fff;letter-spacing:1px}
+  #dressing-tv .dr-kid .st{font-family:'Fredoka',sans-serif;font-weight:600;font-size:18px;color:rgba(255,255,255,.8)}
+  #dressing-tv .dr-kid.done .st{color:#86efac;font-weight:700}
+  #dressing-tv .dr-kid .clothes{display:flex;gap:6px;font-size:32px;opacity:.85}
+  @keyframes dressBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  @keyframes dressDone{0%{transform:scale(1)}40%{transform:scale(1.25) rotate(-6deg)}80%{transform:scale(1.1) rotate(4deg)}100%{transform:scale(1) rotate(0)}}
+
+  /* ─── TV-TILLATELSE etter begge påkledd ─── */
+  #tv-allowed-tv{position:fixed;inset:0;z-index:63;display:none;pointer-events:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,210,70,.25) 0%,rgba(15,10,46,.7) 65%);backdrop-filter:blur(8px)}
+  #tv-allowed-tv.on{display:flex;animation:fadeIn .6s ease-out both}
+  #tv-allowed-tv .ta-em{font-size:30vh;line-height:1;filter:drop-shadow(0 0 80px rgba(255,210,70,.7)) drop-shadow(0 20px 40px rgba(0,0,0,.6));animation:tvWobble 2.5s ease-in-out infinite}
+  #tv-allowed-tv .ta-title{font-family:'Fredoka',sans-serif;font-weight:800;font-size:64px;color:#ffd246;text-shadow:0 6px 30px rgba(0,0,0,.7),0 0 60px rgba(255,210,70,.5);margin-top:16px;letter-spacing:2px;text-transform:uppercase}
+  #tv-allowed-tv .ta-sub{font-family:'Fredoka',sans-serif;font-weight:500;font-size:28px;color:rgba(255,255,255,.9);margin-top:14px;text-align:center;max-width:80vw;line-height:1.4}
+  @keyframes tvWobble{0%,100%{transform:rotate(-3deg) scale(1)}50%{transform:rotate(3deg) scale(1.04)}}
+
+  /* ─── REMOTE: påkledning-panel ─── */
+  .r-dressing{margin-top:14px;background:linear-gradient(160deg,rgba(120,200,255,.15),rgba(94,200,255,.08));border:2px solid rgba(120,200,255,.35);border-radius:24px;padding:16px}
+  .r-dressing-head{font-family:'Fredoka',sans-serif;font-weight:600;font-size:18px;margin-bottom:4px;color:#fff}
+  .r-dressing-sub{font-size:13px;color:var(--soft);margin-bottom:14px;line-height:1.4}
+  .r-dressing-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .r-dr-btn{background:rgba(255,255,255,.08);color:#fff;border:2px solid rgba(255,255,255,.15);border-radius:18px;padding:16px 12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:16px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:transform .15s}
+  .r-dr-btn:active{transform:scale(.96)}
+  .r-dr-btn .em{font-size:38px;line-height:1}
+  .r-dr-btn.done{background:linear-gradient(160deg,rgba(74,222,128,.3),rgba(34,197,94,.2));border-color:rgba(74,222,128,.6);color:#86efac;cursor:default}
+  .r-tv-ok{margin-top:14px;background:linear-gradient(135deg,#ffd246,#ff9f1c);color:#1a103d;border-radius:20px;padding:18px;text-align:center;font-family:'Fredoka',sans-serif;font-weight:700;box-shadow:0 12px 30px rgba(255,210,70,.4)}
+  .r-tv-ok .big{font-size:44px;line-height:1;margin-bottom:6px}
+  .r-tv-ok .ttl{font-size:18px;letter-spacing:.5px}
+  .r-tv-ok .sub{font-size:13px;font-weight:500;margin-top:4px;color:#3a2510}
   #mystery-tv.on{display:flex;animation:fadeIn .4s ease-out both}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   .myst-box{font-size:220px;animation:mystBox 1.7s cubic-bezier(.2,1.6,.3,1) forwards;text-shadow:0 0 80px rgba(255,210,70,.8)}
@@ -790,10 +854,26 @@
   </div>
 </div>
 <div id="gift-waiting-tv">
-  <div class="gw-wrap"><div class="gw-box">🎁</div><div class="gw-eyes">👀</div><div class="gw-eyes b">👁️ 👁️</div></div>
+  <div class="gw-wrap peek">
+    <div class="gw-body"></div>
+    <div class="gw-eyes">👀</div>
+    <div class="gw-inside"></div>
+    <div class="gw-lid"></div>
+    <div class="gw-bow">🎀</div>
+  </div>
   <div class="gw-title">Dagens overraskelse venter!</div>
   <div class="gw-sub" id="gw-sub"></div>
   <div class="gw-checked" id="gw-checked"></div>
+</div>
+<div id="dressing-tv">
+  <div class="dr-title">👕 Tid for å kle på seg!</div>
+  <div class="dr-sub">Når begge er ferdig påkledd kan dere se på barne-TV mens pappa lager frokost</div>
+  <div class="dr-row" id="dr-row"></div>
+</div>
+<div id="tv-allowed-tv">
+  <div class="ta-em">📺</div>
+  <div class="ta-title">Barne-TV på!</div>
+  <div class="ta-sub" id="ta-sub">Begge er påkledd 🎉<br>Kos dere mens pappa lager frokost 🥞</div>
 </div>
 
 <!-- ───── AWAY MODE ───── -->
@@ -1344,6 +1424,8 @@ function handleMsg(m,role){
     if(m.type==='checkin'){ doCheckin(m.child, !!m.manual); broadcastState(); }
     if(m.type==='openmystery'){ openMystery(m.child); broadcastState(); }
     if(m.type==='resetcheckin'){ resetTodayCheckin(); broadcastState(); }
+    if(m.type==='dress'){ doDress(m.child); broadcastState(); }
+    if(m.type==='resetdress'){ resetTodayDressed(); broadcastState(); }
     if(m.type==='resetstreak'){ state.streak={count:0,lastDay:null}; save(); renderStars(); broadcastState(); }
     if(m.type==='setmorning'){ state.morningSettings={...(state.morningSettings||{}),...(m.settings||{})}; save(); broadcastState(); }
     if(m.type==='setmysterypool'){ if(Array.isArray(m.pool)){ state.mysteryPool=m.pool; save(); broadcastState(); } }
@@ -2043,7 +2125,7 @@ function doCheckin(child,manual){
   if(allQualified)updateStreakOnQualify();
   if(!isPhone){
     if(bothCheckedIn())setTimeout(()=>sunriseCelebrate(),200);
-    renderStars();renderCheckinTV();renderStreakTV();
+    renderStars();renderCheckinTV();renderStreakTV();renderDressingTV();
   }
 }
 
@@ -2121,7 +2203,43 @@ function renderGiftWaitingTV(){
     waiting.map(n=>`<div class="item wait">💤 ${n}</div>`).join('');
   o.classList.add('on');
 }
-function renderCheckinTV(){renderWaiting();renderGiftWaitingTV();}
+function renderCheckinTV(){renderWaiting();renderGiftWaitingTV();renderDressingTV();renderTvAllowedTV();}
+
+function renderDressingTV(){
+  const o=document.getElementById('dressing-tv');if(!o)return;
+  if(!bothCheckedIn()||!prizeOpened()||bothDressed()){o.classList.remove('on');return;}
+  const cap=s=>s[0].toUpperCase()+s.slice(1);
+  const row=document.getElementById('dr-row');if(!row)return;
+  row.innerHTML=CHECKIN_KIDS.map(k=>{
+    const done=isDressed(k);
+    return `<div class="dr-kid${done?' done':''}"><div class="em">${done?'✅':'👕'}</div><div class="nm">${cap(k)}</div><div class="clothes">${done?'🎉':'👕👖🧦👟'}</div><div class="st">${done?'Påkledd!':'Holder på…'}</div></div>`;
+  }).join('');
+  o.classList.add('on');
+}
+
+function renderTvAllowedTV(){
+  const o=document.getElementById('tv-allowed-tv');if(!o)return;
+  if(!bothCheckedIn()||!bothDressed()){o.classList.remove('on');return;}
+  o.classList.add('on');
+}
+
+function tvAllowedCelebrate(){
+  const dr=document.getElementById('dressing-tv');if(dr)dr.classList.remove('on');
+  renderTvAllowedTV();
+  try{playDing(3);}catch(e){}
+  if(typeof confetti==='function'){
+    const palette=['#ffd246','#ff7ac6','#5ec8ff','#86efac','#fff'];
+    const end=Date.now()+2500;
+    (function frame(){
+      try{
+        confetti({particleCount:5,angle:60,spread:80,startVelocity:50,origin:{x:0,y:.85},colors:palette,scalar:1});
+        confetti({particleCount:5,angle:120,spread:80,startVelocity:50,origin:{x:1,y:.85},colors:palette,scalar:1});
+      }catch(e){}
+      if(Date.now()<end)requestAnimationFrame(frame);
+    })();
+  }
+  setTimeout(()=>{const o=document.getElementById('tv-allowed-tv');if(o)o.classList.remove('on');},9000);
+}
 
 function renderCheckinRemote(){
   const el=document.getElementById('r-checkin-wrap');if(!el)return;
@@ -2172,8 +2290,23 @@ function renderCheckinRemote(){
     ? `Sjekk inn før kl ${ms.deadlineHM} for å holde streak-flammen levende.`
     : (beforeOpen ? `Vinduet åpner kl ${ms.startHM} (frist ${ms.deadlineHM}).`
                   : `Vinduet stengte kl ${ms.endHM}. Sjekk inn fortsatt, men uten ⭐ til streak.`);
-  el.innerHTML=`<div class="r-checkin"><div class="r-checkin-head">🌞 Morgen-innsjekk ${bothCheckedIn()?'✅':''}</div><div class="r-checkin-sub">${headSub}</div><div class="r-checkin-row">${status}</div>${mystHtml}</div>`;
+  let dressHtml='';
+  if(bothCheckedIn()&&prizeOpened()){
+    if(!bothDressed()){
+      const drBtns=CHECKIN_KIDS.map(k=>{
+        const done=isDressed(k);
+        if(done)return `<button class="r-dr-btn done" disabled><div class="em">✅</div>${cap(k)} – Påkledd!</button>`;
+        return `<button class="r-dr-btn" onclick="remoteDress('${k}')"><div class="em">👕</div>${cap(k)} – Ferdig påkledd</button>`;
+      }).join('');
+      dressHtml=`<div class="r-dressing"><div class="r-dressing-head">👕 Kle på dere!</div><div class="r-dressing-sub">Trykk når du har på deg alle klærne. Når begge er ferdige låses barne-TV opp.</div><div class="r-dressing-row">${drBtns}</div></div>`;
+    }else{
+      dressHtml=`<div class="r-tv-ok"><div class="big">📺</div><div class="ttl">Barne-TV låst opp!</div><div class="sub">Kos dere mens pappa lager frokost 🥞</div></div>`;
+    }
+  }
+  el.innerHTML=`<div class="r-checkin"><div class="r-checkin-head">🌞 Morgen-innsjekk ${bothCheckedIn()?'✅':''}</div><div class="r-checkin-sub">${headSub}</div><div class="r-checkin-row">${status}</div>${mystHtml}${dressHtml}</div>`;
 }
+
+function remoteDress(child){doDress(child);cmd('dress',null,{child});renderRemote();}
 
 function remoteCheckin(child){doCheckin(child,false);cmd('checkin',null,{child,manual:false});renderRemote();}
 function remoteOpenMystery(child){openMystery(child);cmd('openmystery',null,{child});renderRemote();}
@@ -2187,7 +2320,7 @@ function openMystery(child){
   const m=c._shared;
   save();
   if(m.type==='star')CHECKIN_KIDS.forEach(k=>addStar(k,'morgen'));
-  if(!isPhone)mysteryRevealTV('alle',m);
+  if(!isPhone){mysteryRevealTV('alle',m);setTimeout(()=>renderDressingTV(),6800);}
   renderStars();
 }
 
@@ -2237,7 +2370,7 @@ function sunriseCelebrate(){
   setTimeout(()=>o.classList.remove('on'),5800);
 }
 
-function resetTodayCheckin(){if(state.checkins)delete state.checkins[todayKeyCI()];save();if(!isPhone){renderStars();renderCheckinTV();}}
+function resetTodayCheckin(){if(state.checkins)delete state.checkins[todayKeyCI()];if(state.dressed)delete state.dressed[todayKeyCI()];save();if(!isPhone){renderStars();renderCheckinTV();}}
 
 /* ─── Voksen-administrasjon ─── */
 function adultResetTodayCheckin(){if(!adultUnlocked()){adultUnlock();return;}if(!confirm('Nullstille dagens innsjekk for begge barna?'))return;resetTodayCheckin();cmd('resetcheckin');renderRemote();}
