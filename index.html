@@ -52,13 +52,17 @@
   .date{font-family:'Fredoka';font-weight:500;font-size:26px;color:var(--soft);margin-top:6px;text-transform:capitalize}
   .weather-row{display:flex;gap:14px;margin-top:18px;align-items:center;color:var(--dim);font-size:18px;font-weight:700}
 
-  /* photo carousel - middle top */
-  .photo{grid-column:2/3;grid-row:1/2;border-radius:32px;overflow:hidden;position:relative;min-height:300px;background:#000}
-  .photo .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:140px;opacity:0;transition:opacity 1.2s ease, transform 8s ease;background-size:cover;background-position:center}
-  .photo .slide.on{opacity:1;transform:scale(1.06)}
-  .photo .slide img{width:100%;height:100%;object-fit:cover;display:block}
-  .photo .caption{position:absolute;left:24px;bottom:20px;font-family:'Fredoka';font-weight:600;font-size:24px;background:rgba(0,0,0,.35);padding:10px 18px;border-radius:18px;backdrop-filter:blur(10px)}
-  .photo .dots{position:absolute;right:20px;bottom:20px;display:flex;gap:6px}
+  /* photo carousel - middle top
+     Bildene vises i SIN HELHET (object-fit: contain) – ingen ansikter blir croppet.
+     Tomrommet rundt fylles av en uskarp, forstørret kopi av samme bilde (letterbox-blur). */
+  .photo{grid-column:2/3;grid-row:1/2;border-radius:32px;overflow:hidden;position:relative;min-height:300px;background:#0a0420}
+  .photo .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
+  .photo .slide.on{opacity:1}
+  /* uskarp bakgrunnskopi som fyller rammen pent */
+  .photo .slide::before{content:'';position:absolute;inset:-8%;background-image:var(--bg);background-size:cover;background-position:center;filter:blur(28px) brightness(.55) saturate(1.1);transform:scale(1.15);z-index:0}
+  .photo .slide img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 12px 28px rgba(0,0,0,.45))}
+  .photo .caption{position:absolute;left:24px;bottom:20px;font-family:'Fredoka';font-weight:600;font-size:24px;background:rgba(0,0,0,.4);padding:10px 18px;border-radius:18px;backdrop-filter:blur(10px);z-index:2}
+  .photo .dots{position:absolute;right:20px;bottom:20px;display:flex;gap:6px;z-index:2}
   .photo .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35)}
   .photo .dot.on{background:#fff;width:24px;border-radius:6px;transition:all .4s}
 
@@ -116,18 +120,19 @@
   .milestone.reached.gold{background:radial-gradient(circle,#fff2a8,#ffd246);color:#3a2a05;box-shadow:0 0 18px #ffd246}
   @keyframes msPop{0%{transform:translate(-50%,-50%) scale(.4)}60%{transform:translate(-50%,-50%) scale(1.5)}100%{transform:translate(-50%,-50%) scale(1)}}
 
-  /* kategori-oppdragskort: forklarer hva som gir stjerne, ikke hva slags stjerne */
-  .cat{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:14px;margin-bottom:6px;background:rgba(0,0,0,.22);transition:all .25s;border-left:3px solid transparent}
+  /* kategori-oppdragskort: HVA som gir stjerne. Stjernene tilhører IKKE kategorien — de samles bare i felles pott. */
+  .cat{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;margin-bottom:6px;background:rgba(0,0,0,.22);transition:all .25s;border-left:3px solid rgba(255,255,255,.1)}
   .cat:last-child{margin-bottom:0}
-  .cat-emoji{font-size:22px;flex-shrink:0;width:30px;text-align:center}
+  .cat-emoji{font-size:24px;flex-shrink:0;width:32px;text-align:center}
   .cat-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
   .cat-title{font-family:'Fredoka';font-weight:600;font-size:14px;color:#fff;line-height:1.1}
   .cat-desc{font-size:11px;color:var(--dim);font-weight:600;line-height:1.2}
-  .cat-stars{display:flex;gap:3px;justify-content:flex-end;flex-shrink:0}
-  /* alle stjerner ser like ut: gylne ⭐ */
-  .star{font-size:16px;line-height:1;filter:grayscale(1) opacity(.2);transition:all .35s}
-  .star.on{filter:none;animation:pop .55s cubic-bezier(.34,1.56,.64,1);text-shadow:0 0 8px rgba(255,210,70,.6)}
-  @keyframes pop{0%{transform:scale(0) rotate(-180deg)}100%{transform:scale(1) rotate(0)}}
+  /* liten teller-chip: vis hvor mange stjerner kategorien har bidratt med (uten å virke som tak) */
+  .cat-chip{flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-family:'Fredoka';font-weight:600;font-size:13px;color:var(--dim);transition:all .35s}
+  .cat-chip.has{background:linear-gradient(135deg,rgba(255,210,70,.18),rgba(255,122,198,.12));border-color:rgba(255,210,70,.35);color:#fff2a8;box-shadow:0 0 12px rgba(255,210,70,.18)}
+  .cat-chip .em{font-size:14px;filter:drop-shadow(0 0 4px rgba(255,210,70,.6))}
+  .cat-chip.bump{animation:chipBump .55s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes chipBump{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
 
   /* flying star (animasjon fra kategori → teller) */
   .fly-star{position:fixed;font-size:42px;z-index:9997;pointer-events:none;text-shadow:0 0 24px #ffd246;will-change:transform,opacity}
@@ -1382,9 +1387,12 @@ function renderRoutines(){
 function toggleRoutine(id){state.routines[id]=!state.routines[id]; save(); renderRoutines(); broadcastState();}
 
 /* ════════ Stars on TV ════════ */
-function totalS(child){const cs=catsFor(child);return cs.reduce((s,c)=>s+Math.min(state.stars[child][c.id]||0,STARS_MAX),0)}
-function maxS(child){return catsFor(child).length*STARS_MAX}
-function full(child){return catsFor(child).every(c=>(state.stars[child][c.id]||0)>=STARS_MAX)}
+/* Stjerner er detached fra kategoriene: én felles pott per barn.
+   Kategoriene viser BARE kriteriene/oppdragene som gir stjerner. */
+function totalS(child){return Object.values(state.stars[child]||{}).reduce((s,v)=>s+(v||0),0)}
+function maxS(child){const p=(state.profiles&&state.profiles[child])||DEFAULT_PROFILES[child]||{maxStars:15};return p.maxStars||15}
+function full(child){return totalS(child)>=maxS(child)}
+function catCount(child,catId){return state.stars[child]&&state.stars[child][catId]||0}
 function renderMeter(elId,total,max,child,prefix){
   const el=document.getElementById(elId); if(!el) return;
   const tiers=tiersFor(child);
@@ -1411,14 +1419,14 @@ function renderStars(){
   ['emma','nora','pappa'].forEach(child=>{
     const ce=document.getElementById(child+'-cats'); if(!ce) return;
     ce.innerHTML=catsFor(child).map(cat=>{
-      const c=Math.min(state.stars[child][cat.id]||0,STARS_MAX);
+      const c=catCount(child,cat.id);
       return `<div class="cat" data-cat="${cat.id}" data-child="${child}">
         <div class="cat-emoji">${cat.emoji}</div>
         <div class="cat-body">
           <div class="cat-title">${cat.name}</div>
           <div class="cat-desc">${cat.desc||''}</div>
         </div>
-        <div class="cat-stars">${Array.from({length:STARS_MAX},(_,j)=>`<div class="star ${j<c?'on':''}">⭐</div>`).join('')}</div>
+        <div class="cat-chip ${c>0?'has':''}" title="Stjerner tjent fra ${cat.name}"><span class="em">⭐</span><span>+${c}</span></div>
       </div>`;
     }).join('');
     const total=totalS(child), max=maxS(child);
@@ -1499,33 +1507,26 @@ function flyStarTV(child,catId){
 }
 
 function addStar(child,catId){
+  if(full(child)) return; // ukentlig pott er full
   const before=state.stars[child][catId]||0;
-  if(before>=STARS_MAX) return;
-  // tier-status FØR for milepælssjekk
   const prevTier=currentTier(child);
   state.stars[child][catId]=before+1;
-  const after=state.stars[child][catId];
   save();
-  // flying star — kjør FØR re-render slik at vi får riktig src-posisjon
   flyStarTV(child,catId);
-  // re-render litt etterpå så stjernen lander synlig
   setTimeout(()=>renderStars(),700);
   const cat=catsFor(child).find(c=>c.id===catId);
   const newTier=currentTier(child);
   const tierJump = newTier && (!prevTier || newTier.tier!==prevTier.tier);
   const intensity = tierJump ? (newTier.tier==='gold'?3:newTier.tier==='silver'?2:1) : 0;
   playDing(intensity);
-  // små partikler ved hver stjerne
   if(typeof confetti==='function'){
     confetti({particleCount:30,spread:55,origin:{y:.55},colors:['#ffd246','#fff','#ff7ac6'],scalar:.9});
   }
-  // milepæl-feiring (Bronse/Sølv) – mellomnivå
+  // Bronse/Sølv – mellomstor feiring
   if(tierJump && newTier.tier!=='gold'){
     setTimeout(()=>tierCelebrate(child,newTier),750);
   }
-  // ROW filled (5/5 i én kategori) → mellomstor feiring (men ikke hvis det også er gull)
-  if(after>=STARS_MAX && !full(child)) setTimeout(()=>rowComplete(child,cat),750);
-  // ALLE rader fulle → MEGA BANANAS (gull)
+  // GULL – full pott!
   if(full(child)) setTimeout(()=>megaCelebrate(child),750);
 }
 
@@ -1656,8 +1657,11 @@ function buildPhotos(){
   photoOrder.forEach((n,i)=>{
     const slide = document.createElement('div');
     slide.className = 'slide' + (i===0 ? ' on' : '');
+    const url = PHOTO_DIR + n + PHOTO_EXT;
+    // CSS-variabel brukes av ::before for uskarp letterbox-bakgrunn
+    slide.style.setProperty('--bg', `url("${url}")`);
     const img = document.createElement('img');
-    img.src = PHOTO_DIR + n + PHOTO_EXT;
+    img.src = url;
     img.alt = 'Familiebilde ' + n;
     img.loading = 'lazy';
     img.onerror = ()=>{ slide.style.background='linear-gradient(135deg,#ff7ac6,#ffd246)'; img.remove(); };
@@ -1713,20 +1717,18 @@ function renderRemote(){
   ['emma','nora','pappa'].forEach(child=>{
     const el=document.getElementById('r-'+child+'-cats'); if(!el) return;
     el.innerHTML=catsFor(child).map(cat=>{
-      const c=Math.min(state.stars[child][cat.id]||0,STARS_MAX);
-      const f=c>=STARS_MAX;
+      const c=catCount(child,cat.id);
+      const isFull=full(child); // hele uken er fylt
       const adultBtn=adultUnlocked()&&c>0
         ? `<button class="r-minus" onclick="event.stopPropagation();cmd('removestar',null,{child:'${child}',cat:'${cat.id}'})" title="Fjern en stjerne">−</button>`
         : '';
-      const starsLine=Array.from({length:STARS_MAX},(_,j)=>`<span class="s ${j<c?'on':''}">⭐</span>`).join('');
-      return `<button class="r-cat-btn ${f?'full':''}" ${f?'disabled':''} onclick="cmd('star',null,{child:'${child}',cat:'${cat.id}'})">
+      return `<button class="r-cat-btn ${c>0?'full':''}" ${isFull?'disabled':''} onclick="cmd('star',null,{child:'${child}',cat:'${cat.id}'})">
         <span class="r-cat-emoji">${cat.emoji}</span>
         <span class="r-cat-info">
           <span class="r-cat-name">${cat.name}</span>
           <span class="r-cat-desc">${cat.desc||''}</span>
-          <span class="r-cat-stars-line">${starsLine}</span>
         </span>
-        <span class="r-cat-count">${c}/${STARS_MAX}</span>
+        <span class="r-cat-count">${c>0?('⭐ +'+c):'+ ⭐'}</span>
         ${adultBtn}
       </button>`;
     }).join('');
