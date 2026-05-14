@@ -2103,6 +2103,23 @@ function beforeDeadline(){return nowMin()<=morningWindow().deadline;}
 function todayCheckin(){state.checkins=state.checkins||{};const k=todayKeyCI();state.checkins[k]=state.checkins[k]||{};return state.checkins[k];}
 function isCheckedIn(child){const c=todayCheckin();return !!(c[child]&&c[child].at);}
 function bothCheckedIn(){return CHECKIN_KIDS.every(c=>isCheckedIn(c));}
+function prizeOpened(){const c=todayCheckin();return CHECKIN_KIDS.some(k=>c[k]&&c[k].opened);}
+function todayDressed(){state.dressed=state.dressed||{};const k=todayKeyCI();state.dressed[k]=state.dressed[k]||{};return state.dressed[k];}
+function isDressed(child){const d=todayDressed();return !!(d[child]&&d[child].at);}
+function bothDressed(){return CHECKIN_KIDS.every(c=>isDressed(c));}
+function doDress(child){
+  if(!CHECKIN_KIDS.includes(child))return;
+  if(!bothCheckedIn()||!prizeOpened())return;
+  const d=todayDressed();
+  if(d[child]&&d[child].at)return;
+  d[child]={at:Date.now()};
+  save();
+  if(!isPhone){
+    renderDressingTV();
+    if(bothDressed())setTimeout(()=>tvAllowedCelebrate(),200);
+  }
+}
+function resetTodayDressed(){if(state.dressed)delete state.dressed[todayKeyCI()];save();if(!isPhone)renderCheckinTV();}
 
 function drawMystery(){
   const pool=(state.mysteryPool&&state.mysteryPool.length)?state.mysteryPool:DEFAULT_MYSTERY_POOL;
