@@ -1129,6 +1129,8 @@ function save(){try{localStorage.setItem('fhub_v2',JSON.stringify(state))}catch(
 function isHome(){return state.manualMode!==null?state.manualMode:autoHome()}
 
 /* ════════ THEMES REGISTRY ════════ */
+const SPRITE_BASE='https://cdn.jsdelivr.net/gh/magbjurling-sys/FamilyHUB@main/sprites';
+const SPRITE_BANK=(()=>{const t=['bluey', 'frozen', 'mario', 'minions', 'pawpatrol', 'pokemon', 'sonic'];const o={};t.forEach(k=>{o[k]=Array.from({length:10},(_,i)=>`${SPRITE_BASE}/${k}/${String(i+1).padStart(2,'0')}.png`);});return o;})();
 const THEMES=[
   {id:'standard',  name:'Standard',     emoji:'✨', sub:'Familiehub',                 swatch:['#ff7ac6','#ffd246','#5ec8ff','#b693ff'], sprites:['✨','💫','⭐'], anim:'pulse', mascot:''},
   {id:'seventeenmai',name:'17. mai',    emoji:'🇳🇴', sub:'Hipp hipp hurra!',          swatch:['#c8102e','#ffffff','#1c3678','#ffd246'], sprites:['🇳🇴','🎺','🎀','🌷','👑','🥁'], anim:'drift', mascot:'🇳🇴'},
@@ -1179,7 +1181,16 @@ function applyTheme(){
         ['','left'].forEach(side=>{
           const m=document.createElement('div');
           m.className='theme-mascot'+(side?' '+side:'');
-          m.textContent=t.mascot;
+          const _imgs=SPRITE_BANK[t.id];
+          if(_imgs && _imgs.length){
+            const im=document.createElement('img');
+            im.src=_imgs[0];
+            im.style.cssText='width:100%;height:100%;object-fit:contain;';
+            m.appendChild(im);
+            m.style.fontSize='0';
+          } else {
+            m.textContent=t.mascot;
+          }
           sp.appendChild(m);
         });
       }
@@ -1188,7 +1199,15 @@ function applyTheme(){
         const e=document.createElement('div');
         e.className='theme-sprite';
         e.setAttribute('data-anim', anim);
-        e.textContent=arr[i%arr.length];
+        const _bank=SPRITE_BANK[t.id];
+        if(_bank && _bank.length){
+          const im=document.createElement('img');
+          im.src=_bank[i%_bank.length];
+          im.style.cssText='width:1em;height:1em;object-fit:contain;display:block;';
+          e.appendChild(im);
+        } else {
+          e.textContent=arr[i%arr.length];
+        }
         // posisjonering pr. animasjonstype
         if(anim==='fall'){
           e.style.left=(Math.random()*98)+'vw';
