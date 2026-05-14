@@ -1699,7 +1699,7 @@ function renderStars(){
       const tx=rw.querySelector('.reward-text'); if(tx) tx.textContent=data.text||'';
     }
   });
-  renderCheckinTV(); renderStreakTV();
+  if(!isPhone){renderCheckinTV(); renderStreakTV();}
 }
 
 /* ─── AUDIO: enkel synth-ding via Web Audio API ─── */
@@ -1941,8 +1941,9 @@ function renderDots(){
 /* ════════ Mode (home/away) ════════ */
 function setMode(){
   if(isPhone){
-    // Fjernkontroll (telefon/iPad) viser aldri borte-modus-overlegg
+    // Fjernkontroll (telefon/iPad) viser aldri borte-modus-overlegg eller TV-overlays
     document.getElementById('away').classList.remove('active');
+    ['waiting','gift-waiting-tv','dressing-tv','tv-allowed-tv','mystery-tv','sunrise'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('on');});
     return;
   }
   const home=isHome();
@@ -2256,7 +2257,7 @@ function renderGiftWaitingTV(){
     waiting.map(n=>`<div class="item wait">💤 ${n}</div>`).join('');
   o.classList.add('on');
 }
-function renderCheckinTV(){renderWaiting();renderGiftWaitingTV();renderDressingTV();renderTvAllowedTV();}
+function renderCheckinTV(){if(isPhone)return;renderWaiting();renderGiftWaitingTV();renderDressingTV();renderTvAllowedTV();}
 
 function renderDressingTV(){
   const o=document.getElementById('dressing-tv');if(!o)return;
