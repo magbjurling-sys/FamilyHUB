@@ -1069,7 +1069,9 @@ const DEFAULT_MYSTERY_POOL=[
 ];
 state.checkins=state.checkins||{};
 state.streak=state.streak||{count:0,lastDay:null};
-state.morningSettings=state.morningSettings||{enabled:true,startHM:'06:30',deadlineHM:'08:00',endHM:'10:30'};
+state.morningSettings=state.morningSettings||{enabled:true,startHM:'06:30',deadlineHM:'06:35',endHM:'10:30'};
+// Migrering: bytt gammel default deadline (08:00) til ny default (06:35)
+if(state.morningSettingsV!==2){state.morningSettings.deadlineHM='06:35';state.morningSettingsV=2;}
 state.mysteryPool=state.mysteryPool||DEFAULT_MYSTERY_POOL.slice();
 const DEFAULT_PROFILES={
   emma: {name:'Emma',  age:'6 år',     emoji:'👧', maxStars:15},
@@ -1722,7 +1724,7 @@ function renderRemote(){
       const adultBtn=adultUnlocked()&&c>0
         ? `<button class="r-minus" onclick="event.stopPropagation();cmd('removestar',null,{child:'${child}',cat:'${cat.id}'})" title="Fjern en stjerne">−</button>`
         : '';
-      return `<button class="r-cat-btn ${c>0?'full':''}" ${isFull?'disabled':''} onclick="cmd('star',null,{child:'${child}',cat:'${cat.id}'})">
+      return `<button class="r-cat-btn ${isFull?'full':''}" ${isFull?'disabled':''} onclick="cmd('star',null,{child:'${child}',cat:'${cat.id}'})">
         <span class="r-cat-emoji">${cat.emoji}</span>
         <span class="r-cat-info">
           <span class="r-cat-name">${cat.name}</span>
@@ -1971,13 +1973,11 @@ function renderCheckinRemote(){
   const ms=state.morningSettings||{};
   if(!ms.enabled){el.innerHTML='';return;}
   const w=morningWindow(),n=nowMin();
-  if(!inWindow()&&!bothCheckedIn()){
-    if(n>w.end){el.innerHTML='';return;}
-    if(n<w.start){
-      el.innerHTML=`<div class="r-checkin"><div class="r-checkin-head">🌞 Morgen-innsjekk</div><div class="r-checkin-sub">Åpner kl ${ms.startHM}. Sjekk inn så fort du står opp!</div></div>`;
-      return;
-    }
-  }
+  // Sjekk-inn skal alltid være tilgjengelig — kun streak-kvalifikasjon avhenger av vinduet.
+  // Før vinduet åpner: vis ventemelding men la knappene være trykkbare allikevel.
+  const beforeOpen = n<w.start;
+  const afterEnd   = n>w.end;
+  const inside     = !beforeOpen && !afterEnd;
   const c=todayCheckin();
   const cap=s=>s[0].toUpperCase()+s.slice(1);
   const status=CHECKIN_KIDS.map(k=>{
@@ -1987,7 +1987,8 @@ function renderCheckinRemote(){
       const t=new Date(info.at).toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'});
       return `<button class="r-ci-btn done"><div class="r-ci-av">👧</div><div class="r-ci-name">${cap(k)}</div><div class="r-ci-action">Står opp ✓</div><div class="r-ci-time">${t}${info.qualified?' · ⭐':''}</div></button>`;
     }
-    return `<button class="r-ci-btn" onclick="remoteCheckin('${k}')"><div class="r-ci-av">👧</div><div class="r-ci-name">${cap(k)}</div><div class="r-ci-action">Trykk når du står opp!</div></button>`;
+    const sub = inside ? 'Trykk når du står opp!' : (beforeOpen ? `Åpner kl ${ms.startHM}` : 'Sjekk inn (etter frist)');
+    return `<button class="r-ci-btn" onclick="remoteCheckin('${k}')"><div class="r-ci-av">👧</div><div class="r-ci-name">${cap(k)}</div><div class="r-ci-action">${sub}</div></button>`;
   }).join('');
   let mystHtml='';
   if(CHECKIN_KIDS.some(k=>c[k]&&c[k].mystery)){
@@ -2000,7 +2001,11 @@ function renderCheckinRemote(){
         return `<button class="r-myst-btn" onclick="remoteOpenMystery('${k}')">🎁 ${cap(k)} – Åpne!</button>`;
       }).join('')+`</div></div>`;
   }
-  el.innerHTML=`<div class="r-checkin"><div class="r-checkin-head">🌞 Morgen-innsjekk ${bothCheckedIn()?'✅':''}</div><div class="r-checkin-sub">Sjekk inn før kl ${ms.deadlineHM} for å holde streak-flammen levende.</div><div class="r-checkin-row">${status}</div>${mystHtml}</div>`;
+  const headSub = inside
+    ? `Sjekk inn før kl ${ms.deadlineHM} for å holde streak-flammen levende.`
+    : (beforeOpen ? `Vinduet åpner kl ${ms.startHM} (frist ${ms.deadlineHM}).`
+                  : `Vinduet stengte kl ${ms.endHM}. Sjekk inn fortsatt, men uten ⭐ til streak.`);
+  el.innerHTML=`<div class="r-checkin"><div class="r-checkin-head">🌞 Morgen-innsjekk ${bothCheckedIn()?'✅':''}</div><div class="r-checkin-sub">${headSub}</div><div class="r-checkin-row">${status}</div>${mystHtml}</div>`;
 }
 
 function remoteCheckin(child){doCheckin(child,false);cmd('checkin',null,{child,manual:false});renderRemote();}
