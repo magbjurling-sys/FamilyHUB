@@ -212,15 +212,25 @@
   .remote{display:none;position:relative;z-index:2;min-height:100vh;padding:18px 22px 32px;max-width:1400px;margin:0 auto}
   /* Liggende iPad / brede skjermer */
   @media(min-width:820px){
-    .r-pane.on#pane-stars{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+    .remote{padding:14px 22px 28px}
+    .r-hero{padding:6px 0 12px}
+    .r-tabs{max-width:720px;margin-left:auto;margin-right:auto}
+    .r-cat-btn{font-size:17px;padding:16px 18px}
+    .r-cat-count{font-size:20px}
+    .r-child-name{font-size:22px}
+    /* HJEM (stjerner): innsjekk + streak på toppen, så Emma + Nora + Pappa side om side */
+    .r-pane.on#pane-stars{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-areas:'checkin checkin streak' 'emma nora pappa';gap:14px;align-items:start}
+    .r-pane.on#pane-stars #r-checkin-wrap{grid-area:checkin}
+    .r-pane.on#pane-stars #r-streak-wrap{grid-area:streak;align-self:start}
+    .r-pane.on#pane-stars > .r-card:nth-of-type(1){grid-area:emma}
+    .r-pane.on#pane-stars > .r-card:nth-of-type(2){grid-area:nora}
+    .r-pane.on#pane-stars > .r-card:nth-of-type(3){grid-area:pappa}
+    .r-pane.on#pane-stars .r-checkin{margin-bottom:0}
+    .r-pane.on#pane-stars .r-streak{margin-bottom:0;height:100%}
     .r-pane.on#pane-rewards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
     .r-pane.on#pane-routines{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-items:start}
     .r-pane.on#pane-mode{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-items:start}
     .r-pane.on .r-card{margin-bottom:0}
-    .r-tabs{max-width:640px;margin-left:auto;margin-right:auto}
-    .r-cat-btn{font-size:17px;padding:16px 18px}
-    .r-cat-count{font-size:20px}
-    .r-child-name{font-size:24px}
   }
   .remote.active{display:block}
   .r-hero{text-align:center;padding:14px 0 22px}
@@ -408,21 +418,18 @@
   @keyframes pulseWait{0%,100%{opacity:.5}50%{opacity:.95}}
   /* ─── PÅKLEDNING-OVERLAY på TV ─── */
   #dressing-tv{position:fixed;inset:0;z-index:62;display:none;pointer-events:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(120,200,255,.18) 0%,rgba(15,10,46,.7) 65%);backdrop-filter:blur(6px)}
-  #dressing-tv.on{display:flex;animation:fadeIn .6s ease-out both;pointer-events:auto}
+  #dressing-tv.on{display:flex;animation:fadeIn .6s ease-out both}
   #dressing-tv .dr-title{font-family:'Fredoka',sans-serif;font-weight:700;font-size:54px;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.6);letter-spacing:1px;margin-bottom:8px}
   #dressing-tv .dr-sub{font-family:'Fredoka',sans-serif;font-weight:500;font-size:24px;color:rgba(255,255,255,.85);margin-bottom:36px;text-align:center}
   #dressing-tv .dr-row{display:flex;gap:48px;align-items:center;justify-content:center}
-  #dressing-tv .dr-kid{width:30vh;min-height:42vh;background:rgba(0,0,0,.45);border:3px solid rgba(255,255,255,.18);border-radius:32px;padding:24px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;backdrop-filter:blur(8px);box-shadow:0 20px 50px rgba(0,0,0,.5);transition:all .3s;cursor:pointer;user-select:none;font:inherit;color:inherit}
-  #dressing-tv .dr-kid:not(.done):hover,#dressing-tv .dr-kid:not(.done):active{transform:scale(1.04);border-color:rgba(255,210,70,.7);box-shadow:0 24px 60px rgba(255,210,70,.4)}
-  #dressing-tv .dr-kid.done{background:linear-gradient(160deg,rgba(74,222,128,.35),rgba(34,197,94,.25));border-color:rgba(74,222,128,.7);box-shadow:0 20px 60px rgba(74,222,128,.4),inset 0 0 60px rgba(74,222,128,.15);cursor:default}
+  #dressing-tv .dr-kid{width:30vh;min-height:38vh;background:rgba(0,0,0,.45);border:3px solid rgba(255,255,255,.18);border-radius:32px;padding:24px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;backdrop-filter:blur(8px);box-shadow:0 20px 50px rgba(0,0,0,.5);transition:all .5s}
+  #dressing-tv .dr-kid.done{background:linear-gradient(160deg,rgba(74,222,128,.35),rgba(34,197,94,.25));border-color:rgba(74,222,128,.7);box-shadow:0 20px 60px rgba(74,222,128,.4),inset 0 0 60px rgba(74,222,128,.15)}
   #dressing-tv .dr-kid .em{font-size:14vh;line-height:1;filter:drop-shadow(0 6px 12px rgba(0,0,0,.5));animation:dressBounce 1.8s ease-in-out infinite}
   #dressing-tv .dr-kid.done .em{animation:dressDone 1s ease-out forwards}
   #dressing-tv .dr-kid .nm{font-family:'Fredoka',sans-serif;font-weight:700;font-size:32px;color:#fff;letter-spacing:1px}
   #dressing-tv .dr-kid .st{font-family:'Fredoka',sans-serif;font-weight:600;font-size:18px;color:rgba(255,255,255,.8)}
   #dressing-tv .dr-kid.done .st{color:#86efac;font-weight:700}
   #dressing-tv .dr-kid .clothes{display:flex;gap:6px;font-size:32px;opacity:.85}
-  #dressing-tv .dr-kid .tap{margin-top:4px;background:linear-gradient(135deg,#ffd246,#ff7ac6);color:#1a103d;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;padding:14px 22px;border-radius:18px;box-shadow:0 6px 18px rgba(255,210,70,.45);letter-spacing:.5px}
-  #dressing-tv .dr-kid.done .tap{display:none}
   @keyframes dressBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
   @keyframes dressDone{0%{transform:scale(1)}40%{transform:scale(1.25) rotate(-6deg)}80%{transform:scale(1.1) rotate(4deg)}100%{transform:scale(1) rotate(0)}}
 
@@ -1441,7 +1448,23 @@ function handleMsg(m,role){
     if(m.type==='photo'){ nextPhoto(); }
   }
   if(role==='remote'){
-    if(m.type==='state'){ state=m.state; renderRemote(); }
+    if(m.type==='state'){
+      const incoming=m.state||{};
+      // Beskytt nylige lokale endringer (≤8s) mot å bli overskrevet av en eldre TV-state
+      const protectKeys=['checkins','dressed'];
+      const now=Date.now();
+      protectKeys.forEach(k=>{
+        if(state[k]&&state['_lo_'+k]&&now-state['_lo_'+k]<8000){
+          incoming[k]=incoming[k]||{};
+          // merge dypt på dagsnivå
+          Object.keys(state[k]).forEach(day=>{
+            incoming[k][day]={...(incoming[k][day]||{}),...state[k][day]};
+          });
+        }
+      });
+      state=incoming;
+      renderRemote();
+    }
   }
 }
 
@@ -2124,6 +2147,7 @@ function doDress(child){
   const d=todayDressed();
   if(d[child]&&d[child].at)return;
   d[child]={at:Date.now()};
+  state._lo_dressed=Date.now();
   save();
   if(!isPhone){
     renderDressingTV();
@@ -2148,6 +2172,7 @@ function doCheckin(child,manual){
   // FELLES dagens overraskelse – trekkes én gang, deles av alle barn
   if(!c._shared) c._shared=drawMystery();
   c[child]={at:Date.now(),qualified,manual:!!manual,mystery:c._shared,opened:false};
+  state._lo_checkins=Date.now();
   save();
   const allQualified=bothCheckedIn()&&CHECKIN_KIDS.every(k=>c[k].qualified);
   if(allQualified)updateStreakOnQualify();
@@ -2242,13 +2267,10 @@ function renderDressingTV(){
     const done=isDressed(k);
     const em=done?'✅':dressEmojiFor(k);
     const cl=done?'🎉':clothesFor(k);
-    const tap=done?'':`<div class="tap">Trykk når du er ferdig</div>`;
-    const onclick=done?'':` onclick="tvDressTap('${k}')"`;
-    return `<div class="dr-kid${done?' done':''}" role="button" tabindex="0"${onclick}><div class="em">${em}</div><div class="nm">${cap(k)}</div><div class="clothes">${cl}</div><div class="st">${done?'Påkledd!':'Holder på…'}</div>${tap}</div>`;
+    return `<div class="dr-kid${done?' done':''}"><div class="em">${em}</div><div class="nm">${cap(k)}</div><div class="clothes">${cl}</div><div class="st">${done?'Påkledd!':'Holder på…'}</div></div>`;
   }).join('');
   o.classList.add('on');
 }
-function tvDressTap(child){doDress(child);try{cmd&&cmd('dress',null,{child});}catch(e){}}
 
 function renderTvAllowedTV(){
   const o=document.getElementById('tv-allowed-tv');if(!o)return;
@@ -2339,7 +2361,7 @@ function renderCheckinRemote(){
   el.innerHTML=`<div class="r-checkin"><div class="r-checkin-head">🌞 Morgen-innsjekk ${bothCheckedIn()?'✅':''}</div><div class="r-checkin-sub">${headSub}</div><div class="r-checkin-row">${status}</div>${mystHtml}${dressHtml}</div>`;
 }
 
-function remoteDress(child){doDress(child);cmd('dress',null,{child});renderRemote();}
+function remoteDress(child){doDress(child);cmd('dress',null,{child});renderRemote();setTimeout(renderRemote,400);setTimeout(renderRemote,1500);}
 
 function remoteCheckin(child){doCheckin(child,false);cmd('checkin',null,{child,manual:false});renderRemote();}
 function remoteOpenMystery(child){openMystery(child);cmd('openmystery',null,{child});renderRemote();}
