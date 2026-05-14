@@ -39,7 +39,9 @@
   /* ─── TV layout 1920×1080 ─── */
   .tv{position:relative;z-index:2;width:100vw;height:100vh;display:none}
   .tv.active{display:block}
-  .stage{position:absolute;inset:0;display:grid;grid-template-columns:1.05fr 1.4fr 1fr;grid-template-rows:auto 1fr auto auto;gap:20px;padding:24px}
+  /* Smalere midtkolonne + høyere rad 1 → portrett-vennlig bilderamme.
+     (Liggende bilder vises fortsatt fint takket være letterbox-blur.) */
+  .stage{position:absolute;inset:0;display:grid;grid-template-columns:1.2fr 0.78fr 1.1fr;grid-template-rows:minmax(440px,0.95fr) 1fr auto auto;gap:20px;padding:24px}
 
   /* shared cards */
   .card{background:var(--card);border:1px solid var(--line);border-radius:32px;padding:28px;backdrop-filter:blur(14px);box-shadow:0 20px 60px -30px rgba(0,0,0,.5)}
@@ -55,7 +57,7 @@
   /* photo carousel - middle top
      Bildene vises i SIN HELHET (object-fit: contain) – ingen ansikter blir croppet.
      Tomrommet rundt fylles av en uskarp, forstørret kopi av samme bilde (letterbox-blur). */
-  .photo{grid-column:2/3;grid-row:1/2;border-radius:32px;overflow:hidden;position:relative;min-height:300px;background:#0a0420}
+  .photo{grid-column:2/3;grid-row:1/2;border-radius:32px;overflow:hidden;position:relative;min-height:440px;background:#0a0420}
   .photo .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
   .photo .slide.on{opacity:1}
   /* uskarp bakgrunnskopi som fyller rammen pent */
