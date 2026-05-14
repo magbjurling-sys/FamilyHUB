@@ -362,6 +362,24 @@
 
   /* Mystery reveal på TV */
   #mystery-tv{position:fixed;inset:0;z-index:9991;display:none;pointer-events:none;align-items:center;justify-content:center;background:rgba(15,10,46,.45);backdrop-filter:blur(4px)}
+  /* Felles morgen-gave – ligger og rister på TV mens vi venter på sistemann */
+  #gift-waiting-tv{position:fixed;inset:0;z-index:60;display:none;pointer-events:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(255,210,70,.18) 0%,rgba(15,10,46,.55) 60%);backdrop-filter:blur(6px)}
+  #gift-waiting-tv.on{display:flex;animation:fadeIn .6s ease-out both}
+  #gift-waiting-tv .gw-wrap{position:relative;display:inline-block;animation:giftShake 1.3s cubic-bezier(.36,.07,.19,.97) infinite;transform-origin:center 70%}
+  #gift-waiting-tv .gw-box{font-size:32vh;line-height:1;filter:drop-shadow(0 0 60px rgba(255,210,70,.85)) drop-shadow(0 20px 40px rgba(0,0,0,.6));display:block}
+  /* Øyne som titter opp under lokket med jevne mellomrom */
+  #gift-waiting-tv .gw-eyes{position:absolute;left:50%;top:36%;transform:translate(-50%,0);font-size:6vh;letter-spacing:1.2vh;line-height:1;opacity:0;animation:peekEyes 5.5s ease-in-out infinite;text-shadow:0 0 12px rgba(0,0,0,.6);pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+  #gift-waiting-tv .gw-eyes.b{animation-delay:2.7s;font-size:5vh;top:38%}
+  @keyframes peekEyes{0%,55%,100%{opacity:0;transform:translate(-50%,18px)}62%,72%{opacity:1;transform:translate(-50%,0)}66%{opacity:1;transform:translate(-50%,-2px)}80%,90%{opacity:1;transform:translate(-50%,0)}95%{opacity:0;transform:translate(-50%,12px)}}
+  #gift-waiting-tv .gw-title{font-family:'Fredoka',sans-serif;font-weight:700;font-size:48px;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.6);margin-top:20px;letter-spacing:1px}
+  #gift-waiting-tv .gw-sub{font-family:'Fredoka',sans-serif;font-weight:500;font-size:26px;color:rgba(255,255,255,.85);margin-top:10px;text-align:center;max-width:80vw;line-height:1.4}
+  #gift-waiting-tv .gw-sub b{color:#ffd246;font-weight:700}
+  #gift-waiting-tv .gw-checked{margin-top:24px;display:flex;gap:18px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:22px;color:rgba(255,255,255,.9)}
+  #gift-waiting-tv .gw-checked .item{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15);padding:10px 20px;border-radius:99px;display:flex;align-items:center;gap:8px}
+  #gift-waiting-tv .gw-checked .item.done{background:rgba(74,222,128,.2);border-color:rgba(74,222,128,.5)}
+  #gift-waiting-tv .gw-checked .item.wait{opacity:.6;animation:pulseWait 1.6s ease-in-out infinite}
+  @keyframes giftShake{0%,100%{transform:translate(0,0) rotate(0)}10%{transform:translate(-4px,2px) rotate(-3deg)}20%{transform:translate(4px,-2px) rotate(3deg)}30%{transform:translate(-3px,1px) rotate(-2deg)}40%{transform:translate(3px,-1px) rotate(2deg)}50%{transform:translate(-2px,0) rotate(-1deg)}60%{transform:translate(2px,0) rotate(1deg)}70%{transform:translate(-1px,1px) rotate(-1deg)}80%{transform:translate(1px,-1px) rotate(1deg)}90%{transform:translate(0,0) rotate(0)}}
+  @keyframes pulseWait{0%,100%{opacity:.5}50%{opacity:.95}}
   #mystery-tv.on{display:flex;animation:fadeIn .4s ease-out both}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   .myst-box{font-size:220px;animation:mystBox 1.7s cubic-bezier(.2,1.6,.3,1) forwards;text-shadow:0 0 80px rgba(255,210,70,.8)}
@@ -771,6 +789,12 @@
     <div class="myst-rare" id="myst-rare"></div>
   </div>
 </div>
+<div id="gift-waiting-tv">
+  <div class="gw-wrap"><div class="gw-box">🎁</div><div class="gw-eyes">👀</div><div class="gw-eyes b">👁️ 👁️</div></div>
+  <div class="gw-title">Dagens overraskelse venter!</div>
+  <div class="gw-sub" id="gw-sub"></div>
+  <div class="gw-checked" id="gw-checked"></div>
+</div>
 
 <!-- ───── AWAY MODE ───── -->
 <div id="away" class="away">
@@ -1097,16 +1121,26 @@ if(state.manualMode===undefined) state.manualMode=null;
 state.rewards=state.rewards||JSON.parse(JSON.stringify(DEFAULT_REWARDS));
 state.evening=state.evening||evening.map(e=>({...e}));
 const DEFAULT_MYSTERY_POOL=[
-  {id:'p-star',    emoji:'⭐',text:'Bonusstjerne!',                  type:'star',  rarity:'common',weight:3},
-  {id:'p-joker',   emoji:'🎫',text:'Joker: slipp én oppgave i dag',  type:'joker', rarity:'common',weight:2},
-  {id:'p-dessert', emoji:'🍦',text:'Du velger dessert i dag',         type:'reward',rarity:'common',weight:2},
-  {id:'p-screen',  emoji:'📺',text:'10 min ekstra skjermtid',         type:'reward',rarity:'common',weight:2},
-  {id:'p-music',   emoji:'🎵',text:'Du bestemmer musikken i bilen',   type:'reward',rarity:'common',weight:2},
-  {id:'p-book',    emoji:'📖',text:'Du velger godnatt-bok',           type:'reward',rarity:'common',weight:2},
-  {id:'p-hug',     emoji:'🤗',text:'Ekstra stor klem fra pappa',      type:'reward',rarity:'common',weight:3},
-  {id:'p-movie',   emoji:'🦄',text:'SJELDEN! Du velger lørdagsfilm',  type:'rare',  rarity:'rare',  weight:1},
-  {id:'p-park',    emoji:'🎢',text:'SJELDEN! Tur til lekeplassen',    type:'rare',  rarity:'rare',  weight:1},
-  {id:'p-treasure',emoji:'💎',text:'SJELDEN! Liten skatte-gave',      type:'rare',  rarity:'rare',  weight:1},
+  {id:'p-eventyr',   emoji:'🛏️',text:'10 min eventyr på sengen før leggetid', type:'reward',rarity:'common',weight:2},
+  {id:'p-sjokopaal', emoji:'🍫',text:'Sjokoladepålegg kjøpes inn til frokost',type:'reward',rarity:'common',weight:2},
+  {id:'p-is',        emoji:'🍦',text:'Is etter middag i dag',                 type:'reward',rarity:'common',weight:2},
+  {id:'p-skjerm',    emoji:'📺',text:'15 min ekstra skjermtid',               type:'reward',rarity:'common',weight:2},
+  {id:'p-film',      emoji:'🎬',text:'Dere velger kveldsfilm sammen',          type:'reward',rarity:'common',weight:2},
+  {id:'p-pizza',     emoji:'🍕',text:'Pizza til middag',                       type:'reward',rarity:'common',weight:1},
+  {id:'p-pannekaker',emoji:'🥞',text:'Pannekaker til frokost i morgen',        type:'reward',rarity:'common',weight:2},
+  {id:'p-spill',     emoji:'🎲',text:'Spillkveld – dere velger spill',         type:'reward',rarity:'common',weight:2},
+  {id:'p-kiosk',     emoji:'🚶',text:'Tur til kiosken – én godte-ting hver',   type:'reward',rarity:'common',weight:2},
+  {id:'p-bobler',    emoji:'🛁',text:'Bobler i badet i kveld',                 type:'reward',rarity:'common',weight:2},
+  {id:'p-oppe',      emoji:'🌃',text:'Bli oppe 15 min lenger i kveld',         type:'reward',rarity:'common',weight:2},
+  {id:'p-toboker',   emoji:'📖',text:'To godnatt-bøker i stedet for én',       type:'reward',rarity:'common',weight:2},
+  {id:'p-muffins',   emoji:'🧁',text:'Bake muffins sammen i helgen',           type:'reward',rarity:'common',weight:2},
+  {id:'p-baer',      emoji:'🍓',text:'Friske bær til dessert',                 type:'reward',rarity:'common',weight:2},
+  {id:'p-musikk',    emoji:'🎵',text:'Dere bestemmer musikken i bilen i dag', type:'reward',rarity:'common',weight:2},
+  {id:'p-lekepl',    emoji:'🛝',text:'Tur til lekeplassen etter skole',        type:'reward',rarity:'common',weight:2},
+  {id:'p-pyjamas',   emoji:'🦄',text:'Pyjamasdag hjemme på lørdag',            type:'reward',rarity:'common',weight:1},
+  {id:'p-popcorn',   emoji:'🍿',text:'Popcorn til kveldskos',                  type:'reward',rarity:'common',weight:2},
+  {id:'p-hule',      emoji:'⛺',text:'Bygg hule i stua – får sove i den',     type:'reward',rarity:'common',weight:1},
+  {id:'p-bolle',     emoji:'🍩',text:'Smultring eller bolle fra bakeriet',     type:'reward',rarity:'common',weight:2},
 ];
 state.checkins=state.checkins||{};
 state.streak=state.streak||{count:0,lastDay:null};
@@ -2001,7 +2035,9 @@ function doCheckin(child,manual){
   const c=todayCheckin();
   if(c[child]&&c[child].at)return;
   const qualified=manual?true:(inWindow()&&beforeDeadline());
-  c[child]={at:Date.now(),qualified,manual:!!manual,mystery:drawMystery(),opened:false};
+  // FELLES dagens overraskelse – trekkes én gang, deles av alle barn
+  if(!c._shared) c._shared=drawMystery();
+  c[child]={at:Date.now(),qualified,manual:!!manual,mystery:c._shared,opened:false};
   save();
   const allQualified=bothCheckedIn()&&CHECKIN_KIDS.every(k=>c[k].qualified);
   if(allQualified)updateStreakOnQualify();
@@ -2069,7 +2105,23 @@ function renderWaiting(){
   }
   el.classList.add('on');
 }
-function renderCheckinTV(){renderWaiting();}
+function renderGiftWaitingTV(){
+  const o=document.getElementById('gift-waiting-tv');if(!o)return;
+  const c=todayCheckin();
+  const anyIn=CHECKIN_KIDS.some(k=>isCheckedIn(k));
+  const allIn=bothCheckedIn();
+  // Vis kun når minst én – men ikke alle – har sjekket inn, og en felles gave er trukket
+  if(!anyIn||allIn||!c._shared){o.classList.remove('on');return;}
+  const cap=s=>s[0].toUpperCase()+s.slice(1);
+  const waiting=CHECKIN_KIDS.filter(k=>!isCheckedIn(k)).map(cap);
+  const done=CHECKIN_KIDS.filter(k=>isCheckedIn(k)).map(cap);
+  document.getElementById('gw-sub').innerHTML=`Venter på <b>${waiting.join(' & ')}</b> for å åpne…`;
+  document.getElementById('gw-checked').innerHTML=
+    done.map(n=>`<div class="item done">✓ ${n} er våken</div>`).join('')+
+    waiting.map(n=>`<div class="item wait">💤 ${n}</div>`).join('');
+  o.classList.add('on');
+}
+function renderCheckinTV(){renderWaiting();renderGiftWaitingTV();}
 
 function renderCheckinRemote(){
   const el=document.getElementById('r-checkin-wrap');if(!el)return;
@@ -2094,15 +2146,27 @@ function renderCheckinRemote(){
     return `<button class="r-ci-btn" onclick="remoteCheckin('${k}')"><div class="r-ci-av">👧</div><div class="r-ci-name">${cap(k)}</div><div class="r-ci-action">${sub}</div></button>`;
   }).join('');
   let mystHtml='';
-  if(CHECKIN_KIDS.some(k=>c[k]&&c[k].mystery)){
-    mystHtml=`<div class="r-mystery"><div class="r-myst-title">🎁 Morgen-overraskelse</div><div class="r-myst-row">`+
-      CHECKIN_KIDS.map(k=>{
-        const info=c[k];
-        if(!info||!info.mystery)return `<div></div>`;
-        const m=info.mystery;
-        if(info.opened)return `<button class="r-myst-btn opened" disabled><span class="em">${m.emoji}</span><span>${cap(k)}: ${m.text}</span>${m.rarity==='rare'?'<span class="rare">★ SJELDEN ★</span>':''}</button>`;
-        return `<button class="r-myst-btn" onclick="remoteOpenMystery('${k}')">🎁 ${cap(k)} – Åpne!</button>`;
-      }).join('')+`</div></div>`;
+  const checkedNames=CHECKIN_KIDS.filter(k=>isCheckedIn(k)).map(cap);
+  const waiting=CHECKIN_KIDS.filter(k=>!isCheckedIn(k)).map(cap);
+  const sharedOpened=CHECKIN_KIDS.some(k=>c[k]&&c[k].opened);
+  if(c._shared){
+    if(bothCheckedIn()){
+      const m=c._shared;
+      if(sharedOpened){
+        mystHtml=`<div class="r-mystery"><div class="r-myst-title">🎁 Dagens overraskelse</div>`+
+          `<button class="r-myst-btn opened" disabled style="grid-column:1/-1"><span class="em">${m.emoji}</span><span>${m.text}</span></button>`+
+          `</div>`;
+      }else{
+        mystHtml=`<div class="r-mystery"><div class="r-myst-title">🎁 Alle er våkne – åpne sammen!</div>`+
+          `<button class="r-myst-btn" onclick="remoteOpenMystery('shared')" style="grid-column:1/-1;font-size:18px;padding:18px">🎁 Åpne dagens overraskelse!</button>`+
+          `</div>`;
+      }
+    }else if(checkedNames.length){
+      mystHtml=`<div class="r-mystery"><div class="r-myst-title">🎁 Innpakket gave</div>`+
+        `<div style="text-align:center;font-size:64px;animation:mystShake 2s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(255,210,70,.5))">🎁</div>`+
+        `<div style="text-align:center;font-size:14px;color:var(--soft);line-height:1.4">${checkedNames.join(' & ')} har sjekket inn ✓<br>Venter på <b style="color:#ffd246">${waiting.join(' & ')}</b> for å åpne dagens felles overraskelse</div>`+
+        `</div>`;
+    }
   }
   const headSub = inside
     ? `Sjekk inn før kl ${ms.deadlineHM} for å holde streak-flammen levende.`
@@ -2116,19 +2180,21 @@ function remoteOpenMystery(child){openMystery(child);cmd('openmystery',null,{chi
 
 function openMystery(child){
   const c=todayCheckin();
-  if(!c[child]||!c[child].mystery||c[child].opened)return;
-  c[child].opened=true;
-  const m=c[child].mystery;
+  if(!c._shared)return;
+  if(!bothCheckedIn())return; // krever at alle er sjekket inn
+  if(CHECKIN_KIDS.some(k=>c[k]&&c[k].opened))return; // allerede åpnet
+  CHECKIN_KIDS.forEach(k=>{if(c[k])c[k].opened=true;});
+  const m=c._shared;
   save();
-  if(m.type==='star')addStar(child,'morgen');
-  if(!isPhone)mysteryRevealTV(child,m);
+  if(m.type==='star')CHECKIN_KIDS.forEach(k=>addStar(k,'morgen'));
+  if(!isPhone)mysteryRevealTV('alle',m);
   renderStars();
 }
 
 function mysteryRevealTV(child,m){
   const o=document.getElementById('mystery-tv');if(!o)return;
   const box=document.getElementById('myst-box'),card=document.getElementById('myst-card');
-  document.getElementById('myst-who').textContent=(child[0].toUpperCase()+child.slice(1))+' åpnet sin gave!';
+  document.getElementById('myst-who').textContent=(child==='alle'?'Dagens felles overraskelse!':((child[0].toUpperCase()+child.slice(1))+' åpnet sin gave!'));
   document.getElementById('myst-emoji').textContent=m.emoji;
   document.getElementById('myst-text').textContent=m.text;
   document.getElementById('myst-rare').textContent=m.rarity==='rare'?'★ Sjelden! ★':'';
@@ -2145,6 +2211,7 @@ function mysteryRevealTV(child,m){
 }
 
 function sunriseCelebrate(){
+  const gw=document.getElementById('gift-waiting-tv');if(gw)gw.classList.remove('on');
   const o=document.getElementById('sunrise');if(!o)return;
   // Tving restart av CSS-animasjoner ved å klone alle barna (reflow er ikke nok når 'forwards' er satt)
   o.classList.remove('on');
