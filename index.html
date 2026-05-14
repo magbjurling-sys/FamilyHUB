@@ -80,25 +80,57 @@
   .child.emma{box-shadow:inset 0 0 0 2px rgba(255,210,70,.18)}
   .child.nora{box-shadow:inset 0 0 0 2px rgba(255,122,198,.22)}
   .child.pappa{box-shadow:inset 0 0 0 2px rgba(94,200,255,.22)}
-  .child-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .child.tier-bronze{box-shadow:inset 0 0 0 2px #cd7f32,0 0 32px -8px #cd7f32}
+  .child.tier-silver{box-shadow:inset 0 0 0 2px #d8d8e0,0 0 36px -6px #d8d8e0}
+  .child.tier-gold{box-shadow:inset 0 0 0 3px #ffd246,0 0 48px -4px #ffd246;animation:goldPulse 2.4s ease-in-out infinite}
+  @keyframes goldPulse{0%,100%{box-shadow:inset 0 0 0 3px #ffd246,0 0 48px -4px #ffd246}50%{box-shadow:inset 0 0 0 3px #fff2a8,0 0 72px 0 #ffd246}}
+  .child-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
   .avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;box-shadow:0 8px 24px -8px rgba(0,0,0,.5)}
   .avatar.emma{background:linear-gradient(135deg,#ffd246,#ff9f43)}
   .avatar.nora{background:linear-gradient(135deg,#ff7ac6,#b693ff)}
   .avatar.pappa{background:linear-gradient(135deg,#5ec8ff,#4ade80)}
   .child-name{font-family:'Fredoka';font-weight:700;font-size:30px;line-height:1}
   .child-age{font-size:14px;color:var(--dim);font-weight:700;margin-top:2px}
-  .total{margin-left:auto;text-align:right}
-  .total .n{font-family:'Fredoka';font-weight:700;font-size:40px;line-height:1;background:linear-gradient(135deg,#ffd246,#ff7ac6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .total{margin-left:auto;text-align:right;position:relative}
+  .total .n{font-family:'Fredoka';font-weight:700;font-size:44px;line-height:1;background:linear-gradient(135deg,#ffd246,#ff7ac6);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-flex;align-items:baseline;gap:4px}
+  .total .n.bump{animation:bump .55s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+  .total .max{font-size:18px;color:var(--dim);font-weight:700}
   .total .t{font-size:11px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+  .tier-badge{display:inline-flex;align-items:center;gap:4px;font-family:'Fredoka';font-weight:700;font-size:11px;padding:3px 9px;border-radius:99px;margin-top:4px;opacity:0;transform:translateY(4px);transition:all .35s;text-transform:uppercase;letter-spacing:.5px}
+  .tier-badge.on{opacity:1;transform:translateY(0)}
+  .tier-badge.bronze{background:linear-gradient(135deg,#cd7f32,#e8a87c);color:#3a1f0a}
+  .tier-badge.silver{background:linear-gradient(135deg,#d8d8e0,#fff);color:#2a2a3a}
+  .tier-badge.gold{background:linear-gradient(135deg,#ffd246,#fff2a8);color:#3a2a05;animation:goldShine 1.6s ease-in-out infinite}
+  @keyframes goldShine{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25) drop-shadow(0 0 6px #ffd246)}}
 
-  .cat{display:flex;flex-direction:column;gap:6px;padding:9px 12px;border-radius:16px;margin-bottom:7px;background:rgba(0,0,0,.2);transition:all .25s}
+  /* progress meter med milepæler */
+  .meter{position:relative;height:18px;background:rgba(0,0,0,.28);border-radius:99px;margin:6px 0 14px;overflow:visible;border:1px solid rgba(255,255,255,.08)}
+  .meter-fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:linear-gradient(90deg,#ffd246,#ff7ac6,#b693ff);transition:width .6s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 18px rgba(255,210,70,.45)}
+  .meter-fill.full{background:linear-gradient(90deg,#ffd246,#fff2a8,#ffd246);background-size:200% 100%;animation:shineSlide 2s linear infinite}
+  @keyframes shineSlide{from{background-position:0% 0}to{background-position:200% 0}}
+  .milestone{position:absolute;top:50%;transform:translate(-50%,-50%);width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,.5);font-weight:800;transition:all .4s;z-index:2}
+  .milestone.reached{background:#ffd246;border-color:#fff;color:#3a2a05;animation:msPop .6s cubic-bezier(.34,1.56,.64,1)}
+  .milestone.reached.bronze{background:#cd7f32;color:#fff}
+  .milestone.reached.silver{background:#e8e8f0;color:#2a2a3a}
+  .milestone.reached.gold{background:radial-gradient(circle,#fff2a8,#ffd246);color:#3a2a05;box-shadow:0 0 18px #ffd246}
+  @keyframes msPop{0%{transform:translate(-50%,-50%) scale(.4)}60%{transform:translate(-50%,-50%) scale(1.5)}100%{transform:translate(-50%,-50%) scale(1)}}
+
+  /* kategori-oppdragskort: forklarer hva som gir stjerne, ikke hva slags stjerne */
+  .cat{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:14px;margin-bottom:6px;background:rgba(0,0,0,.22);transition:all .25s;border-left:3px solid transparent}
   .cat:last-child{margin-bottom:0}
-  .cat-pill{align-self:flex-start;font-size:11px;font-weight:800;color:#1a103d;padding:4px 10px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-  .cat-stars{display:flex;gap:4px;justify-content:flex-start}
-  .star{font-size:22px;line-height:1;filter:grayscale(1) opacity(.25);transition:all .35s}
-  .star.on{filter:none;animation:pop .55s cubic-bezier(.34,1.56,.64,1)}
+  .cat-emoji{font-size:22px;flex-shrink:0;width:30px;text-align:center}
+  .cat-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .cat-title{font-family:'Fredoka';font-weight:600;font-size:14px;color:#fff;line-height:1.1}
+  .cat-desc{font-size:11px;color:var(--dim);font-weight:600;line-height:1.2}
+  .cat-stars{display:flex;gap:3px;justify-content:flex-end;flex-shrink:0}
+  /* alle stjerner ser like ut: gylne ⭐ */
+  .star{font-size:16px;line-height:1;filter:grayscale(1) opacity(.2);transition:all .35s}
+  .star.on{filter:none;animation:pop .55s cubic-bezier(.34,1.56,.64,1);text-shadow:0 0 8px rgba(255,210,70,.6)}
   @keyframes pop{0%{transform:scale(0) rotate(-180deg)}100%{transform:scale(1) rotate(0)}}
-  .cat-name{font-family:'Fredoka';font-weight:600;font-size:18px;color:#fff}
+
+  /* flying star (animasjon fra kategori → teller) */
+  .fly-star{position:fixed;font-size:42px;z-index:9997;pointer-events:none;text-shadow:0 0 24px #ffd246;will-change:transform,opacity}
 
   .reward{margin-top:16px;padding:14px 18px;background:linear-gradient(120deg,rgba(255,210,70,.18),rgba(255,122,198,.18));border:1px solid rgba(255,210,70,.4);border-radius:20px;display:none;align-items:center;gap:14px;animation:cheer 1s}
   .reward.on{display:flex}
@@ -207,11 +239,30 @@
   .r-child-head .avatar{width:54px;height:54px;font-size:30px}
   .r-child-name{font-family:'Fredoka';font-weight:700;font-size:22px;line-height:1}
   .r-child-tot{font-size:13px;color:var(--dim);font-weight:700;margin-top:2px}
-  .r-cat-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-radius:18px;border:none;background:rgba(0,0,0,.25);color:#fff;font-family:'Nunito';font-weight:800;font-size:16px;margin-bottom:8px;cursor:pointer;transition:all .15s;text-align:left}
+  .r-cat-btn{width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:18px;border:none;background:rgba(0,0,0,.25);color:#fff;font-family:'Nunito';font-weight:800;font-size:15px;margin-bottom:8px;cursor:pointer;transition:all .15s;text-align:left;border-left:4px solid transparent}
   .r-cat-btn:active{transform:scale(.97)}
-  .r-cat-btn:disabled{opacity:.4}
-  .r-cat-pill{font-size:11px;font-weight:800;color:#1a103d;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px}
-  .r-cat-count{font-family:'Fredoka';font-weight:700;font-size:18px;color:var(--yellow);min-width:38px;text-align:right}
+  .r-cat-btn:disabled{opacity:.55}
+  .r-cat-btn.full{background:linear-gradient(135deg,rgba(255,210,70,.25),rgba(255,122,198,.15));border-left-color:#ffd246}
+  .r-cat-emoji{font-size:28px;flex-shrink:0;width:34px;text-align:center}
+  .r-cat-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .r-cat-name{font-family:'Fredoka';font-weight:600;font-size:15px;line-height:1.1;color:#fff}
+  .r-cat-desc{font-size:11px;color:var(--dim);font-weight:600;line-height:1.2}
+  .r-cat-stars-line{display:flex;gap:3px;margin-top:4px;font-size:15px;letter-spacing:1px}
+  .r-cat-stars-line .s{filter:grayscale(1) opacity(.25)}
+  .r-cat-stars-line .s.on{filter:none;text-shadow:0 0 8px rgba(255,210,70,.5)}
+  .r-cat-count{font-family:'Fredoka';font-weight:700;font-size:18px;color:var(--yellow);min-width:42px;text-align:right;flex-shrink:0}
+  /* progress meter på remote */
+  .r-meter{position:relative;height:14px;background:rgba(0,0,0,.3);border-radius:99px;margin:6px 0 14px;overflow:visible;border:1px solid rgba(255,255,255,.08)}
+  .r-meter-fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:linear-gradient(90deg,#ffd246,#ff7ac6,#b693ff);transition:width .6s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 12px rgba(255,210,70,.4)}
+  .r-meter-fill.full{background:linear-gradient(90deg,#ffd246,#fff2a8,#ffd246);background-size:200% 100%;animation:shineSlide 2s linear infinite}
+  .r-milestone{position:absolute;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,.5);font-weight:800;transition:all .4s;z-index:2}
+  .r-milestone.reached.bronze{background:#cd7f32;color:#fff;border-color:#fff}
+  .r-milestone.reached.silver{background:#e8e8f0;color:#2a2a3a;border-color:#fff}
+  .r-milestone.reached.gold{background:radial-gradient(circle,#fff2a8,#ffd246);color:#3a2a05;border-color:#fff;box-shadow:0 0 12px #ffd246}
+  .r-tier-badge{display:inline-flex;align-items:center;gap:4px;font-family:'Fredoka';font-weight:700;font-size:11px;padding:3px 10px;border-radius:99px;margin-left:8px;text-transform:uppercase;letter-spacing:.5px;vertical-align:middle}
+  .r-tier-badge.bronze{background:linear-gradient(135deg,#cd7f32,#e8a87c);color:#3a1f0a}
+  .r-tier-badge.silver{background:linear-gradient(135deg,#d8d8e0,#fff);color:#2a2a3a}
+  .r-tier-badge.gold{background:linear-gradient(135deg,#ffd246,#fff2a8);color:#3a2a05;animation:goldShine 1.6s ease-in-out infinite}
   .r-minus{margin-left:8px;width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,80,80,.25);color:#ff9d9d;font-size:22px;font-weight:800;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
   .r-minus:active{transform:scale(.9)}
   .r-lock-banner{padding:14px 16px;border-radius:18px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#a7f3c0;font-family:'Fredoka';font-weight:600;font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
@@ -317,51 +368,60 @@
     </div>
 
     <div class="board">
-      <div class="child emma">
+      <div class="child emma" id="emma-card">
         <div class="child-head">
           <div class="avatar emma">👧</div>
           <div>
             <div class="child-name">Emma</div>
             <div class="child-age">6 år</div>
+            <div class="tier-badge" id="emma-tier"></div>
           </div>
           <div class="total">
-            <div class="n" id="emma-total">0</div>
+            <div class="n" id="emma-total-wrap"><span id="emma-total">0</span><span class="max" id="emma-max">/ 15</span> ⭐</div>
+            <div class="t">stjerner i uka</div>
           </div>
         </div>
+        <div class="meter" id="emma-meter"></div>
         <div id="emma-cats"></div>
         <div class="reward" id="emma-reward">
           <div class="reward-emoji">🧃</div>
           <div class="reward-text">SLUSH PÅ FORNEBU S! Du fikset alt, Emma! 🎉</div>
         </div>
       </div>
-      <div class="child nora">
+      <div class="child nora" id="nora-card">
         <div class="child-head">
           <div class="avatar nora">👧</div>
           <div>
             <div class="child-name">Nora</div>
             <div class="child-age">4 år</div>
+            <div class="tier-badge" id="nora-tier"></div>
           </div>
           <div class="total">
-            <div class="n" id="nora-total">0</div>
+            <div class="n" id="nora-total-wrap"><span id="nora-total">0</span><span class="max" id="nora-max">/ 15</span> ⭐</div>
+            <div class="t">stjerner i uka</div>
           </div>
         </div>
+        <div class="meter" id="nora-meter"></div>
         <div id="nora-cats"></div>
         <div class="reward" id="nora-reward">
           <div class="reward-emoji">🧃</div>
           <div class="reward-text">SLUSH PÅ FORNEBU S! Du fikset alt, Nora! 🎉</div>
         </div>
       </div>
-      <div class="child pappa">
+      <div class="child pappa" id="pappa-card">
         <div class="child-head">
           <div class="avatar pappa">👨</div>
           <div>
             <div class="child-name">Pappa</div>
             <div class="child-age">Magnus</div>
+            <div class="tier-badge" id="pappa-tier"></div>
           </div>
           <div class="total">
-            <div class="n" id="pappa-total">0</div>
+            <div class="n" id="pappa-total-wrap"><span id="pappa-total">0</span><span class="max" id="pappa-max">/ 5</span> ⭐</div>
+            <div class="t">stjerner i uka</div>
           </div>
         </div>
+        <div class="meter" id="pappa-meter"></div>
         <div id="pappa-cats"></div>
         <div class="reward" id="pappa-reward">
           <div class="reward-emoji">🏆</div>
@@ -450,22 +510,25 @@
       <div class="r-card">
         <div class="r-child-head">
           <div class="avatar emma">👧</div>
-          <div><div class="r-child-name">Emma</div><div class="r-child-tot" id="r-emma-tot">0 / 15 stjerner</div></div>
+          <div><div class="r-child-name">Emma <span id="r-emma-tier"></span></div><div class="r-child-tot" id="r-emma-tot">0 / 15 ⭐</div></div>
         </div>
+        <div class="r-meter" id="r-emma-meter"></div>
         <div id="r-emma-cats"></div>
       </div>
       <div class="r-card">
         <div class="r-child-head">
           <div class="avatar nora">👧</div>
-          <div><div class="r-child-name">Nora</div><div class="r-child-tot" id="r-nora-tot">0 / 15 stjerner</div></div>
+          <div><div class="r-child-name">Nora <span id="r-nora-tier"></span></div><div class="r-child-tot" id="r-nora-tot">0 / 15 ⭐</div></div>
         </div>
+        <div class="r-meter" id="r-nora-meter"></div>
         <div id="r-nora-cats"></div>
       </div>
       <div class="r-card">
         <div class="r-child-head">
           <div class="avatar pappa">👨</div>
-          <div><div class="r-child-name">Pappa</div><div class="r-child-tot" id="r-pappa-tot">0 / 5 stjerner</div></div>
+          <div><div class="r-child-name">Pappa <span id="r-pappa-tier"></span></div><div class="r-child-tot" id="r-pappa-tot">0 / 5 ⭐</div></div>
         </div>
+        <div class="r-meter" id="r-pappa-meter"></div>
         <div id="r-pappa-cats"></div>
       </div>
     </div>
@@ -520,16 +583,32 @@
 const DAYS=['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'];
 const MONTHS=['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
 
+/* Kategoriene gir alle samme stjerne – fokus er HVA som gir stjerne, ikke hva slags */
 const CATS=[
-  {id:'morgen',    name:'God morgenrutine',  color:'#ffd246', emoji:'☀️'},
-  {id:'kveld',     name:'God kveldsrutine',  color:'#b693ff', emoji:'🌙'},
-  {id:'beskjeder', name:'Høre på beskjeder', color:'#4ade80', emoji:'👂'},
+  {id:'morgen',    name:'Morgenrutine',     color:'#ffd246', emoji:'☀️', desc:'Stå opp, kle på, frokost, tannpuss – uten mas'},
+  {id:'kveld',     name:'Kveldsrutine',     color:'#b693ff', emoji:'🌙', desc:'Pyjamas, tannpuss, lese, legge seg når avtalt'},
+  {id:'beskjeder', name:'Høre på beskjeder',color:'#4ade80', emoji:'👂', desc:'Lytter første gang, gjør det de voksne sier'},
 ];
 const PAPPA_CATS=[
-  {id:'rolig', name:'Rolig – ingen kjefting', color:'#5ec8ff', emoji:'🧘'},
+  {id:'rolig', name:'Rolig pappa', color:'#5ec8ff', emoji:'🧘', desc:'Ingen kjefting hele dagen'},
 ];
 function catsFor(child){return child==='pappa'?PAPPA_CATS:CATS;}
 const STARS_MAX=5;
+
+/* Tier-terskler for milepæler (Bronse/Sølv/Gull) */
+function tiersFor(child){
+  if(child==='pappa') return [{at:5,tier:'gold',label:'GULL 🏆'}];
+  return [
+    {at:5, tier:'bronze', label:'BRONSE 🥉'},
+    {at:10,tier:'silver', label:'SØLV 🥈'},
+    {at:15,tier:'gold',   label:'GULL 🏆'},
+  ];
+}
+function currentTier(child){
+  const t=totalS(child); const ts=tiersFor(child);
+  let cur=null; ts.forEach(x=>{if(t>=x.at) cur=x;});
+  return cur;
+}
 
 const morning=[
   {id:'mUp',    emoji:'⏰',text:'Stå opp',time:'06:30'},
@@ -841,14 +920,53 @@ function toggleRoutine(id){state.routines[id]=!state.routines[id]; save(); rende
 function totalS(child){const cs=catsFor(child);return cs.reduce((s,c)=>s+Math.min(state.stars[child][c.id]||0,STARS_MAX),0)}
 function maxS(child){return catsFor(child).length*STARS_MAX}
 function full(child){return catsFor(child).every(c=>(state.stars[child][c.id]||0)>=STARS_MAX)}
+function renderMeter(elId,total,max,child,prefix){
+  const el=document.getElementById(elId); if(!el) return;
+  const tiers=tiersFor(child);
+  const pct=Math.min(100,(total/max)*100);
+  const fullCls=total>=max?' full':'';
+  const msHtml=tiers.map(t=>{
+    const left=(t.at/max)*100;
+    const reached=total>=t.at;
+    const label=t.tier==='gold'?'★':(t.tier==='silver'?'2':'1');
+    return `<div class="${prefix}milestone ${reached?'reached '+t.tier:''}" style="left:${left}%" title="${t.label}">${reached?(t.tier==='gold'?'★':(t.tier==='silver'?'🥈':'🥉')):label}</div>`;
+  }).join('');
+  el.innerHTML=`<div class="${prefix}meter-fill${fullCls}" style="width:${pct}%"></div>${msHtml}`;
+}
+function renderTierBadge(elId,child,prefix){
+  const el=document.getElementById(elId); if(!el) return;
+  const t=currentTier(child);
+  el.className=(prefix==='r-'?'r-tier-badge':'tier-badge');
+  if(!t){ el.textContent=''; if(prefix!=='r-') el.classList.remove('on'); return; }
+  el.classList.add(t.tier);
+  if(prefix!=='r-') el.classList.add('on');
+  el.textContent=t.label;
+}
 function renderStars(){
   ['emma','nora','pappa'].forEach(child=>{
     const ce=document.getElementById(child+'-cats'); if(!ce) return;
     ce.innerHTML=catsFor(child).map(cat=>{
       const c=Math.min(state.stars[child][cat.id]||0,STARS_MAX);
-      return `<div class="cat"><div class="cat-pill" style="background:${cat.color}">${cat.emoji} ${cat.name}</div><div class="cat-stars">${Array.from({length:STARS_MAX},(_,j)=>`<div class="star ${j<c?'on':''}">⭐</div>`).join('')}</div></div>`;
+      return `<div class="cat" data-cat="${cat.id}" data-child="${child}">
+        <div class="cat-emoji">${cat.emoji}</div>
+        <div class="cat-body">
+          <div class="cat-title">${cat.name}</div>
+          <div class="cat-desc">${cat.desc||''}</div>
+        </div>
+        <div class="cat-stars">${Array.from({length:STARS_MAX},(_,j)=>`<div class="star ${j<c?'on':''}">⭐</div>`).join('')}</div>
+      </div>`;
     }).join('');
-    const totEl=document.getElementById(child+'-total');if(totEl)totEl.textContent=totalS(child)+' / '+maxS(child);
+    const total=totalS(child), max=maxS(child);
+    const totEl=document.getElementById(child+'-total'); if(totEl) totEl.textContent=total;
+    const maxEl=document.getElementById(child+'-max'); if(maxEl) maxEl.textContent='/ '+max;
+    renderMeter(child+'-meter',total,max,child,'');
+    renderTierBadge(child+'-tier',child,'');
+    // card tier-class
+    const card=document.getElementById(child+'-card');
+    if(card){
+      card.classList.remove('tier-bronze','tier-silver','tier-gold');
+      const ct=currentTier(child); if(ct) card.classList.add('tier-'+ct.tier);
+    }
     const rw=document.getElementById(child+'-reward');
     if(rw){
       rw.classList.toggle('on',full(child));
@@ -858,22 +976,111 @@ function renderStars(){
     }
   });
 }
+
+/* ─── AUDIO: enkel synth-ding via Web Audio API ─── */
+let _audioCtx=null;
+function audioCtx(){
+  if(_audioCtx) return _audioCtx;
+  try{_audioCtx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}
+  return _audioCtx;
+}
+function playDing(intensity){
+  const ctx=audioCtx(); if(!ctx) return;
+  if(ctx.state==='suspended'){try{ctx.resume();}catch(e){}}
+  // intensity 0=base, 1=bronse, 2=sølv, 3=gull
+  const notes = intensity>=3 ? [880,1175,1568,2093]
+             : intensity>=2 ? [784,1175,1568]
+             : intensity>=1 ? [659,988,1319]
+             :                [988,1319];
+  const now=ctx.currentTime;
+  notes.forEach((f,i)=>{
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type='triangle'; o.frequency.value=f;
+    const t=now+i*0.06;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(0.18,t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.35);
+    o.connect(g).connect(ctx.destination);
+    o.start(t); o.stop(t+0.4);
+  });
+}
+
+/* ─── FLYING STAR fra kategorikort til total ─── */
+function flyStarTV(child,catId){
+  const src=document.querySelector(`#${child}-cats .cat[data-cat="${catId}"]`);
+  const dst=document.getElementById(child+'-total-wrap');
+  if(!src||!dst) return;
+  const a=src.getBoundingClientRect(), b=dst.getBoundingClientRect();
+  const star=document.createElement('div');
+  star.className='fly-star'; star.textContent='⭐';
+  star.style.left=(a.left+a.width-40)+'px';
+  star.style.top=(a.top+a.height/2-20)+'px';
+  document.body.appendChild(star);
+  const dx=(b.left+b.width/2)-(a.left+a.width-40+20);
+  const dy=(b.top+b.height/2)-(a.top+a.height/2);
+  star.animate([
+    {transform:'translate(0,0) scale(.4) rotate(0)',opacity:0},
+    {transform:`translate(${dx*.3}px,${dy*.3-60}px) scale(1.4) rotate(180deg)`,opacity:1,offset:.3},
+    {transform:`translate(${dx*.7}px,${dy*.7-30}px) scale(1.2) rotate(360deg)`,opacity:1,offset:.7},
+    {transform:`translate(${dx}px,${dy}px) scale(.6) rotate(540deg)`,opacity:0}
+  ],{duration:850,easing:'cubic-bezier(.34,1.56,.64,1)'});
+  setTimeout(()=>{
+    star.remove();
+    // bounce telleren
+    const n=document.getElementById(child+'-total-wrap');
+    if(n){n.classList.remove('bump'); void n.offsetWidth; n.classList.add('bump');}
+  },820);
+}
+
 function addStar(child,catId){
   const before=state.stars[child][catId]||0;
   if(before>=STARS_MAX) return;
+  // tier-status FØR for milepælssjekk
+  const prevTier=currentTier(child);
   state.stars[child][catId]=before+1;
   const after=state.stars[child][catId];
-  save(); renderStars();
+  save();
+  // flying star — kjør FØR re-render slik at vi får riktig src-posisjon
+  flyStarTV(child,catId);
+  // re-render litt etterpå så stjernen lander synlig
+  setTimeout(()=>renderStars(),700);
   const cat=catsFor(child).find(c=>c.id===catId);
-  const color=cat?.color||'#fbbf24';
-  // small per-star confetti
+  const newTier=currentTier(child);
+  const tierJump = newTier && (!prevTier || newTier.tier!==prevTier.tier);
+  const intensity = tierJump ? (newTier.tier==='gold'?3:newTier.tier==='silver'?2:1) : 0;
+  playDing(intensity);
+  // små partikler ved hver stjerne
   if(typeof confetti==='function'){
-    confetti({particleCount:50,spread:60,origin:{y:.6},colors:[color,'#fff','#ffd246']});
+    confetti({particleCount:30,spread:55,origin:{y:.55},colors:['#ffd246','#fff','#ff7ac6'],scalar:.9});
   }
-  // ROW filled (5/5 i én kategori) → mellomstor feiring
-  if(after>=STARS_MAX && !full(child)) rowComplete(child,cat);
-  // ALLE rader fulle → MEGA BANANAS
-  if(full(child)) megaCelebrate(child);
+  // milepæl-feiring (Bronse/Sølv) – mellomnivå
+  if(tierJump && newTier.tier!=='gold'){
+    setTimeout(()=>tierCelebrate(child,newTier),750);
+  }
+  // ROW filled (5/5 i én kategori) → mellomstor feiring (men ikke hvis det også er gull)
+  if(after>=STARS_MAX && !full(child)) setTimeout(()=>rowComplete(child,cat),750);
+  // ALLE rader fulle → MEGA BANANAS (gull)
+  if(full(child)) setTimeout(()=>megaCelebrate(child),750);
+}
+
+function tierCelebrate(child,tier){
+  const card=document.getElementById(child+'-card');
+  if(card){card.classList.remove('row-pop');void card.offsetWidth;card.classList.add('row-pop');}
+  // burst-emoji midt på skjermen
+  const burst=document.createElement('div');
+  burst.className='mega-star-burst';
+  burst.textContent=tier.tier==='silver'?'🥈':'🥉';
+  burst.style.left='50%';burst.style.top='50%';burst.style.position='fixed';burst.style.zIndex='9998';
+  document.body.appendChild(burst);
+  setTimeout(()=>burst.remove(),1500);
+  if(typeof confetti==='function'){
+    const col = tier.tier==='silver'
+      ? ['#e8e8f0','#fff','#b8b8c8','#ffd246']
+      : ['#cd7f32','#e8a87c','#fff','#ffd246'];
+    confetti({particleCount:140,spread:110,startVelocity:50,origin:{x:.3,y:.7},colors:col,scalar:1.2});
+    confetti({particleCount:140,spread:110,startVelocity:50,origin:{x:.7,y:.7},colors:col,scalar:1.2});
+    setTimeout(()=>confetti({particleCount:80,spread:160,startVelocity:35,origin:{y:.4},colors:col,shapes:['star']}),250);
+  }
 }
 
 function rowComplete(child,cat){
@@ -1045,16 +1252,25 @@ function renderRemote(){
       const adultBtn=adultUnlocked()&&c>0
         ? `<button class="r-minus" onclick="event.stopPropagation();cmd('removestar',null,{child:'${child}',cat:'${cat.id}'})" title="Fjern en stjerne">−</button>`
         : '';
-      return `<button class="r-cat-btn" ${f?'disabled':''} onclick="cmd('star',null,{child:'${child}',cat:'${cat.id}'})">
-        <span class="r-cat-pill" style="background:${cat.color}">${cat.emoji} ${cat.name}</span>
-        <span style="flex:1">${'⭐'.repeat(c)}${'☆'.repeat(STARS_MAX-c)}</span>
+      const starsLine=Array.from({length:STARS_MAX},(_,j)=>`<span class="s ${j<c?'on':''}">⭐</span>`).join('');
+      return `<button class="r-cat-btn ${f?'full':''}" ${f?'disabled':''} onclick="cmd('star',null,{child:'${child}',cat:'${cat.id}'})">
+        <span class="r-cat-emoji">${cat.emoji}</span>
+        <span class="r-cat-info">
+          <span class="r-cat-name">${cat.name}</span>
+          <span class="r-cat-desc">${cat.desc||''}</span>
+          <span class="r-cat-stars-line">${starsLine}</span>
+        </span>
         <span class="r-cat-count">${c}/${STARS_MAX}</span>
         ${adultBtn}
       </button>`;
     }).join('');
+    const total=totalS(child), max=maxS(child);
     const totEl=document.getElementById('r-'+child+'-tot');
-    if(totEl) totEl.textContent=totalS(child)+' / '+maxS(child)+' stjerner'+(full(child)?' 🎉':'');
+    if(totEl) totEl.textContent=total+' / '+max+' ⭐'+(full(child)?' 🎉':'');
+    renderMeter('r-'+child+'-meter',total,max,child,'r-');
+    renderTierBadge('r-'+child+'-tier',child,'r-');
   });
+
   // routines (bruker state.evening så de kan redigeres)
   const r=document.getElementById('r-routines'); if(r){
     const ed=adultUnlocked();
@@ -1217,6 +1433,10 @@ function init(){
     loadWeather(); setInterval(loadWeather,30*60*1000); // hver 30. min
     connectMqtt(pairCode,'tv');
   }
+  // unlock audio på første brukerinteraksjon
+  const unlockAudio=()=>{const c=audioCtx(); if(c&&c.state==='suspended') c.resume(); document.removeEventListener('pointerdown',unlockAudio); document.removeEventListener('keydown',unlockAudio);};
+  document.addEventListener('pointerdown',unlockAudio,{once:true});
+  document.addEventListener('keydown',unlockAudio,{once:true});
   tick();
   setInterval(tick,30000);
 }
