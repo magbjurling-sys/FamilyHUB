@@ -2282,9 +2282,10 @@ function renderDressingTV(){
 }
 
 function renderTvAllowedTV(){
+  // Overlegget vises KUN som tidsavgrenset feiring via tvAllowedCelebrate().
+  // Aldri auto-vis basert på state — det førte til at TV ble stuck i "Barne-TV på!".
   const o=document.getElementById('tv-allowed-tv');if(!o)return;
-  if(!bothCheckedIn()||!bothDressed()){o.classList.remove('on');return;}
-  o.classList.add('on');
+  if(!bothCheckedIn()||!bothDressed()){o.classList.remove('on');}
 }
 
 function tvAllowedCelebrate(){
