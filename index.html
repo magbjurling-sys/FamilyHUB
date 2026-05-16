@@ -1175,7 +1175,7 @@ const quotes=[
 ];
 
 /* SAMVÆRSDAGER – hardkodet for 2026 (dager pappa har Emma og Nora) */
-const MAGNUS=new Set([
+let MAGNUS=new Set([
   '2026-01-01','2026-01-05','2026-01-06','2026-01-07','2026-01-08','2026-01-16','2026-01-17','2026-01-18','2026-01-19','2026-01-20',
   '2026-01-21','2026-01-27','2026-01-28','2026-01-30','2026-01-31','2026-02-01','2026-02-02','2026-02-03','2026-02-04','2026-02-05',
   '2026-02-11','2026-02-12','2026-02-13','2026-02-14','2026-02-15','2026-02-25','2026-02-26','2026-02-27','2026-02-28','2026-03-01',
@@ -1198,6 +1198,76 @@ const MAGNUS=new Set([
 ]);
 function ymd(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+da}
 function autoHome(){return MAGNUS.has(ymd(new Date()))}
+
+/* ════════ Google Calendar ICS sync (samvær) ════════ */
+const ICS_URL='https://calendar.google.com/calendar/ical/family08134204941251288176%40group.calendar.google.com/private-7031466366fca7799308369b1206ec62/basic.ics';
+const ICS_MATCH=/barna\s+hos\s+pappa/i;
+function icsParseDate(s){
+  // YYYYMMDD eller YYYYMMDDTHHMMSSZ
+  if(!s) return null;
+  const m=s.match(/^(\d{4})(\d{2})(\d{2})/); if(!m) return null;
+  return new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+}
+function parseIcs(text){
+  // unfold linjer som starter med space/tab
+  text=text.replace(/\r\n[ \t]/g,'').replace(/\n[ \t]/g,'');
+  const events=[]; let cur=null;
+  text.split(/\r?\n/).forEach(line=>{
+    if(line==='BEGIN:VEVENT'){cur={};}
+    else if(line==='END:VEVENT'){if(cur)events.push(cur);cur=null;}
+    else if(cur){
+      const i=line.indexOf(':'); if(i<0) return;
+      const k=line.slice(0,i), v=line.slice(i+1);
+      const key=k.split(';')[0];
+      if(key==='SUMMARY') cur.summary=v;
+      else if(key==='DTSTART') cur.start=icsParseDate(v);
+      else if(key==='DTEND') cur.end=icsParseDate(v);
+    }
+  });
+  return events;
+}
+async function syncMagnusFromIcs(){
+  const proxies=[
+    u=>'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u),
+    u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
+    u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+  ];
+  const url=ICS_URL+'?_='+Date.now();
+  let txt=null,lastErr=null;
+  for(const mk of proxies){
+    try{
+      const r=await fetch(mk(url),{cache:'no-store'});
+      if(!r.ok){lastErr='HTTP '+r.status;continue;}
+      const t=await r.text();
+      if(t.includes('BEGIN:VCALENDAR')){txt=t;break;}
+      lastErr='Ikke ICS';
+    }catch(e){lastErr=e.message;}
+  }
+  if(!txt){
+    console.warn('[ICS] kunne ikke hente kalender:',lastErr);
+    try{const c=localStorage.getItem('magnusIcs'); if(c){MAGNUS=new Set(JSON.parse(c)); console.log('[ICS] bruker cache');try{renderSleep&&renderSleep();}catch(e){}}}catch(e){}
+    return;
+  }
+  const evs=parseIcs(txt).filter(e=>e.summary && ICS_MATCH.test(e.summary) && e.start);
+  if(!evs.length){console.warn('[ICS] ingen "barna hos pappa"-hendelser funnet');return;}
+  const next=new Set();
+  evs.forEach(e=>{
+    const d=new Date(e.start); const end=e.end||new Date(e.start.getTime()+86400000);
+    while(d<end){ next.add(ymd(d)); d.setDate(d.getDate()+1); }
+  });
+  MAGNUS=next;
+  try{localStorage.setItem('magnusIcs',JSON.stringify([...next]));localStorage.setItem('magnusIcsAt',Date.now());}catch(e){}
+  console.log('[ICS] synkronisert',next.size,'dager fra familie-kalenderen');
+  try{renderSleep&&renderSleep();}catch(e){}
+}
+
+// kjør ved oppstart + hver 30. min
+(function(){
+  try{const c=localStorage.getItem('magnusIcs'); if(c){MAGNUS=new Set(JSON.parse(c));}}catch(e){}
+  setTimeout(syncMagnusFromIcs,1500);
+  setInterval(syncMagnusFromIcs,30*60*1000);
+})();
+
 
 /* ════════ STATE ════════ */
 const DEFAULT_REWARDS={
