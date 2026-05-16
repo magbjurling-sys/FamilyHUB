@@ -2281,16 +2281,29 @@ function renderDressingTV(){
   o.classList.add('on');
 }
 
-function renderTvAllowedTV(){
-  // Overlegget vises KUN som tidsavgrenset feiring via tvAllowedCelebrate().
-  // Aldri auto-vis basert på state — det førte til at TV ble stuck i "Barne-TV på!".
+let tvAllowedTimer=null;
+let tvAllowedUntil=0;
+function forceHideTvAllowed(){
   const o=document.getElementById('tv-allowed-tv');if(!o)return;
-  if(!bothCheckedIn()||!bothDressed()){o.classList.remove('on');}
+  o.classList.remove('on');
+  o.style.display='none';
+  o.setAttribute('aria-hidden','true');
+}
+function renderTvAllowedTV(){
+  // Dette overlayet skal aldri følge lagret state. Hvis ingen fersk feiring kjører,
+  // tving det helt vekk slik refresh/tick ikke kan bli stående i "Barne-TV på!".
+  if(!tvAllowedUntil||Date.now()>tvAllowedUntil){forceHideTvAllowed();return;}
+  if(!bothCheckedIn()||!bothDressed()){tvAllowedUntil=0;forceHideTvAllowed();}
 }
 
 function tvAllowedCelebrate(){
   const dr=document.getElementById('dressing-tv');if(dr)dr.classList.remove('on');
-  renderTvAllowedTV();
+  const o=document.getElementById('tv-allowed-tv');if(!o)return;
+  tvAllowedUntil=Date.now()+9000;
+  if(tvAllowedTimer)clearTimeout(tvAllowedTimer);
+  o.style.display='flex';
+  o.removeAttribute('aria-hidden');
+  o.classList.add('on');
   try{playDing(3);}catch(e){}
   if(typeof confetti==='function'){
     const palette=['#ffd246','#ff7ac6','#5ec8ff','#86efac','#fff'];
@@ -2303,7 +2316,7 @@ function tvAllowedCelebrate(){
       if(Date.now()<end)requestAnimationFrame(frame);
     })();
   }
-  setTimeout(()=>{const o=document.getElementById('tv-allowed-tv');if(o)o.classList.remove('on');},9000);
+  tvAllowedTimer=setTimeout(()=>{tvAllowedUntil=0;forceHideTvAllowed();},9000);
 }
 
 function renderCheckinRemote(){
@@ -2801,6 +2814,8 @@ function init(){
     setInterval(nextPhoto,7000);
     loadWeather(); setInterval(loadWeather,30*60*1000);
     connectMqtt(pairCode,'tv');
+    forceHideTvAllowed();
+    window.addEventListener('pageshow',()=>{if(!tvAllowedUntil||Date.now()>tvAllowedUntil)forceHideTvAllowed();});
     if(url.searchParams.get('awaytest')==='1'){state.manualMode=false; setMode();}
     if(url.searchParams.get('sunrise')==='1'){setTimeout(()=>{try{sunriseCelebrate();}catch(e){}},800);}
   }
