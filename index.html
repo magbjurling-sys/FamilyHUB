@@ -57,6 +57,14 @@
   /* photo carousel — høyre side, full høyde, uten blur-ramme.
      Container er portrett-formet og bildene fyller via object-fit:cover. */
   .photo{grid-column:3/4;grid-row:1/4;border-radius:32px;overflow:hidden;position:relative;background:#0a0420;min-height:560px}
+  #kids-tv{position:absolute;inset:0;z-index:5;background:#000;display:none}
+  #kids-tv.on{display:block}
+  #kids-tv iframe{width:100%;height:100%;border:0;display:block}
+  #kids-tv .kt-badge{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.7);color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;padding:8px 14px;border-radius:14px;backdrop-filter:blur(8px);z-index:6;box-shadow:0 4px 16px rgba(0,0,0,.5);display:flex;align-items:center;gap:8px}
+  #kids-tv .kt-badge .em{font-size:22px}
+  #kids-tv .kt-warn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.5);background:linear-gradient(135deg,#ff7ac6,#ffd246);color:#1a0640;font-family:'Fredoka',sans-serif;font-weight:800;font-size:42px;padding:24px 40px;border-radius:28px;box-shadow:0 20px 60px rgba(0,0,0,.6);z-index:7;opacity:0;pointer-events:none;text-align:center;line-height:1.2}
+  #kids-tv .kt-warn.show{animation:ktWarn 4s ease-out forwards}
+  @keyframes ktWarn{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}}
   .photo .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
   .photo .slide.on{opacity:1}
   .photo .slide img{width:100%;height:100%;object-fit:cover;display:block}
@@ -1066,9 +1074,22 @@
         <button class="r-mode-btn reset" style="font-size:14px;padding:10px" onclick="adultImportState()">⬆ Importer data (JSON)</button>
         <button class="r-mode-btn reset" style="font-size:14px;padding:10px;background:rgba(255,80,80,.25);color:#ffb5b5" onclick="adultFullReset()">🗑️ Full nullstilling (alt!)</button>
       </div>
+
+      <div class="r-card" id="r-admin-kidstv" style="display:none">
+        <div style="font-family:'Fredoka';font-weight:600;font-size:18px;margin-bottom:4px">📺 Kids-TV videoer</div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:10px">YouTube-URLer som spilles av på TV-en i 10 min etter at begge har kledd på seg. Én URL per linje. Avspilles i tilfeldig rekkefølge.</div>
+        <textarea id="r-kidstv-input" placeholder="https://www.youtube.com/watch?v=XqZsoesa55w&#10;https://youtu.be/4eMxPyKpVH8&#10;https://www.youtube.com/watch?v=D1OL6oxLh6w" style="width:100%;min-height:140px;background:rgba(0,0,0,.35);border:1px solid var(--line);color:#fff;border-radius:12px;padding:12px;font-family:monospace;font-size:13px;resize:vertical"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button class="r-mode-btn" style="background:linear-gradient(135deg,#4ade80,#22c55e);font-size:14px;padding:10px;flex:1;min-width:140px" onclick="saveKidsTvUrls()">💾 Lagre liste</button>
+          <button class="r-mode-btn" style="background:rgba(94,200,255,.18);color:#7cd3ff;font-size:14px;padding:10px;flex:1;min-width:140px" onclick="testKidsTv()">▶ Test nå (15s)</button>
+        </div>
+        <div id="r-kidstv-status" style="font-size:12px;color:var(--dim);margin-top:8px"></div>
+      </div>
     </div>
 
+
   </div>
+
 </div>
 
 <!-- ───── DEMO OVERLAY ───── -->
@@ -1524,7 +1545,9 @@ function handleMsg(m,role){
     if(m.type==='confetti'){ celebrate(); }
     if(m.type==='sunrise'){ sunriseCelebrate(); }
     if(m.type==='photo'){ nextPhoto(); }
+    if(m.type==='kidstvtest'){ try{startKidsTv({test:true});}catch(e){} }
   }
+  if(m.type==='setkidstv'){ if(Array.isArray(m.list)){ state.kidsTvUrls=m.list; save(); try{localStorage.setItem('kidsTvUrls',JSON.stringify(m.list));}catch(e){} broadcastState(); } }
   if(role==='remote'){
     if(m.type==='state'){
       const incoming=m.state||{};
@@ -1553,13 +1576,13 @@ function adultUnlocked(){return Date.now()<pinOkUntil}
 function refreshAdultUI(){
   const ok=adultUnlocked();
   const ids=['r-reset-emma','r-reset-nora','r-reset-pappa','r-reset-all','r-lock-btn','r-morning-admin',
-             'r-admin-themes','r-admin-profiles','r-admin-cats','r-admin-morning-wrap','r-admin-demo','r-admin-data'];
+             'r-admin-themes','r-admin-profiles','r-admin-cats','r-admin-morning-wrap','r-admin-demo','r-admin-data','r-admin-kidstv'];
   ids.forEach(id=>{const el=document.getElementById(id); if(el) el.style.display=ok?'block':'none';});
   const u=document.getElementById('r-unlock-btn'); if(u) u.style.display=ok?'none':'block';
   const au=document.getElementById('r-admin-unlock'); if(au) au.style.display=ok?'none':'block';
   const as=document.getElementById('r-admin-status'); if(as) as.textContent=ok?'✅ Voksenmodus aktiv (10 min). Alle innstillinger er åpne.':'Lås opp for å redigere alle innstillinger.';
   const s=document.getElementById('r-adult-status'); if(s) s.textContent=ok?'✅ Voksenmodus aktiv – minus-knapper synlige på stjerner':'Lås opp med PIN for å justere stjerner';
-  if(ok){renderThemeGrid();renderProfilesEditor();renderCatsEditor();}
+  if(ok){renderThemeGrid();renderProfilesEditor();renderCatsEditor();try{populateKidsTvField();}catch(e){}}
   if(typeof renderRemote==='function') renderRemote();
 }
 function adultUnlock(){
@@ -2387,7 +2410,138 @@ function tvAllowedCelebrate(){
     })();
   }
   tvAllowedTimer=setTimeout(()=>{tvAllowedUntil=0;forceHideTvAllowed();},9000);
+  // Start Kids-TV på selve TV-en (kun én gang pr dag)
+  try{startKidsTv();}catch(e){console.warn('kids-tv:',e);}
 }
+
+/* ════════ KIDS-TV (10 min YouTube etter dressing) ════════ */
+// Standardliste — kan overstyres via Admin → Kids-TV videoer (lagres i localStorage).
+const KIDS_VIDEO_IDS_DEFAULT=[
+  'XqZsoesa55w','4eMxPyKpVH8','D1OL6oxLh6w','pWepfJ-8XU0','_Ir0Mc6Qilo'
+];
+const KIDS_TV_MINUTES=10;
+let kidsTvTimer=null, kidsTvTickTimer=null, kidsTvEndAt=0, kidsTvTestMode=false;
+
+function extractYoutubeId(s){
+  if(!s) return null;
+  s=s.trim();
+  if(/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+  let m=s.match(/[?&]v=([A-Za-z0-9_-]{11})/); if(m) return m[1];
+  m=s.match(/youtu\.be\/([A-Za-z0-9_-]{11})/); if(m) return m[1];
+  m=s.match(/youtube\.com\/(?:embed|shorts|v)\/([A-Za-z0-9_-]{11})/); if(m) return m[1];
+  return null;
+}
+function getKidsVideoIds(){
+  try{
+    if(state && Array.isArray(state.kidsTvUrls) && state.kidsTvUrls.length) return state.kidsTvUrls;
+    const raw=localStorage.getItem('kidsTvUrls');
+    if(raw){
+      const arr=JSON.parse(raw);
+      if(Array.isArray(arr) && arr.length) return arr;
+    }
+  }catch(e){}
+  return KIDS_VIDEO_IDS_DEFAULT;
+}
+function kidsTvUsedToday(){
+  try{return localStorage.getItem('kidsTvDay')===ymd(new Date());}catch(e){return false;}
+}
+function markKidsTvUsed(){
+  try{localStorage.setItem('kidsTvDay',ymd(new Date()));}catch(e){}
+}
+function startKidsTv(opts){
+  opts=opts||{};
+  const test=!!opts.test;
+  if(isPhone && !test) return;
+  if(!test && kidsTvUsedToday()) return;
+  const VIDS=getKidsVideoIds();
+  if(!VIDS||!VIDS.length) return;
+  const photo=document.getElementById('photo'); if(!photo) return;
+  if(document.getElementById('kids-tv')) return;
+
+  if(!test) markKidsTvUsed();
+  kidsTvTestMode=test;
+
+  const ids=[...VIDS].sort(()=>Math.random()-0.5);
+  const first=ids[0], rest=ids.slice(1).join(',');
+  const src=`https://www.youtube.com/embed/${first}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1&playlist=${rest}`;
+  const totalSec=test?15:KIDS_TV_MINUTES*60;
+
+
+  const wrap=document.createElement('div');
+  wrap.id='kids-tv';
+  wrap.innerHTML=`
+    <div class="kt-badge"><span class="em">📺</span><span id="kt-count">--:--</span></div>
+    <iframe src="${src}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div class="kt-warn" id="kt-warn"></div>
+  `;
+  photo.appendChild(wrap);
+  requestAnimationFrame(()=>wrap.classList.add('on'));
+
+  kidsTvEndAt=Date.now()+totalSec*1000;
+  let warned5=false, warned1=false;
+
+  function tick(){
+    const left=Math.max(0,Math.round((kidsTvEndAt-Date.now())/1000));
+    const mm=String(Math.floor(left/60)).padStart(2,'0');
+    const ss=String(left%60).padStart(2,'0');
+    const c=document.getElementById('kt-count'); if(c) c.textContent=mm+':'+ss;
+    if(!test){
+      if(!warned5 && left<=5*60 && left>5*60-3){warned5=true; kidsTvWarn('⏰ 5 minutter igjen av TV-tid');}
+      if(!warned1 && left<=60 && left>60-3){warned1=true; kidsTvWarn('⚠️ 1 minutt igjen!');}
+    }
+    if(left<=0){stopKidsTv();}
+  }
+  tick();
+  kidsTvTickTimer=setInterval(tick,1000);
+  kidsTvTimer=setTimeout(stopKidsTv,totalSec*1000+500);
+}
+function kidsTvWarn(msg){
+  const w=document.getElementById('kt-warn'); if(!w) return;
+  w.textContent=msg;
+  w.classList.remove('show');
+  void w.offsetWidth; // restart anim
+  w.classList.add('show');
+  try{playDing(2);}catch(e){}
+}
+function stopKidsTv(){
+  if(kidsTvTimer){clearTimeout(kidsTvTimer);kidsTvTimer=null;}
+  if(kidsTvTickTimer){clearInterval(kidsTvTickTimer);kidsTvTickTimer=null;}
+  const wrap=document.getElementById('kids-tv');
+  if(wrap){
+    // Stopp YouTube ved å fjerne iframe (kutter all lyd/video)
+    const f=wrap.querySelector('iframe'); if(f) f.src='about:blank';
+    wrap.remove();
+  }
+  kidsTvEndAt=0;
+}
+
+/* Admin: Kids-TV URL-liste */
+function populateKidsTvField(){
+  const ta=document.getElementById('r-kidstv-input'); if(!ta) return;
+  const ids=getKidsVideoIds();
+  if(ta.value.trim()==='') ta.value=ids.map(id=>'https://www.youtube.com/watch?v='+id).join('\n');
+  const st=document.getElementById('r-kidstv-status');
+  if(st) st.textContent=ids.length+' videoer aktive'+(ids===KIDS_VIDEO_IDS_DEFAULT?' (standardliste)':'');
+}
+function saveKidsTvUrls(){
+  const ta=document.getElementById('r-kidstv-input'); if(!ta) return;
+  const lines=ta.value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const ids=[], bad=[];
+  lines.forEach(l=>{const id=extractYoutubeId(l); if(id) ids.push(id); else bad.push(l);});
+  const st=document.getElementById('r-kidstv-status');
+  if(!ids.length){if(st)st.innerHTML='<span style="color:#ff9b9b">⚠ Fant ingen gyldige YouTube-URLer</span>';return;}
+  try{localStorage.setItem('kidsTvUrls',JSON.stringify(ids));}catch(e){}
+  state.kidsTvUrls=ids; save();
+  try{cmd('setkidstv',null,{list:ids});}catch(e){}
+  if(st) st.innerHTML=`✅ Lagret ${ids.length} video${ids.length===1?'':'er'}${bad.length?` <span style="color:#ffb37a">(${bad.length} ugyldig linje${bad.length===1?'':'r'} hoppet over)</span>`:''}`;
+}
+function testKidsTv(){
+  try{cmd('kidstvtest');}catch(e){}
+  if(!isPhone){try{startKidsTv({test:true});}catch(e){}}
+  const st=document.getElementById('r-kidstv-status');
+  if(st) st.innerHTML='▶ Sendt test til TV (15 sek)';
+}
+
 
 function renderCheckinRemote(){
   const el=document.getElementById('r-checkin-wrap');if(!el)return;
